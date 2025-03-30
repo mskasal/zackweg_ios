@@ -1,0 +1,208 @@
+// MARK: - Common
+"common.ok" = "Tamam";
+"common.cancel" = "İptal";
+"common.save" = "Kaydet";
+"common.delete" = "Sil";
+"common.edit" = "Düzenle";
+"common.done" = "Kapat";
+"common.error" = "Hata";
+"common.success" = "Başarılı";
+"common.loading" = "Yükleniyor...";
+"common.free" = "ÜCRETSİZ";
+"common.all" = "Tümü";
+"common.clear" = "Temizle";
+"common.close" = "Kapat";
+"common.send" = "Gönder";
+"common.select" = "Seç";
+
+// MARK: - Authentication
+"auth.sign_in" = "Giriş Yap";
+"auth.sign_up" = "Kayıt Ol";
+"auth.sign_out" = "Çıkış Yap";
+"auth.email" = "E-posta";
+"auth.password" = "Şifre";
+"auth.forgot_password" = "Şifreni mi unuttun?";
+"auth.reset_password" = "Şifreyi Sıfırla";
+"auth.confirm_password" = "Şifreyi Doğrula";
+"auth.new_password" = "Yeni Şifre";
+"auth.current_password" = "Mevcut Şifre";
+"auth.invalid_email" = "Geçersiz e-posta adresi";
+"auth.invalid_password" = "Şifre en az 8 karakter olmalıdır";
+"auth.password_mismatch" = "Şifreler eşleşmiyor";
+"auth.welcome_back" = "ZackWeg'e Hoş Geldiniz!";
+"auth.sign_in_to_account" = "Hesabına giriş yap";
+"auth.no_account" = "Hesabın yok mu?";
+"auth.fix_form_errors" = "Lütfen form hatalarını düzelt";
+"auth.create_account" = "Hesap Oluştur";
+"auth.create_account_subtitle" = "Keşfetmeye başlamak için kaydol";
+"auth.nickname" = "Kullanıcı adı";
+"auth.location" = "Konum";
+"auth.postal_code" = "Posta Kodu";
+"auth.country" = "Ülke";
+"auth.terms_agree" = "Kaydolarak, Kullanım Koşullarımızı ve Gizlilik Politikamızı kabul etmiş olursun";
+"auth.already_have_account" = "Zaten hesabın var mı?";
+"auth.reset_instructions" = "Şifre sıfırlama talimatları için e-posta adresinizi girin";
+"auth.email_sent" = "E-posta gönderildi";
+"auth.check_email" = "Şifre sıfırlama talimatları için lütfen e-postanızı kontrol edin";
+"auth.country_germany" = "Almanya";
+"auth.postal_code_required" = "Posta kodu gereklidir";
+"auth.nickname_required" = "Kullanıcı adı gereklidir";
+
+// MARK: - Profile
+"profile.title" = "Profil";
+"profile.edit" = "Profili Düzenle";
+"profile.nickname" = "Kullanıcı Adı";
+"profile.email" = "E-posta";
+"profile.location" = "Konum";
+"profile.postal_code" = "Posta Kodu";
+"profile.country" = "Ülke";
+
+// MARK: - Posts
+"posts.title" = "İlanlar";
+"posts.create" = "İlan Oluştur";
+"posts.edit" = "İlanı Düzenle";
+"posts.delete" = "İlanı Sil";
+"posts.title_field" = "Başlık";
+"posts.description" = "Açıklama";
+"posts.category" = "Kategori";
+"posts.price" = "Fiyat";
+"posts.price_placeholder" = "0,00";
+"posts.images" = "Görseller";
+"posts.offering" = "Teklif";
+"posts.search" = "İlanları Ara";
+"posts.none" = "İlan bulunamadı";
+"posts.create_new" = "Yeni İlan Oluştur";
+"posts.share_with_community" = "Eşyalarını toplulukla paylaş";
+"posts.enter_title" = "Açıklayıcı bir başlık gir";
+"posts.title_required" = "Başlık gereklidir";
+"posts.description_required" = "Açıklama gereklidir";
+"posts.details" = "İLAN DETAYLARI";
+"posts.photos" = "FOTOĞRAFLAR";
+"posts.category_required" = "Kategori gereklidir";
+"posts.loading_categories" = "Kategoriler yükleniyor...";
+"posts.offering_question" = "Bu eşyayı nasıl teklif etmek istersin?";
+"posts.give_away" = "Ücretsiz Ver";
+"posts.give_away_desc" = "Bu eşyayı ihtiyacı olan birine ücretsiz olarak sun";
+"posts.sell" = "Bir Fiyata Sat";
+"posts.sell_desc" = "Bir fiyat belirle ve bu eşyayı sat";
+"posts.price_currency" = "Fiyat (€)";
+"posts.select_images" = "Görsel Seç";
+"posts.images_help" = "Eşyanı göstermek için 5 adete kadar görsel ekle";
+"posts.images_count" = "%d/5 görsel seçildi";
+"posts.images_footer" = "Görseller eşyanın fark edilmesine yardımcı olur. İlk görsel kapak fotoğrafın olacak.";
+"posts.location" = "KONUM";
+"posts.posting_location" = "İlan Konumu";
+"posts.from_profile" = "Profilinden";
+"posts.location_unavailable" = "Konum Kullanılamıyor";
+"posts.update_location" = "Lütfen profilini geçerli bir konumla güncelle";
+"posts.location_footer" = "Eşyalar bu konumun yakınındaki kullanıcılara gösterilecek";
+"posts.fill_required" = "Lütfen tüm gerekli alanları doldur";
+"posts.post_created" = "İlanın başarıyla oluşturuldu!";
+
+// MARK: - Categories
+"categories.title" = "Kategoriler";
+"categories.select" = "Kategori Seç";
+
+// MARK: - Messages
+"messages.title" = "Mesajlar";
+"messages.conversations" = "Konuşmalar";
+"messages.new" = "Yeni Mesaj";
+"messages.type" = "Bir mesaj yaz...";
+"messages.send" = "Gönder";
+"messages.none" = "Mesaj yok";
+"messages.conversation_empty" = "Henüz mesaj yok. Bir konuşma başlat!";
+"messages.no_conversations" = "Henüz konuşma yok";
+"messages.empty_state_message" = "Diğer kullanıcılarla bir konuşma başlattığında, burada görünecek";
+"messages.explore_to_message" = "Başlamak için ilanları keşfet ve satıcılara mesaj gönder";
+
+// MARK: - Settings
+"settings.title" = "Ayarlar";
+"settings.language" = "Dil";
+"settings.notifications" = "Bildirimler";
+"settings.privacy" = "Gizlilik Politikası";
+"settings.terms" = "Kullanım Koşulları";
+"settings.about" = "Hakkında";
+"settings.account" = "Hesap";
+"settings.app" = "Uygulama Ayarları";
+"settings.support" = "Destek";
+"settings.help" = "Yardım ve Destek";
+"settings.terms_privacy" = "Koşullar ve Gizlilik";
+"settings.version" = "Sürüm";
+"settings.sign_out_confirmation" = "Çıkış yapmak istediğine emin misin?";
+"settings.update_profile" = "Profili Güncelle";
+"settings.update_password" = "Şifreyi Güncelle";
+"settings.personal_information" = "Kişisel Bilgiler";
+"settings.nickname_empty" = "Kullanıcı adı boş olamaz";
+"settings.profile_updated" = "Profil güncellendi";
+"settings.profile_update_success" = "Profiliniz başarıyla güncellendi";
+"settings.password_empty" = "Şifre boş";
+"settings.password_weak" = "Zayıf şifre";
+"settings.password_medium" = "Orta güçte";
+"settings.password_strong" = "Güçlü şifre";
+"settings.change_password" = "Şifre Değiştir";
+"settings.requirements" = "Gereksinimler";
+"settings.password_requirements" = "Şifre en az 6 karakter uzunluğunda olmalı ve en iyi güvenlik için büyük harfler, küçük harfler, rakamlar ve özel karakterlerin bir karışımını içermelidir.";
+"settings.req_min_chars" = "En az 6 karakter";
+"settings.req_uppercase" = "Büyük harf içerir";
+"settings.req_lowercase" = "Küçük harf içerir";
+"settings.req_number" = "Rakam içerir";
+"settings.req_special" = "Özel karakter içerir";
+"settings.password_updated" = "Şifre güncellendi";
+"settings.password_update_success" = "Şifreniz başarıyla güncellendi";
+"settings.location" = "Konum";
+"settings.postal_code_empty" = "Posta kodu boş olamaz";
+"settings.invalid_email" = "Lütfen geçerli bir e-posta adresi girin";
+
+// MARK: - Errors
+"error.network" = "Ağ hatası oluştu";
+"error.server" = "Sunucu hatası oluştu";
+"error.unauthorized" = "Yetkisiz erişim";
+"error.unknown" = "Bilinmeyen bir hata oluştu";
+
+// MARK: - Time
+"time.just_now" = "Az önce";
+"time.minute_ago" = "1 dakika önce";
+"time.minutes_ago" = "%d dakika önce";
+"time.hour_ago" = "1 saat önce";
+"time.hours_ago" = "%d saat önce";
+"time.yesterday" = "Dün";
+"time.days_ago" = "%d gün önce";
+"time.week_ago" = "1 hafta önce";
+"time.weeks_ago" = "%d hafta önce";
+
+// MARK: - Explore
+"explore.title" = "Keşfet";
+"explore.search_placeholder" = "İlanları ara...";
+"explore.no_posts" = "İlan bulunamadı";
+"explore.filter_location" = "Konum";
+"explore.filter_radius" = "Yarıçap";
+"explore.filter_distance_km" = "%d km";
+"explore.filter_categories" = "Kategoriler";
+"explore.filter_subcategories" = "Alt Kategoriler";
+"explore.filter_offering" = "Teklif";
+"explore.filter_all_in" = "%@ içindeki tümü";
+"explore.offering_giving_away" = "Ücretsiz";
+"explore.clear_filters" = "Tüm Filtreleri Temizle";
+"explore.filters" = "Filtreler";
+"explore.apply_filters" = "Uygula";
+"explore.map_title" = "İlan Haritası";
+"explore.failed_categories" = "Kategoriler yüklenemedi";
+
+// MARK: - Post Detail
+"post_detail.details" = "DETAYLAR";
+"post_detail.description" = "AÇIKLAMA";
+"post_detail.message_seller" = "Satıcıya Mesaj Gönder";
+"post_detail.report_post" = "İlanı Bildir";
+"post_detail.new_message" = "Yeni Mesaj";
+"post_detail.send_message_to" = "%@ kişisine bir mesaj gönder";
+"post_detail.the_seller" = "satıcıya";
+"post_detail.posted_time_ago" = "%@ paylaşıldı";
+"post_detail.additional_info" = "Daha fazla bilgi ver (isteğe bağlı)";
+
+// MARK: - Report
+"report.title" = "İlanı Bildir";
+"report.instructions" = "Lütfen bu ilanı bildirmek için bir neden seç.";
+"report.reason" = "NEDEN";
+"report.additional_details" = "EK DETAYLAR";
+"report.more_info_placeholder" = "Daha fazla bilgi ver (isteğe bağlı)";
+"report.submit" = "Bildirimi Gönder"; 

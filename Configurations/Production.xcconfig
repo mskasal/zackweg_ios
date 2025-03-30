@@ -1,0 +1,15 @@
+// Production.xcconfig
+// Configuration for Production environment
+
+// API Configuration
+API_BASE_URL = https://api.zackweg.com
+API_VERSION = v1
+
+// Environment
+ENV_NAME = Production
+LOG_LEVEL = ERROR
+ENABLE_DEBUG_MENU = NO
+
+// Build Settings
+// INFOPLIST_FILE = zack_weg_ios/Info.plist  // Commented out to avoid duplication
+PRODUCT_BUNDLE_IDENTIFIER = com.zackweg.ios 

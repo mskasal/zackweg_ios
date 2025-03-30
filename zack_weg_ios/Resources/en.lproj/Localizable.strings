@@ -1,0 +1,208 @@
+// MARK: - Common
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.save" = "Save";
+"common.delete" = "Delete";
+"common.edit" = "Edit";
+"common.done" = "Done";
+"common.error" = "Error";
+"common.success" = "Success";
+"common.loading" = "Loading...";
+"common.free" = "FREE";
+"common.all" = "All";
+"common.clear" = "Clear";
+"common.close" = "Close";
+"common.send" = "Send";
+"common.select" = "Select";
+
+// MARK: - Authentication
+"auth.sign_in" = "Sign In";
+"auth.sign_up" = "Sign Up";
+"auth.sign_out" = "Sign Out";
+"auth.email" = "Email";
+"auth.password" = "Password";
+"auth.forgot_password" = "Forgot Password?";
+"auth.reset_password" = "Reset Password";
+"auth.confirm_password" = "Confirm Password";
+"auth.new_password" = "New Password";
+"auth.current_password" = "Current Password";
+"auth.invalid_email" = "Invalid email address";
+"auth.invalid_password" = "Password must be at least 8 characters";
+"auth.password_mismatch" = "Passwords do not match";
+"auth.welcome_back" = "Welcome to ZackWeg!";
+"auth.sign_in_to_account" = "Sign in to your account";
+"auth.no_account" = "Don't have an account?";
+"auth.fix_form_errors" = "Please fix the form errors";
+"auth.create_account" = "Create Account";
+"auth.create_account_subtitle" = "Sign up to start exploring";
+"auth.nickname" = "Nickname";
+"auth.location" = "Location";
+"auth.postal_code" = "Postal Code";
+"auth.country" = "Country";
+"auth.terms_agree" = "By signing up, you agree to our Terms of Service and Privacy Policy";
+"auth.already_have_account" = "Already have an account?";
+"auth.reset_instructions" = "Enter your email to get password reset instructions";
+"auth.email_sent" = "Email sent";
+"auth.check_email" = "Please check your email for password reset instructions";
+"auth.country_germany" = "Germany";
+"auth.postal_code_required" = "Postal code is required";
+"auth.nickname_required" = "Nickname is required";
+
+// MARK: - Profile
+"profile.title" = "Profile";
+"profile.edit" = "Edit Profile";
+"profile.nickname" = "Nickname";
+"profile.email" = "Email";
+"profile.location" = "Location";
+"profile.postal_code" = "Postal Code";
+"profile.country" = "Country";
+
+// MARK: - Posts
+"posts.title" = "Posts";
+"posts.create" = "Create Post";
+"posts.edit" = "Edit Post";
+"posts.delete" = "Delete Post";
+"posts.title_field" = "Title";
+"posts.description" = "Description";
+"posts.category" = "Category";
+"posts.price" = "Price";
+"posts.price_placeholder" = "0.00";
+"posts.images" = "Images";
+"posts.offering" = "Offering";
+"posts.search" = "Search Posts";
+"posts.none" = "No posts found";
+"posts.create_new" = "Create a New Post";
+"posts.share_with_community" = "Share your items with the community";
+"posts.enter_title" = "Enter a descriptive title";
+"posts.title_required" = "Title is required";
+"posts.description_required" = "Description is required";
+"posts.details" = "POST DETAILS";
+"posts.photos" = "PHOTOS";
+"posts.category_required" = "Category is required";
+"posts.loading_categories" = "Loading categories...";
+"posts.offering_question" = "How would you like to offer this item?";
+"posts.give_away" = "Give Away for Free";
+"posts.give_away_desc" = "Offer this item at no cost to someone who needs it";
+"posts.sell" = "Sell for a Price";
+"posts.sell_desc" = "Set a price and sell this item";
+"posts.price_currency" = "Price (€)";
+"posts.select_images" = "Select Images";
+"posts.images_help" = "Add up to 5 images to show your item";
+"posts.images_count" = "%d/5 images selected";
+"posts.images_footer" = "Images help your item get noticed. The first image will be your cover photo.";
+"posts.location" = "LOCATION";
+"posts.posting_location" = "Posting Location";
+"posts.from_profile" = "From your profile";
+"posts.location_unavailable" = "Location Unavailable";
+"posts.update_location" = "Please update your profile with a valid location";
+"posts.location_footer" = "Items will be shown to users near this location";
+"posts.fill_required" = "Please fill in all required fields";
+"posts.post_created" = "Your post has been created successfully!";
+
+// MARK: - Categories
+"categories.title" = "Categories";
+"categories.select" = "Select Category";
+
+// MARK: - Messages
+"messages.title" = "Messages";
+"messages.conversations" = "Conversations";
+"messages.new" = "New Message";
+"messages.type" = "Type a message...";
+"messages.send" = "Send";
+"messages.none" = "No messages";
+"messages.conversation_empty" = "No messages yet. Start a conversation!";
+"messages.no_conversations" = "No conversations yet";
+"messages.empty_state_message" = "When you start a conversation with other users, it will appear here";
+"messages.explore_to_message" = "Explore items and message sellers to get started";
+
+// MARK: - Settings
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.notifications" = "Notifications";
+"settings.privacy" = "Privacy Policy";
+"settings.terms" = "Terms of Service";
+"settings.about" = "About";
+"settings.account" = "Account";
+"settings.app" = "App Settings";
+"settings.support" = "Support";
+"settings.help" = "Help & Support";
+"settings.terms_privacy" = "Terms & Privacy";
+"settings.version" = "Version";
+"settings.sign_out_confirmation" = "Are you sure you want to sign out?";
+"settings.update_profile" = "Update Profile";
+"settings.update_password" = "Update Password";
+"settings.personal_information" = "Personal Information";
+"settings.nickname_empty" = "Nickname cannot be empty";
+"settings.profile_updated" = "Profile updated";
+"settings.profile_update_success" = "Your profile has been successfully updated";
+"settings.password_empty" = "Password empty";
+"settings.password_weak" = "Weak password";
+"settings.password_medium" = "Medium strength";
+"settings.password_strong" = "Strong password";
+"settings.change_password" = "Change Password";
+"settings.requirements" = "Requirements";
+"settings.password_requirements" = "Password must be at least 6 characters long and include a mix of uppercase letters, lowercase letters, numbers, and special characters for best security.";
+"settings.req_min_chars" = "At least 6 characters";
+"settings.req_uppercase" = "Contains uppercase letter";
+"settings.req_lowercase" = "Contains lowercase letter";
+"settings.req_number" = "Contains number";
+"settings.req_special" = "Contains special character";
+"settings.password_updated" = "Password updated";
+"settings.password_update_success" = "Your password has been successfully updated";
+"settings.location" = "Location";
+"settings.postal_code_empty" = "Postal code cannot be empty";
+"settings.invalid_email" = "Please enter a valid email address";
+
+// MARK: - Errors
+"error.network" = "Network error occurred";
+"error.server" = "Server error occurred";
+"error.unauthorized" = "Unauthorized access";
+"error.unknown" = "An unknown error occurred";
+
+// MARK: - Time
+"time.just_now" = "Just now";
+"time.minute_ago" = "1 minute ago";
+"time.minutes_ago" = "%d minutes ago";
+"time.hour_ago" = "1 hour ago";
+"time.hours_ago" = "%d hours ago";
+"time.yesterday" = "Yesterday";
+"time.days_ago" = "%d days ago";
+"time.week_ago" = "1 week ago";
+"time.weeks_ago" = "%d weeks ago";
+
+// MARK: - Explore
+"explore.title" = "Explore";
+"explore.search_placeholder" = "Search posts...";
+"explore.no_posts" = "No posts found";
+"explore.filter_location" = "Location";
+"explore.filter_radius" = "Radius";
+"explore.filter_distance_km" = "%d km";
+"explore.filter_categories" = "Categories";
+"explore.filter_subcategories" = "Subcategories";
+"explore.filter_offering" = "Offering";
+"explore.filter_all_in" = "All in %@";
+"explore.offering_giving_away" = "Free";
+"explore.clear_filters" = "Clear All Filters";
+"explore.filters" = "Filters";
+"explore.apply_filters" = "Apply";
+"explore.map_title" = "Posts Map";
+"explore.failed_categories" = "Failed to load categories";
+
+// MARK: - Post Detail
+"post_detail.details" = "DETAILS";
+"post_detail.description" = "DESCRIPTION";
+"post_detail.message_seller" = "Message Seller";
+"post_detail.report_post" = "Report Post";
+"post_detail.new_message" = "New Message";
+"post_detail.send_message_to" = "Send a message to %@";
+"post_detail.the_seller" = "the seller";
+"post_detail.posted_time_ago" = "Posted %@";
+"post_detail.additional_info" = "Provide more information (optional)";
+
+// MARK: - Report
+"report.title" = "Report Listing";
+"report.instructions" = "Please select a reason for reporting this listing.";
+"report.reason" = "REASON";
+"report.additional_details" = "ADDITIONAL DETAILS";
+"report.more_info_placeholder" = "Provide more information (optional)";
+"report.submit" = "Submit Report"; 

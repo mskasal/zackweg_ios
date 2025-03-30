@@ -1,0 +1,895 @@
+{
+    "info": {
+        "name": "Baby Stuff API",
+        "description": "API collection for Baby Stuff application",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "description": "Endpoints for user registration and authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "register"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"your_password\",\n    \"location\": {\n        \"postal_code\": \"13347\",\n        \"country_code\": \"DEU\"\n    },\n    \"nick_name\": \"TestUser\"\n}"
+                        },
+                        "description": "Register a new user with email, password, postal code, country (ISO 3166-1 alpha-3), and nickname"
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = JSON.parse(responseBody);",
+                                    "pm.collectionVariables.set(\"auth_token\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/login",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "login"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"your_password\"\n}"
+                        },
+                        "description": "Login with email and password to get authentication token"
+                    },
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = JSON.parse(responseBody);",
+                                    "pm.collectionVariables.set(\"auth_token\", jsonData.token);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/forgot-password",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "forgot-password"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\"\n}"
+                        },
+                        "description": "Request a password reset email"
+                    }
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/auth/reset-password",
+                            "host": ["{{base_url}}"],
+                            "path": ["auth", "reset-password"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"token\": \"your_reset_token\",\n    \"new_password\": \"new_password\"\n}"
+                        },
+                        "description": "Reset password using reset token"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Posts",
+            "description": "Endpoints for managing posts",
+            "item": [
+                {
+                    "name": "Create Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/posts",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Sample Post\",\n    \"description\": \"Post description\",\n    \"offering\": \"GIVING_AWAY\",\n    \"price\": 0,\n    \"category_id\": \"{{category_id}}\",\n    \"image_urls\": [\n        \"https://baby-stuff-root.s3.eu-central-1.amazonaws.com/post-images/macbook-pro-1.jpg\",\n        \"https://baby-stuff-root.s3.eu-central-1.amazonaws.com/post-images/macbook-pro-2.jpg\"\n    ]\n}"
+                        },
+                        "description": "Create a new post (requires authentication)"
+                    }
+                },
+                {
+                    "name": "Get All Posts",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts"]
+                        },
+                        "description": "Get all posts"
+                    }
+                },
+                {
+                    "name": "Get Posts by Category",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts?category_id={{category_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts"],
+                            "query": [
+                                {
+                                    "key": "category_id",
+                                    "value": "{{category_id}}"
+                                }
+                            ]
+                        },
+                        "description": "Get posts filtered by category"
+                    }
+                },
+                {
+                    "name": "Get Posts by User",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts?user_id={{user_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts"],
+                            "query": [
+                                {
+                                    "key": "user_id",
+                                    "value": "{{user_id}}"
+                                }
+                            ]
+                        },
+                        "description": "Get posts filtered by user"
+                    }
+                },
+                {
+                    "name": "Get Post by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts/{{post_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts", "{{post_id}}"]
+                        },
+                        "description": "Get a specific post by ID"
+                    }
+                },
+                {
+                    "name": "Report Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/reports",
+                            "host": ["{{base_url}}"],
+                            "path": ["reports"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"post_id\": \"{{post_id}}\",\n    \"reason\": \"INAPPROPRIATE_CONTENT\",\n    \"message\": \"This post contains inappropriate content\"\n}"
+                        },
+                        "description": "Report a post for inappropriate content or other issues (requires authentication)"
+                    }
+                },
+                {
+                    "name": "Search Posts by Location",
+                    "description": "Search for posts within a specified radius of a postal code location",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts/search?postal_code=10115&country_code=DEU&radius_km=1.0&limit=10&offset=0",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts", "search"],
+                            "query": [
+                                {
+                                    "key": "postal_code",
+                                    "value": "13347",
+                                    "description": "Postal code to search around"
+                                },
+                                {
+                                    "key": "country_code",
+                                    "value": "DEU",
+                                    "description": "ISO 3166-1 alpha-3 country code (e.g., DEU, USA, GBR)"
+                                },
+                                {
+                                    "key": "radius_km",
+                                    "value": "1.0",
+                                    "description": "Search radius in kilometers"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Maximum number of results to return"
+                                },
+                                {
+                                    "key": "offset",
+                                    "value": "0",
+                                    "description": "Number of results to skip"
+                                }
+                            ]
+                        }
+
+                    }
+                },
+                {
+                    "name": "Search Posts by Keyword and Location",
+                    "description": "Search for posts by keyword within a specified radius of a postal code location",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/posts/search?postal_code=10115&country_code=DEU&radius_km=1.0&keyword=test&limit=10&offset=0",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts", "search"],
+                            "query": [
+                                {
+                                    "key": "postal_code",
+                                    "value": "13347",
+                                    "description": "Postal code to search around"
+                                },
+                                {
+                                    "key": "country_code",
+                                    "value": "DEU",
+                                    "description": "ISO 3166-1 alpha-3 country code (e.g., DEU, USA, GBR)"
+                                },
+                                {
+                                    "key": "radius_km",
+                                    "value": "1.0",
+                                    "description": "Search radius in kilometers"
+                                },
+                                {
+                                    "key": "keyword",
+                                    "value": "test",
+                                    "description": "Optional keyword to search for in title and description"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10",
+                                    "description": "Maximum number of results to return"
+                                },
+                                {
+                                    "key": "offset",
+                                    "value": "0",
+                                    "description": "Number of results to skip"
+                                }
+                            ]
+                        }
+
+                    }
+                },
+                {
+                    "name": "Update Post",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/posts/{{post_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["posts", "{{post_id}}"],
+                            "variable": [
+                                {
+                                    "key": "post_id",
+                                    "value": "{{post_id}}",
+                                    "description": "ID of the post to update"
+                                }
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Updated Title\",\n    \"description\": \"Updated description\",\n    \"offering\": \"SOLD_AT_PRICE\",\n    \"price\": 25.99,\n    \"categoryId\": \"{{category_id}}\",\n    \"status\": \"ARCHIVED\",\n    \"imageIds\": [\"123e4567-e89b-12d3-a456-426614174000\"]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "description": "Update a post. All fields except price are required. Price is required when offering is SOLD_AT_PRICE. Non-editable fields: id, created_at, updated_at, location, country_code, postal_code"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Categories",
+            "description": "Endpoints for managing categories",
+            "item": [
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/categories",
+                            "host": ["{{base_url}}"],
+                            "path": ["categories"]
+                        },
+                        "description": "Get all available categories"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Messages",
+            "description": "Endpoints for managing conversations and messages",
+            "item": [
+                {
+                    "name": "Start Conversation",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/conversations",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "conversations"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"post_id\": \"{{post_id}}\",\n    \"message\": \"{{message}}\"\n}"
+                        },
+                        "description": "Start a new conversation about a post. Returns 409 Conflict if conversation already exists."
+                    },
+                    "response": [
+                        {
+                            "name": "Success",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{auth_token}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"post_id\": \"post-123\",\n    \"message\": \"{{message}}\"\n}"
+                                }
+                            },
+                            "status": "Created",
+                            "code": 201,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"id\": \"conv-123\",\n    \"user1\": \"user-123\",\n    \"user2\": \"user-456\",\n    \"post_id\": \"post-123\",\n    \"created_at\": \"2024-03-14T12:00:00Z\",\n    \"last_message\": null\n}"
+                        },
+                        {
+                            "name": "Conversation Exists",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    },
+                                    {
+                                        "key": "Authorization",
+                                        "value": "Bearer {{auth_token}}"
+                                    }
+                                ],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"post_id\": \"post-123\",\n    \"message\": \"{{message}}\"\n}"
+                                }
+                            },
+                            "status": "Conflict",
+                            "code": 409,
+                            "header": [
+                                {
+                                    "key": "Content-Type",
+                                    "value": "application/json"
+                                }
+                            ],
+                            "body": "{\n    \"error\": \"Conversation exists\",\n    \"message\": \"Conversation already exists for post post-123 between users user-123 and user-456\"\n}"
+                        }
+                    ]
+                },
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/send",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "send"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"conversation_id\": \"{{conversation_id}}\",\n    \"content\": \"Hello, I'm interested in your post!\"\n}"
+                        },
+                        "description": "Send a message in an existing conversation. Content cannot be empty or only whitespace.",
+                        "response": [
+                            {
+                                "name": "Success",
+                                "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        },
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"conversation_id\": \"conv-123\",\n    \"content\": \"Hello, I'm interested in your post!\"\n}"
+                                    }
+                                },
+                                "status": "Created",
+                                "code": 201,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "{\n    \"id\": \"msg-123\",\n    \"conversation_id\": \"conv-123\",\n    \"sender_id\": \"user-123\",\n    \"content\": \"Hello, I'm interested in your post!\",\n    \"created_at\": \"2024-03-14T12:00:00Z\",\n    \"is_read\": false\n}"
+                            },
+                            {
+                                "name": "Empty Content",
+                                "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json"
+                                        },
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n    \"conversation_id\": \"conv-123\",\n    \"content\": \"   \"\n}"
+                                    }
+                                },
+                                "status": "Bad Request",
+                                "code": 400,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "{\n    \"error\": \"Invalid message\",\n    \"message\": \"Message content cannot be empty or contain only whitespace\"\n}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get User Conversations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/conversations",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "conversations"]
+                        },
+                        "description": "Get all conversations for the authenticated user, ordered by last message timestamp.",
+                        "response": [
+                            {
+                                "name": "Success",
+                                "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ]
+                                },
+                                "status": "OK",
+                                "code": 200,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "[\n    {\n        \"id\": \"conv-123\",\n        \"user1\": \"user-123\",\n        \"user2\": \"user-456\",\n        \"post_id\": \"post-123\",\n        \"created_at\": \"2024-03-14T12:00:00Z\",\n        \"last_message\": {\n            \"id\": \"msg-123\",\n            \"conversation_id\": \"conv-123\",\n            \"sender_id\": \"user-456\",\n            \"content\": \"Hello!\",\n            \"created_at\": \"2024-03-14T12:00:00Z\",\n            \"is_read\": false\n        }\n    }\n]"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Conversation Messages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/conversations/{{conversation_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "conversations", "{{conversation_id}}"]
+                        },
+                        "description": "Get all messages in a conversation. User must be a participant.",
+                        "response": [
+                            {
+                                "name": "Success",
+                                "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ]
+                                },
+                                "status": "OK",
+                                "code": 200,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "{\n    \"conversation\": {\n        \"id\": \"conv-123\",\n        \"user1\": {\n            \"id\": \"user-123\",\n            \"nick_name\": \"User1\"\n        },\n        \"user2\": {\n            \"id\": \"user-456\",\n            \"nick_name\": \"User2\"\n        },\n        \"post_id\": \"post-123\",\n        \"created_at\": \"2024-03-14T12:00:00Z\",\n        \"last_message\": {\n            \"id\": \"msg-123\",\n            \"conversation_id\": \"conv-123\",\n            \"sender_id\": \"user-456\",\n            \"content\": \"Hello!\",\n            \"created_at\": \"2024-03-14T12:00:00Z\",\n            \"is_read\": true\n        }\n    },\n    \"messages\": [\n        {\n            \"id\": \"msg-122\",\n            \"conversation_id\": \"conv-123\",\n            \"sender_id\": \"user-123\",\n            \"content\": \"Hi there!\",\n            \"created_at\": \"2024-03-14T11:55:00Z\",\n            \"is_read\": true\n        },\n        {\n            \"id\": \"msg-123\",\n            \"conversation_id\": \"conv-123\",\n            \"sender_id\": \"user-456\",\n            \"content\": \"Hello!\",\n            \"created_at\": \"2024-03-14T12:00:00Z\",\n            \"is_read\": true\n        }\n    ]\n}"
+                            },
+                            {
+                                "name": "Not Found",
+                                "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ]
+                                },
+                                "status": "Not Found",
+                                "code": 404,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "{\n    \"error\": \"Conversation not found\",\n    \"message\": \"Conversation not found: conv-123\"\n}"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Mark Conversation as Read",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/conversations/{{conversation_id}}/read",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "conversations", "{{conversation_id}}", "read"]
+                        },
+                        "description": "Mark all messages in a conversation as read for the authenticated user.",
+                        "response": [
+                            {
+                                "name": "Success",
+                                "originalRequest": {
+                                    "method": "POST",
+                                    "header": [
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ]
+                                },
+                                "status": "OK",
+                                "code": 200
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Get Unread Count",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/messages/conversations/{{conversation_id}}/unread",
+                            "host": ["{{base_url}}"],
+                            "path": ["messages", "conversations", "{{conversation_id}}", "unread"]
+                        },
+                        "description": "Get the count of unread messages in a conversation for the authenticated user.",
+                        "response": [
+                            {
+                                "name": "Success",
+                                "originalRequest": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Authorization",
+                                            "value": "Bearer {{auth_token}}"
+                                        }
+                                    ]
+                                },
+                                "status": "OK",
+                                "code": 200,
+                                "header": [
+                                    {
+                                        "key": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "body": "{\n    \"count\": 5\n}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Upload Image",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "image/jpeg"
+                    },
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{auth_token}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/images/upload",
+                    "host": ["{{base_url}}"],
+                    "path": ["images", "upload"]
+                },
+                "body": {
+                    "mode": "file",
+                    "file": {
+                        "src": "/path/to/your/image.jpg"
+                    }
+                },
+                "description": "Upload an image (requires authentication)"
+            }
+        },
+        {
+            "name": "Users",
+            "description": "Endpoints for managing user profiles",
+            "item": [
+                {
+                    "name": "Get Public User Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{base_url}}/users/{{user_id}}",
+                            "host": ["{{base_url}}"],
+                            "path": ["users", "{{user_id}}"]
+                        },
+                        "description": "Get public user profile information (id and nickname)"
+                    }
+                },
+                {
+                    "name": "Get My Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/me",
+                            "host": ["{{base_url}}"],
+                            "path": ["users", "me"]
+                        },
+                        "description": "Get authenticated user's full profile information"
+                    }
+                },
+                {
+                    "name": "Update My Profile",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/me",
+                            "host": ["{{base_url}}"],
+                            "path": ["users", "me"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"newemail@example.com\",\n    \"location\": {\n        \"postal_code\": \"54321\",\n        \"country_code\": \"DEU\"\n    }\n}"
+                        },
+                        "description": "Update authenticated user's profile information (country_code must be ISO 3166-1 alpha-3)"
+                    }
+                },
+                {
+                    "name": "Update Password",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{auth_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/users/me/password",
+                            "host": ["{{base_url}}"],
+                            "path": ["users", "me", "password"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"current_password\": \"old_password\",\n    \"new_password\": \"new_password\"\n}"
+                        },
+                        "description": "Update authenticated user's password (requires current password verification)"
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "auth_token",
+            "value": "your_jwt_token_here",
+            "type": "string"
+        },
+        {
+            "key": "post_id",
+            "value": "your_post_id_here",
+            "type": "string"
+        },
+        {
+            "key": "category_id",
+            "value": "cc8329ec-8d66-461c-8f63-228afe4f7d53",
+            "type": "string"
+        },
+        {
+            "key": "other_user_id",
+            "value": "other_user_id_here",
+            "type": "string"
+        },
+        {
+            "key": "conversation_id",
+            "value": "your_conversation_id_here",
+            "type": "string"
+        },
+        {
+            "key": "user_id",
+            "value": "your_user_id_here",
+            "type": "string"
+        }
+    ]
+}

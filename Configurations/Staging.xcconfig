@@ -1,0 +1,15 @@
+// Staging.xcconfig
+// Configuration for Staging environment
+
+// API Configuration
+API_BASE_URL = https://staging-api.zackweg.com
+API_VERSION = v1
+
+// Environment
+ENV_NAME = Staging
+LOG_LEVEL = INFO
+ENABLE_DEBUG_MENU = YES
+
+// Build Settings
+// INFOPLIST_FILE = zack_weg_ios/Info.plist  // Commented out to avoid duplication
+PRODUCT_BUNDLE_IDENTIFIER = com.zackweg.ios.staging 
