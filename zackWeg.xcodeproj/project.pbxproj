@@ -226,7 +226,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "zackWeg-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(BUNDLE_DISPLAY_NAME)";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg Staging";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -385,7 +385,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "zackWeg-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(BUNDLE_DISPLAY_NAME)";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -426,7 +426,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "zackWeg-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
+				INFOPLIST_KEY_CFBundleDisplayName = "$(BUNDLE_DISPLAY_NAME)";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg\n";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

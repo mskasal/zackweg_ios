@@ -259,10 +259,11 @@ struct PostDetailView: View {
                     TextEditor(text: $viewModel.messageText)
                         .frame(minHeight: 150)
                         .padding(12)
-                        .background(Color(.systemGray6).opacity(0.5))
+                        .background(Color(.secondarySystemBackground))
                         .cornerRadius(12)
                         .padding(.horizontal, 20)
                         .padding(.top, 10)
+        
                     
                     if let error = viewModel.error {
                         Text(error)

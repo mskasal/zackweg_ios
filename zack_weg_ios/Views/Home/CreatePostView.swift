@@ -40,7 +40,7 @@ struct CategoryPill: View {
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemGray6))
+                .background(isSelected ? Color.blue : Color(.systemBackground))
                 .foregroundColor(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
