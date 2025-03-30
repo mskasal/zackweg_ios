@@ -33,6 +33,7 @@ struct MapView: View {
                     }
                 }
             }
+            .mapStyle(.standard(pointsOfInterest: [], showsTraffic: false))
             .navigationTitle("explore.map_title".localized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
