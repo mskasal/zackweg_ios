@@ -11,7 +11,7 @@ struct SplashView: View {
                     .edgesIgnoringSafeArea(.all)
                 
                 VStack {
-                    Image(themeManager.currentTheme == .dark ? "Logo-nobg" : "Logo-no-bg-reverse")
+                    Image(themeManager.currentTheme == .dark ? "Logo-nobg" : "Logo-no-bg-reverse-blue")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 240, height: 240)

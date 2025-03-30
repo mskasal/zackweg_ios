@@ -3,17 +3,8 @@ import SwiftUI
 struct DebugMenuView: View {
     @Environment(\.dismiss) private var dismiss
     
-    // We'd normally reference AppConfiguration directly, but for now use directly
-    // private var configValues = AppConfiguration.allConfigValues
-    
-    // Environment info from Info.plist or direct lookup
-    private var environmentInfo: (name: String, baseURL: String, isDebug: Bool) {
-        #if DEBUG
-        return ("Development", "http://localhost:8080", true)
-        #else
-        return ("Production", "https://api.zackweg.com", false)
-        #endif
-    }
+    // Use ConfigurationManager for environment info
+    private let configManager = ConfigurationManager.shared
     
     // App information from Bundle
     private var appName: String {
@@ -43,31 +34,51 @@ struct DebugMenuView: View {
                 }
                 
                 Section(header: Text("Environment")) {
-                    DebugInfoRow(label: "Environment", value: environmentInfo.name)
-                    DebugInfoRow(label: "API Base URL", value: environmentInfo.baseURL)
-                    DebugInfoRow(label: "Debug Mode", value: environmentInfo.isDebug ? "Enabled" : "Disabled")
+                    DebugInfoRow(label: "Environment", value: configManager.environmentName)
+                    DebugInfoRow(label: "API Base URL", value: configManager.apiBaseURL)
+                    DebugInfoRow(label: "API Version", value: configManager.apiVersion)
+                    DebugInfoRow(label: "Full API URL", value: configManager.apiBaseURLWithVersion)
+                    DebugInfoRow(label: "Log Level", value: configManager.logLevel)
+                    DebugInfoRow(label: "Debug Menu Enabled", value: configManager.isDebugMenuEnabled ? "Yes" : "No")
+                    DebugInfoRow(label: "Environment Type", value: getEnvironmentType())
                 }
                 
                 Section(header: Text("User")) {
-                    if let userId = UserDefaults.standard.string(forKey: "userId") {
+                    if let userId = KeychainManager.shared.getUserId() {
                         DebugInfoRow(label: "User ID", value: userId)
                     } else {
                         DebugInfoRow(label: "User ID", value: "Not logged in")
                     }
                     
-                    if let token = UserDefaults.standard.string(forKey: "authToken") {
+                    if let token = KeychainManager.shared.getAuthToken() {
                         DebugInfoRow(label: "Auth Token", value: String(token.prefix(20) + "..."))
                     } else {
                         DebugInfoRow(label: "Auth Token", value: "None")
                     }
+                    
+                    if let email = KeychainManager.shared.getUserEmail() {
+                        DebugInfoRow(label: "Email", value: email)
+                    }
+                    
+                    if let postalCode = KeychainManager.shared.getPostalCode() {
+                        DebugInfoRow(label: "Postal Code", value: postalCode)
+                    }
                 }
                 
                 Section {
+                    Button("Run Configuration Diagnostics") {
+                        configManager.runDiagnostics()
+                    }
+                    .foregroundColor(.blue)
+                    
                     Button(action: {
                         // Clear all UserDefaults (for testing)
                         let domain = Bundle.main.bundleIdentifier!
                         UserDefaults.standard.removePersistentDomain(forName: domain)
                         UserDefaults.standard.synchronize()
+                        
+                        // Clear keychain items
+                        KeychainManager.shared.clearAll()
                     }) {
                         Text("Clear User Data")
                             .foregroundColor(.red)
@@ -85,6 +96,19 @@ struct DebugMenuView: View {
                 }
             }
             #endif
+        }
+    }
+    
+    // Helper to determine environment type in readable format
+    private func getEnvironmentType() -> String {
+        if configManager.isDevelopment {
+            return "Development"
+        } else if configManager.isStaging {
+            return "Staging"
+        } else if configManager.isProduction {
+            return "Production"
+        } else {
+            return "Unknown"
         }
     }
 }
