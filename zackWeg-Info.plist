@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_BASE_DOMAIN</key>
+	<string>$(API_BASE_DOMAIN)</string>
+	<key>API_BASE_PROTOCOL</key>
+	<string>$(API_BASE_PROTOCOL)</string>
+	<key>API_VERSION</key>
+	<string>$(API_VERSION)</string>
+	<key>ENABLE_DEBUG_MENU</key>
+	<string>$(ENABLE_DEBUG_MENU)</string>
+	<key>ENV_NAME</key>
+	<string>$(ENV_NAME)</string>
+	<key>LOG_LEVEL</key>
+	<string>$(LOG_LEVEL)</string>
+</dict>
+</plist>

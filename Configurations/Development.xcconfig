@@ -2,7 +2,9 @@
 // Configuration for Development environment
 
 // API Configuration
-API_BASE_URL = http://localhost:8080
+API_BASE_PROTOCOL = http
+API_DOMAIN = localhost:8080
+
 API_VERSION = v1
 
 // Environment

@@ -282,7 +282,7 @@ struct SignUpView: View {
                     }
                     .padding(.top, 16)
                 }
-                .padding(.horizontal, 25).foregroundColor(.brandSecondary)
+                .padding(.horizontal, 25)
                 
                 Spacer()
             }

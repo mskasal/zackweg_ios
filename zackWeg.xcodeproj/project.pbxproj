@@ -6,16 +6,36 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		106305C22D99AA560067BBDD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 106305BE2D99A8140067BBDD /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		1030519E2D9983F000DD0BDD /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		1030519F2D9983F900DD0BDD /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		103051A22D99840A00DD0BDD /* Staging.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Staging.xcconfig; sourceTree = "<group>"; };
+		106305BA2D99982F0067BBDD /* zackWeg-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "zackWeg-Info.plist"; sourceTree = "<group>"; };
+		106305BB2D99A6580067BBDD /* zackWeg.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = zackWeg.entitlements; sourceTree = "<group>"; };
+		106305BE2D99A8140067BBDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		108513042D998CE30097F77C /* zackWeg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zackWeg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		106305C12D99AA4E0067BBDD /* Exceptions for "zack_weg_ios" folder in "zackWeg" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Preview Content/Preview Assets.xcassets",
+			);
+			target = 10832D292D934B0F0086754D /* zackWeg */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		10832D2C2D934B0F0086754D /* zack_weg_ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				106305C12D99AA4E0067BBDD /* Exceptions for "zack_weg_ios" folder in "zackWeg" target */,
+			);
 			path = zack_weg_ios;
 			sourceTree = "<group>";
 		};
@@ -35,11 +55,14 @@
 		10832D212D934B0F0086754D = {
 			isa = PBXGroup;
 			children = (
+				106305BB2D99A6580067BBDD /* zackWeg.entitlements */,
+				106305BA2D99982F0067BBDD /* zackWeg-Info.plist */,
 				10832D2C2D934B0F0086754D /* zack_weg_ios */,
 				1030519E2D9983F000DD0BDD /* Development.xcconfig */,
 				1030519F2D9983F900DD0BDD /* Production.xcconfig */,
 				103051A22D99840A00DD0BDD /* Staging.xcconfig */,
 				108513042D998CE30097F77C /* zackWeg.app */,
+				106305BE2D99A8140067BBDD /* Assets.xcassets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,6 +75,7 @@
 			buildPhases = (
 				10832D262D934B0F0086754D /* Sources */,
 				10832D272D934B0F0086754D /* Frameworks */,
+				106305C02D99AA4E0067BBDD /* Resources */,
 			);
 			buildRules = (
 			);
@@ -102,6 +126,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		106305C02D99AA4E0067BBDD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				106305C22D99AA560067BBDD /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		10832D262D934B0F0086754D /* Sources */ = {
@@ -183,15 +218,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = zackWeg.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
 				DEVELOPMENT_TEAM = NMG97657P3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Staging";
+				INFOPLIST_FILE = "zackWeg-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg Staging";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -202,7 +240,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ZackWeg.ios.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios.staging;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -339,15 +377,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = zackWeg.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
 				DEVELOPMENT_TEAM = NMG97657P3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "zackWeg-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -358,7 +399,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ZackWeg.ios.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -376,15 +417,19 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = zackWeg.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
 				DEVELOPMENT_TEAM = NMG97657P3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "zackWeg-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "ZackWeg Dev";
 				"INFOPLIST_KEY_CFBundleDisplayName[sdk=iphoneos*]" = "ZackWeg\n";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.shopping";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -395,8 +440,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ZackWeg.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

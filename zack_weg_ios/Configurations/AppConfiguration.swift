@@ -6,10 +6,13 @@ enum AppConfiguration {
     
     /// Base URL for API requests
     static var apiBaseURL: String {
-        guard let baseURLString = Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String else {
-            fatalError("API_BASE_URL not found in Info.plist")
+        guard let baseURLProtocol = Bundle.main.object(forInfoDictionaryKey: "API_BASE_PROTOCOL") as? String else {
+            fatalError("API_BASE_PROTOCOL not found in Info.plist")
         }
-        return baseURLString
+        guard let baseURLDomain = Bundle.main.object(forInfoDictionaryKey: "API_BASE_DOMAIN") as? String else {
+            fatalError("API_BASE_DOMAIN not found in Info.plist")
+        }
+        return "\(baseURLProtocol)://\(baseURLDomain)"
     }
     
     /// API version

@@ -2,8 +2,9 @@
 // Configuration for Development environment
 
 // API Configuration
-API_BASE_URL = http://localhost:8080
 API_VERSION = v1
+API_BASE_PROTOCOL = http
+API_BASE_DOMAIN = localhost:8080
 
 // Environment
 ENV_NAME = Development
@@ -12,4 +13,5 @@ ENABLE_DEBUG_MENU = YES
 
 // Build Settings
 // INFOPLIST_FILE = zack_weg_ios/Info.plist  // Commented out to avoid duplication
-PRODUCT_BUNDLE_IDENTIFIER = com.zackweg.ios.dev 
+PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios.dev
+BUNDLE_DISPLAY_NAME = ZackWeg Dev

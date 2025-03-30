@@ -2,8 +2,9 @@
 // Configuration for Production environment
 
 // API Configuration
-API_BASE_URL = https://api.zackweg.com
 API_VERSION = v1
+API_BASE_PROTOCOL = https
+API_BASE_DOMAIN = api.zackweg.com
 
 // Environment
 ENV_NAME = Production
@@ -12,4 +13,5 @@ ENABLE_DEBUG_MENU = NO
 
 // Build Settings
 // INFOPLIST_FILE = zack_weg_ios/Info.plist  // Commented out to avoid duplication
-PRODUCT_BUNDLE_IDENTIFIER = com.zackweg.ios 
+PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios
+BUNDLE_DISPLAY_NAME = ZackWeg

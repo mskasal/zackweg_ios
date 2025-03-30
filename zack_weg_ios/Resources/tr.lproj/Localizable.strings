@@ -118,6 +118,10 @@
 // MARK: - Settings
 "settings.title" = "Ayarlar";
 "settings.language" = "Dil";
+"settings.theme" = "Görünüm";
+"settings.theme.light" = "Açık";
+"settings.theme.dark" = "Koyu";
+"settings.theme.system" = "Sistem";
 "settings.notifications" = "Bildirimler";
 "settings.privacy" = "Gizlilik Politikası";
 "settings.terms" = "Kullanım Koşulları";

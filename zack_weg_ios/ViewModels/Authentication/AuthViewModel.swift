@@ -15,7 +15,7 @@ class AuthViewModel: ObservableObject {
     init(apiService: APIService = .shared) {
         self.apiService = apiService
         // Try to restore user session
-        if let token = UserDefaults.standard.string(forKey: "authToken") {
+        if let token = KeychainManager.shared.getAuthToken() {
             self.authToken = token
             self.isAuthenticated = true
             Task {
@@ -30,13 +30,14 @@ class AuthViewModel: ObservableObject {
         
         do {
             let token = try await apiService.signIn(email: email, password: password)
-            UserDefaults.standard.set(token, forKey: "authToken")
+            KeychainManager.shared.saveAuthToken(token)
             UserDefaults.standard.set(email, forKey: "userEmail")
             
             // Get user profile to store user ID
             let user = try await apiService.getMyProfile()
             UserDefaults.standard.set(user.id, forKey: "userId")
             
+            self.authToken = token
             isAuthenticated = true
         } catch {
             self.error = error.localizedDescription
@@ -56,7 +57,7 @@ class AuthViewModel: ObservableObject {
                 countryCode: countryCode,
                 nickName: nickName
             )
-            UserDefaults.standard.set(token, forKey: "authToken")
+            KeychainManager.shared.saveAuthToken(token)
             self.authToken = token
             self.isAuthenticated = true
             await fetchUserProfile()
@@ -64,7 +65,7 @@ class AuthViewModel: ObservableObject {
             self.isAuthenticated = false
             self.authToken = nil
             self.currentUser = nil
-            UserDefaults.standard.removeObject(forKey: "authToken")
+            try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
             throw error
         }
     }
@@ -81,7 +82,7 @@ class AuthViewModel: ObservableObject {
         authToken = nil
         currentUser = nil
         selectedTab = 0
-        UserDefaults.standard.removeObject(forKey: "authToken")
+        try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
     }
     
     private func fetchUserProfile() async {
@@ -92,7 +93,7 @@ class AuthViewModel: ObservableObject {
             self.isAuthenticated = false
             self.authToken = nil
             self.currentUser = nil
-            UserDefaults.standard.removeObject(forKey: "authToken")
+            try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
         }
     }
 } 

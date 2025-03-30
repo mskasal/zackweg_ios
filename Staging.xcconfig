@@ -2,8 +2,9 @@
 // Configuration for Staging environment
 
 // API Configuration
-API_BASE_URL = https://staging-api.zackweg.com
 API_VERSION = v1
+API_BASE_PROTOCOL = https
+API_BASE_DOMAIN = staging-api.zackweg.com
 
 // Environment
 ENV_NAME = Staging
@@ -12,4 +13,5 @@ ENABLE_DEBUG_MENU = YES
 
 // Build Settings
 // INFOPLIST_FILE = zack_weg_ios/Info.plist  // Commented out to avoid duplication
-PRODUCT_BUNDLE_IDENTIFIER = com.zackweg.ios.staging 
+PRODUCT_BUNDLE_IDENTIFIER = com.maskzackweg.ios.staging
+BUNDLE_DISPLAY_NAME = ZackWeg Staging

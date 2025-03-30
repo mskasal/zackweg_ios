@@ -7,6 +7,7 @@ struct PostCard: View {
     var userLocation: Location? = nil // Optional user location
     @State private var showingImagePreview = false
     @State private var loadedImages = false
+    @Environment(\.colorScheme) private var colorScheme
     
     private var category: Category? {
         categories.first { $0.id == post.categoryId }
@@ -139,9 +140,9 @@ struct PostCard: View {
             }
             .padding()
         }
-        .background(Color.white)
+        .background(Color(UIColor.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .shadow(color: colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         .fullScreenCover(isPresented: $showingImagePreview) {
             PostCardImagePreviewView(imageUrls: post.imageUrls)
         }

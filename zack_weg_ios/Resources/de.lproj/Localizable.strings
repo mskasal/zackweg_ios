@@ -118,6 +118,10 @@
 // MARK: - Settings
 "settings.title" = "Einstellungen";
 "settings.language" = "Sprache";
+"settings.theme" = "Erscheinungsbild";
+"settings.theme.light" = "Hell";
+"settings.theme.dark" = "Dunkel";
+"settings.theme.system" = "System";
 "settings.notifications" = "Benachrichtigungen";
 "settings.privacy" = "Datenschutzrichtlinie";
 "settings.terms" = "Nutzungsbedingungen";

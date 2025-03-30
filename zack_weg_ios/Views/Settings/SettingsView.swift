@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var showingSignOutConfirmation = false
     @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var languageManager: LanguageManager
+    @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
         List {
@@ -65,8 +66,33 @@ struct SettingsView: View {
             
             // App settings (placeholder for future expansion)
             Section(header: Text("settings.app".localized)) {
-                Toggle(isOn: .constant(true)) {
-                    Label("settings.notifications".localized, systemImage: "bell")
+                // Toggle(isOn: .constant(true)) {
+                //     Label("settings.notifications".localized, systemImage: "bell")
+                // }
+                
+                Menu {
+                    ForEach(ThemeManager.Theme.allCases) { theme in
+                        Button(action: { 
+                            themeManager.currentTheme = theme
+                        }) {
+                            HStack {
+                                Text(theme.displayName)
+                                if themeManager.currentTheme == theme {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    }
+                } label: {
+                    HStack {
+                        Label("settings.theme".localized, systemImage: "circle.lefthalf.filled")
+                        Spacer()
+                        Text(themeManager.currentTheme.displayName)
+                            .foregroundColor(.gray)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
                 }
                 
                 Menu {
@@ -184,4 +210,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environmentObject(LanguageManager.shared)
+        .environmentObject(ThemeManager.shared)
 } 

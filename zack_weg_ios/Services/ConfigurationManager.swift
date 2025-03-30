@@ -10,7 +10,9 @@ class ConfigurationManager {
     
     /// Base URL for the API
     var apiBaseURL: String {
-        return getValue(for: "API_BASE_URL") ?? "https://api.zackweg.com"
+        let domain = getValue(for: "API_BASE_DOMAIN")
+        let proto = getValue(for: "API_BASE_PROTOCOL")
+        return "\(proto ?? "https" )://\(domain ?? "api.zackweg.com")"
     }
     
     /// API version
@@ -199,7 +201,7 @@ class ConfigurationManager {
         
         // 4. Check xcconfig variable loading
         print("\n⚙️ XCCONFIG VARIABLES:")
-        let varsToCheck = ["API_BASE_URL", "API_VERSION", "ENV_NAME", "LOG_LEVEL", "ENABLE_DEBUG_MENU"]
+        let varsToCheck = ["API_BASE_PROTOCOL", "API_BASE_DOMAIN", "API_VERSION", "ENV_NAME", "LOG_LEVEL", "ENABLE_DEBUG_MENU"]
         for varName in varsToCheck {
             let value = Bundle.main.object(forInfoDictionaryKey: varName) as? String
             let valueDisplay = value ?? "❌ NOT FOUND"

@@ -54,6 +54,7 @@ struct PostDetailsSection: View {
     @Binding var offering: PostOffering
     @Binding var price: String
     let categories: [Category]
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Section {
@@ -177,7 +178,7 @@ struct PostDetailsSection: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isSelected ? Color.blue : Color.gray.opacity(0.3), lineWidth: isSelected ? 2 : 1)
-                    .background(isSelected ? Color.blue.opacity(0.1) : Color.white)
+                    .background(isSelected ? Color.blue.opacity(0.1) : Color(UIColor.secondarySystemBackground))
                     .cornerRadius(12)
             )
         }
