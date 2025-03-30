@@ -163,6 +163,47 @@
 "error.unauthorized" = "Unauthorized access";
 "error.unknown" = "An unknown error occurred";
 
+// Add more detailed error messages
+"error.network.connection" = "No internet connection. Please check your network settings and try again.";
+"error.network.timeout" = "The server is taking too long to respond. Please try again later.";
+"error.server.with_code" = "Server error (%d). Please try again later.";
+"error.server.with_message" = "%@";
+"error.response.invalid" = "The server response was invalid. Please try again later.";
+"error.api.limit_exceeded" = "You've reached the maximum number of requests. Please try again later.";
+
+// Authentication errors
+"error.auth.unauthorized" = "You are not authorized to perform this action. Please sign in again.";
+"error.auth.session_expired" = "Your session has expired. Please sign in again.";
+"error.auth.invalid_credentials" = "Invalid email or password. Please try again.";
+
+// Data errors
+"error.data.invalid" = "The data is invalid or corrupted.";
+"error.data.not_found" = "The requested information could not be found.";
+"error.data.parsing" = "There was a problem processing the data from the server.";
+"error.data.cache_miss" = "The cached data is not available.";
+
+// Input validation errors
+"error.input.invalid" = "Invalid input: %@";
+"error.input.missing_field" = "%@ is required.";
+"error.input.invalid_format" = "%@";
+
+// Business logic errors
+"error.operation.failed" = "Operation failed: %@";
+"error.resource.unavailable" = "This resource is currently unavailable.";
+"error.permission.denied" = "You don't have permission to access this resource.";
+
+// System errors
+"error.system.internal" = "An internal error occurred. Please try again later.";
+"error.system.file" = "Could not access the file system.";
+"error.system.unsupported" = "This operation is not supported.";
+
+// Recovery suggestions
+"error.recovery.network" = "Check your internet connection and try again.";
+"error.recovery.server_timeout" = "The server might be experiencing high traffic. Try again in a few minutes.";
+"error.recovery.auth" = "Please sign in again to continue.";
+"error.recovery.credentials" = "Make sure you entered the correct email and password.";
+"error.recovery.server" = "Our team has been notified. Please try again later.";
+
 // MARK: - Time
 "time.just_now" = "Just now";
 "time.minute_ago" = "1 minute ago";

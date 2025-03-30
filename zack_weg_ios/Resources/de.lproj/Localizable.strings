@@ -163,6 +163,47 @@
 "error.unauthorized" = "Unbefugter Zugriff";
 "error.unknown" = "Ein unbekannter Fehler ist aufgetreten";
 
+// Add more detailed error messages
+"error.network.connection" = "Keine Internetverbindung. Bitte überprüfen Sie Ihre Netzwerkeinstellungen und versuchen Sie es erneut.";
+"error.network.timeout" = "Der Server braucht zu lange, um zu antworten. Bitte versuchen Sie es später erneut.";
+"error.server.with_code" = "Serverfehler (%d). Bitte versuchen Sie es später erneut.";
+"error.server.with_message" = "%@";
+"error.response.invalid" = "Die Serverantwort war ungültig. Bitte versuchen Sie es später erneut.";
+"error.api.limit_exceeded" = "Sie haben die maximale Anzahl an Anfragen erreicht. Bitte versuchen Sie es später erneut.";
+
+// Authentication errors
+"error.auth.unauthorized" = "Sie sind nicht berechtigt, diese Aktion auszuführen. Bitte melden Sie sich erneut an.";
+"error.auth.session_expired" = "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.";
+"error.auth.invalid_credentials" = "Ungültige E-Mail oder Passwort. Bitte versuchen Sie es erneut.";
+
+// Data errors
+"error.data.invalid" = "Die Daten sind ungültig oder beschädigt.";
+"error.data.not_found" = "Die angeforderten Informationen konnten nicht gefunden werden.";
+"error.data.parsing" = "Bei der Verarbeitung der Daten vom Server ist ein Problem aufgetreten.";
+"error.data.cache_miss" = "Die zwischengespeicherten Daten sind nicht verfügbar.";
+
+// Input validation errors
+"error.input.invalid" = "Ungültige Eingabe: %@";
+"error.input.missing_field" = "%@ ist erforderlich.";
+"error.input.invalid_format" = "%@";
+
+// Business logic errors
+"error.operation.failed" = "Operation fehlgeschlagen: %@";
+"error.resource.unavailable" = "Diese Ressource ist derzeit nicht verfügbar.";
+"error.permission.denied" = "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen.";
+
+// System errors
+"error.system.internal" = "Ein interner Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+"error.system.file" = "Auf das Dateisystem konnte nicht zugegriffen werden.";
+"error.system.unsupported" = "Diese Operation wird nicht unterstützt.";
+
+// Recovery suggestions
+"error.recovery.network" = "Überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
+"error.recovery.server_timeout" = "Der Server könnte starken Verkehr erleben. Versuchen Sie es in einigen Minuten erneut.";
+"error.recovery.auth" = "Bitte melden Sie sich erneut an, um fortzufahren.";
+"error.recovery.credentials" = "Stellen Sie sicher, dass Sie die richtige E-Mail und das richtige Passwort eingegeben haben.";
+"error.recovery.server" = "Unser Team wurde benachrichtigt. Bitte versuchen Sie es später erneut.";
+
 // MARK: - Time
 "time.just_now" = "Gerade eben";
 "time.minute_ago" = "Vor 1 Minute";

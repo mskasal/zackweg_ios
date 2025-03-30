@@ -163,6 +163,47 @@
 "error.unauthorized" = "Yetkisiz erişim";
 "error.unknown" = "Bilinmeyen bir hata oluştu";
 
+// Add more detailed error messages
+"error.network.connection" = "İnternet bağlantısı yok. Lütfen ağ ayarlarınızı kontrol edin ve tekrar deneyin.";
+"error.network.timeout" = "Sunucu yanıt vermek için çok uzun zaman alıyor. Lütfen daha sonra tekrar deneyin.";
+"error.server.with_code" = "Sunucu hatası (%d). Lütfen daha sonra tekrar deneyin.";
+"error.server.with_message" = "%@";
+"error.response.invalid" = "Sunucu yanıtı geçersiz. Lütfen daha sonra tekrar deneyin.";
+"error.api.limit_exceeded" = "Maksimum istek sayısına ulaştınız. Lütfen daha sonra tekrar deneyin.";
+
+// Authentication errors
+"error.auth.unauthorized" = "Bu işlemi gerçekleştirmek için yetkiniz yok. Lütfen tekrar giriş yapın.";
+"error.auth.session_expired" = "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.";
+"error.auth.invalid_credentials" = "Geçersiz e-posta veya şifre. Lütfen tekrar deneyin.";
+
+// Data errors
+"error.data.invalid" = "Veriler geçersiz veya bozuk.";
+"error.data.not_found" = "İstenen bilgiler bulunamadı.";
+"error.data.parsing" = "Sunucudan gelen verileri işlerken bir sorun oluştu.";
+"error.data.cache_miss" = "Önbelleğe alınmış veriler kullanılamıyor.";
+
+// Input validation errors
+"error.input.invalid" = "Geçersiz giriş: %@";
+"error.input.missing_field" = "%@ gerekli.";
+"error.input.invalid_format" = "%@";
+
+// Business logic errors
+"error.operation.failed" = "İşlem başarısız: %@";
+"error.resource.unavailable" = "Bu kaynak şu anda kullanılamıyor.";
+"error.permission.denied" = "Bu kaynağa erişim izniniz yok.";
+
+// System errors
+"error.system.internal" = "Dahili bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+"error.system.file" = "Dosya sistemine erişilemedi.";
+"error.system.unsupported" = "Bu işlem desteklenmiyor.";
+
+// Recovery suggestions
+"error.recovery.network" = "İnternet bağlantınızı kontrol edin ve tekrar deneyin.";
+"error.recovery.server_timeout" = "Sunucu yoğun trafik yaşıyor olabilir. Birkaç dakika içinde tekrar deneyin.";
+"error.recovery.auth" = "Devam etmek için lütfen tekrar giriş yapın.";
+"error.recovery.credentials" = "Doğru e-posta ve şifreyi girdiğinizden emin olun.";
+"error.recovery.server" = "Ekibimiz bilgilendirildi. Lütfen daha sonra tekrar deneyin.";
+
 // MARK: - Time
 "time.just_now" = "Az önce";
 "time.minute_ago" = "1 dakika önce";

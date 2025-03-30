@@ -1,6 +1,9 @@
 import Foundation
 import Network
 
+// Import needed for String.localized extension
+import SwiftUI  // This should pull in LanguageManager via SwiftUI imports
+
 enum APIError: Error {
     case invalidURL
     case networkError(Error)
@@ -88,57 +91,60 @@ extension AppError: LocalizedError {
         switch self {
         // Network related errors
         case .networkConnection:
-            return "No internet connection. Please check your network settings and try again."
+            return "error.network.connection".localized
         case .serverTimeout:
-            return "The server is taking too long to respond. Please try again later."
+            return "error.network.timeout".localized
         case .serverError(let code, let message):
-            return message ?? "Server error (\(code)). Please try again later."
+            if let message = message, !message.isEmpty {
+                return String(format: "error.server.with_message".localized, message)
+            }
+            return String(format: "error.server.with_code".localized, code)
         case .invalidResponse:
-            return "The server response was invalid. Please try again later."
+            return "error.response.invalid".localized
         case .apiLimitExceeded:
-            return "You've reached the maximum number of requests. Please try again later."
+            return "error.api.limit_exceeded".localized
             
         // Authentication errors
         case .unauthorized:
-            return "You are not authorized to perform this action. Please sign in again."
+            return "error.auth.unauthorized".localized
         case .sessionExpired:
-            return "Your session has expired. Please sign in again."
+            return "error.auth.session_expired".localized
         case .invalidCredentials:
-            return "Invalid email or password. Please try again."
+            return "error.auth.invalid_credentials".localized
             
         // Data errors
         case .invalidData:
-            return "The data is invalid or corrupted."
+            return "error.data.invalid".localized
         case .dataNotFound:
-            return "The requested information could not be found."
+            return "error.data.not_found".localized
         case .parsingError:
-            return "There was a problem processing the data from the server."
+            return "error.data.parsing".localized
         case .cacheMiss:
-            return "The cached data is not available."
+            return "error.data.cache_miss".localized
             
         // Input validation errors
         case .invalidInput(let field):
-            return "Invalid input: \(field)"
+            return String(format: "error.input.invalid".localized, field)
         case .missingRequiredField(let field):
-            return "\(field) is required."
+            return String(format: "error.input.missing_field".localized, field)
         case .invalidFormat(let message):
-            return message
+            return String(format: "error.input.invalid_format".localized, message)
             
         // Business logic errors
         case .operationFailed(let reason):
-            return "Operation failed: \(reason)"
+            return String(format: "error.operation.failed".localized, reason)
         case .resourceUnavailable:
-            return "This resource is currently unavailable."
+            return "error.resource.unavailable".localized
         case .permissionDenied:
-            return "You don't have permission to access this resource."
+            return "error.permission.denied".localized
             
         // System errors
         case .internalError:
-            return "An internal error occurred. Please try again later."
+            return "error.system.internal".localized
         case .fileSystemError:
-            return "Could not access the file system."
+            return "error.system.file".localized
         case .unsupportedOperation:
-            return "This operation is not supported."
+            return "error.system.unsupported".localized
             
         // Custom error
         case .custom(let message):
@@ -149,15 +155,15 @@ extension AppError: LocalizedError {
     var recoverySuggestion: String? {
         switch self {
         case .networkConnection:
-            return "Check your internet connection and try again."
+            return "error.recovery.network".localized
         case .serverTimeout:
-            return "The server might be experiencing high traffic. Try again in a few minutes."
+            return "error.recovery.server_timeout".localized
         case .sessionExpired, .unauthorized:
-            return "Please sign in again to continue."
+            return "error.recovery.auth".localized
         case .invalidCredentials:
-            return "Make sure you entered the correct email and password."
+            return "error.recovery.credentials".localized
         case .serverError:
-            return "Our team has been notified. Please try again later."
+            return "error.recovery.server".localized
         default:
             return nil
         }
