@@ -1,19 +1,17 @@
 import SwiftUI
 
 struct SplashView: View {
-    @State private var isActive = false
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var size = 0.8
     @State private var opacity = 0.5
     
     var body: some View {
-        if isActive {
-            ContentView()
-        } else {
             ZStack {
-                Color.white.edgesIgnoringSafeArea(.all)
+                (themeManager.currentTheme == .dark ? Color.black : Color.white)
+                    .edgesIgnoringSafeArea(.all)
                 
                 VStack {
-                    Image("Logo-no-bg-reverse")
+                    Image(themeManager.currentTheme == .dark ? "Logo-nobg" : "Logo-no-bg-reverse")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 240, height: 240)
@@ -27,17 +25,10 @@ struct SplashView: View {
                     }
                 }
             }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    withAnimation {
-                        self.isActive = true
-                    }
-                }
-            }
-        }
     }
 }
 
 #Preview {
     SplashView()
+        .environmentObject(ThemeManager.shared)
 } 

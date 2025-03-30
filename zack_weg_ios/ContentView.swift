@@ -10,6 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     @StateObject private var authViewModel = AuthViewModel()
+    @EnvironmentObject var themeManager: ThemeManager
     @State private var showDebugMenu = false
     @State private var isShowingSplash = true
     
@@ -83,22 +84,13 @@ struct ContentView: View {
             
             // Splash screen
             if isShowingSplash {
-                ZStack {
-                    Color.white.edgesIgnoringSafeArea(.all)
-                    
-                    VStack {
-                        Image("Logo-no-bg-reverse-blue")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 240, height: 240)
-                    }
+                SplashView()
                     .onAppear {
                         // Simply wait 2 seconds then show the main content
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                             isShowingSplash = false
                         }
                     }
-                }
             }
         }
     }
@@ -106,4 +98,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(ThemeManager.shared)
 }
