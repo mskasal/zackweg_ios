@@ -115,6 +115,31 @@ struct PostDetailView: View {
                         }
                     }
                     
+                    // Seller avatar and nickname - simple display
+                    if let seller = viewModel.seller {
+                        HStack(spacing: 8) {
+                            // Avatar icon
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+                                
+                                Image(systemName: "person.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            // Nickname
+                            Text(seller.nickName)
+                                .font(.callout)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
+                                
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    
                     // Location and Date section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("post_detail.details".localized)

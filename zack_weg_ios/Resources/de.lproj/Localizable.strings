@@ -241,8 +241,8 @@
 // MARK: - Post Detail
 "post_detail.details" = "DETAILS";
 "post_detail.description" = "BESCHREIBUNG";
-"post_detail.message_seller" = "Verkäufer kontaktieren";
-"post_detail.report_post" = "Beitrag melden";
+"post_detail.message_seller" = "Nachricht an Verkäufer";
+"post_detail.report_post" = "Anzeige melden";
 "post_detail.new_message" = "Neue Nachricht";
 "post_detail.send_message_to" = "Sende eine Nachricht an %@";
 "post_detail.the_seller" = "den Verkäufer";
@@ -250,7 +250,7 @@
 "post_detail.additional_info" = "Weitere Informationen angeben (optional)";
 
 // MARK: - Report
-"report.title" = "Beitrag melden";
+"report.title" = "Anzeige melden";
 "report.instructions" = "Bitte wähle einen Grund für die Meldung dieses Beitrags.";
 "report.reason" = "GRUND";
 "report.additional_details" = "ZUSÄTZLICHE DETAILS";

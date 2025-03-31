@@ -3,11 +3,18 @@ import Foundation
 
 struct PostCard: View {
     let post: Post
+    @StateObject private var viewModel: PostCardViewModel
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     var userLocation: Location? = nil // Optional user location
     @State private var showingImagePreview = false
     @State private var loadedImages = false
     @Environment(\.colorScheme) private var colorScheme
+    
+    init(post: Post) {
+        self.post = post
+        // Proper initialization of StateObject using _viewModel
+        _viewModel = StateObject(wrappedValue: PostCardViewModel(post: post))
+    }
     
     private var category: Category? {
         categoryViewModel.getCategory(byId: post.categoryId)
@@ -106,35 +113,58 @@ struct PostCard: View {
                 
                 Divider()
                 
-                // Location and Date in a more refined layout
+                // Location, Seller and Date in a more refined layout - Rearranged for better UI
                 HStack {
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        // Show postal code with distance if user location is available
-                        if let userLocation = userLocation {
-                            let distance = calculateDistance(from: userLocation, to: post.location)
-                            Text("\(post.location.postalCode) • \(formatDistance(distance))")
+                    // Left side: Seller info
+                    if let seller = viewModel.seller {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.circle.fill")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
-                        } else {
-                            Text(post.location.postalCode)
+                                .foregroundColor(.blue)
+                                
+                            Text(seller.nickName)
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .fontWeight(.medium)
+                                .foregroundColor(.primary)
                         }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.blue.opacity(0.08))
+                        .cornerRadius(12)
                     }
                     
                     Spacer()
                     
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        Text(timeAgo(from: post.createdAt))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    // Right side: Location and time info side by side
+                    HStack(spacing: 12) {
+                        // Location with icon
+                        HStack(spacing: 4) {
+                            Image(systemName: "location.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            
+                            // Show postal code with distance if user location is available
+                            if let userLocation = userLocation {
+                                let distance = calculateDistance(from: userLocation, to: post.location)
+                                Text("\(post.location.postalCode) • \(formatDistance(distance))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text(post.location.postalCode)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        // Time ago with icon
+                        HStack(spacing: 4) {
+                            Image(systemName: "clock")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text(timeAgo(from: post.createdAt))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
@@ -147,6 +177,10 @@ struct PostCard: View {
             PostCardImagePreviewView(imageUrls: post.imageUrls)
         }
         .environmentObject(categoryViewModel)
+        .task {
+            // Load seller information when card appears
+            await viewModel.loadSellerInfo()
+        }
     }
     
     // Optimized image loading with caching and better placeholders
