@@ -21,13 +21,13 @@ struct FilterView: View {
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
-                            TextField("Postal Code", text: $viewModel.searchFilters.postalCode)
+                            TextField("explore.postal_code".localized, text: $viewModel.searchFilters.postalCode)
                                 .keyboardType(.numberPad)
                                 .padding()
                                 .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(10)
                             
-                            TextField("Country Code", text: $viewModel.searchFilters.countryCode)
+                            TextField("explore.country_code".localized, text: $viewModel.searchFilters.countryCode)
                                 .textInputAutocapitalization(.characters)
                                 .padding()
                                 .background(Color(UIColor.secondarySystemBackground))
@@ -204,7 +204,7 @@ struct FilterView: View {
                                     viewModel.searchFilters.offering = offering
                                 }) {
                                     HStack {
-                                        Text(offering.replacingOccurrences(of: "_", with: " ").capitalized)
+                                        Text(getLocalizedOffering(offering))
                                         Spacer()
                                         if viewModel.searchFilters.offering == offering {
                                             Image(systemName: "checkmark")
@@ -260,6 +260,18 @@ struct FilterView: View {
                     .fontWeight(.bold)
                 }
             }
+        }
+    }
+    
+    // Helper method to get localized offering text
+    private func getLocalizedOffering(_ offering: String) -> String {
+        switch offering {
+        case "GIVING_AWAY":
+            return "explore.filter_giving_away".localized
+        case "SOLD_AT_PRICE":
+            return "explore.filter_selling".localized
+        default:
+            return offering.replacingOccurrences(of: "_", with: " ").capitalized
         }
     }
 } 

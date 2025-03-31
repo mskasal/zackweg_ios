@@ -14,6 +14,7 @@
 "common.close" = "Kapat";
 "common.send" = "Gönder";
 "common.select" = "Seç";
+"common.apply" = "Uygula";
 
 // MARK: - Authentication
 "auth.sign_in" = "Giriş Yap";
@@ -220,12 +221,16 @@
 "explore.search_placeholder" = "İlanları ara...";
 "explore.no_posts" = "İlan bulunamadı";
 "explore.filter_location" = "Konum";
+"explore.postal_code" = "Posta Kodu";
+"explore.country_code" = "Ülke Kodu";
 "explore.filter_radius" = "Yarıçap";
 "explore.filter_distance_km" = "%d km";
 "explore.filter_categories" = "Kategoriler";
 "explore.filter_subcategories" = "Alt Kategoriler";
 "explore.filter_offering" = "Teklif";
 "explore.filter_all_in" = "%@ içindeki tümü";
+"explore.filter_giving_away" = "Ücretsiz eşya";
+"explore.filter_selling" = "Satılık";
 "explore.offering_giving_away" = "Ücretsiz";
 "explore.clear_filters" = "Tüm Filtreleri Temizle";
 "explore.filters" = "Filtreler";

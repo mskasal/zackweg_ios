@@ -14,6 +14,7 @@
 "common.close" = "Schließen";
 "common.send" = "Senden";
 "common.select" = "Auswählen";
+"common.apply" = "Anwenden";
 
 // MARK: - Authentication
 "auth.sign_in" = "Anmelden";
@@ -220,12 +221,16 @@
 "explore.search_placeholder" = "Beiträge suchen...";
 "explore.no_posts" = "Keine Beiträge gefunden";
 "explore.filter_location" = "Standort";
+"explore.postal_code" = "Postleitzahl";
+"explore.country_code" = "Ländercode";
 "explore.filter_radius" = "Radius";
 "explore.filter_distance_km" = "%d km";
 "explore.filter_categories" = "Kategorien";
 "explore.filter_subcategories" = "Unterkategorien";
 "explore.filter_offering" = "Angebot";
 "explore.filter_all_in" = "Alle in %@";
+"explore.filter_giving_away" = "Kostenlos abzugeben";
+"explore.filter_selling" = "Zum Verkauf";
 "explore.offering_giving_away" = "Kostenlos";
 "explore.clear_filters" = "Alle Filter löschen";
 "explore.filters" = "Filter";
