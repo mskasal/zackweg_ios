@@ -63,6 +63,7 @@
 "posts.create" = "Beitrag erstellen";
 "posts.edit" = "Beitrag bearbeiten";
 "posts.delete" = "Beitrag löschen";
+"posts.delete_confirmation" = "Bist du sicher, dass du diesen Beitrag löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.";
 "posts.title_field" = "Titel";
 "posts.description" = "Beschreibung";
 "posts.category" = "Kategorie";
@@ -248,6 +249,7 @@
 "post_detail.the_seller" = "den Verkäufer";
 "post_detail.posted_time_ago" = "Gepostet %@";
 "post_detail.additional_info" = "Weitere Informationen angeben (optional)";
+"post_detail.your_post" = "Dein Beitrag";
 
 // MARK: - Report
 "report.title" = "Anzeige melden";

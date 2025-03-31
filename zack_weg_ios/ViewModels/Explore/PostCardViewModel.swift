@@ -16,6 +16,10 @@ class PostCardViewModel: ObservableObject {
         self.post = post
     }
     
+    var isOwner: Bool {
+        UserDefaults.standard.string(forKey: "userId") == post.userId
+    }
+    
     func loadSellerInfo() async {
         // Guard against reloading if already loaded or in progress
         guard !isLoadingSeller && seller == nil else { 

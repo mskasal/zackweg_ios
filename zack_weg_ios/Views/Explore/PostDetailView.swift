@@ -6,6 +6,7 @@ struct PostDetailView: View {
     @StateObject private var viewModel: PostDetailViewModel
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
+    @State private var showingDeleteConfirmation = false
     @Environment(\.dismiss) private var dismiss
     
     init(post: Post) {
@@ -116,7 +117,30 @@ struct PostDetailView: View {
                     }
                     
                     // Seller avatar and nickname - simple display
-                    if let seller = viewModel.seller {
+                    if viewModel.isOwner {
+                        // Show "Your Post" indicator when user is the owner
+                        HStack(spacing: 8) {
+                            // Avatar icon with checkmark
+                            ZStack {
+                                Circle()
+                                    .fill(Color.green.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+                                
+                                Image(systemName: "person.fill.checkmark")
+                                    .font(.title3)
+                                    .foregroundColor(.green)
+                            }
+                            
+                            // Your Post text
+                            Text("post_detail.your_post".localized)
+                                .font(.callout)
+                                .fontWeight(.medium)
+                                .foregroundColor(.green)
+                                
+                            Spacer()
+                        }
+                        .padding(.vertical, 8)
+                    } else if let seller = viewModel.seller {
                         HStack(spacing: 8) {
                             // Avatar icon
                             ZStack {
@@ -186,7 +210,24 @@ struct PostDetailView: View {
                     }
                     
                     // Action Buttons
-                    if !viewModel.isOwner {
+                    if viewModel.isOwner {
+                        VStack(spacing: 16) {
+                            Button(action: {
+                                showingDeleteConfirmation = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash.fill")
+                                    Text("posts.delete")
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.red)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                        }
+                    } else {
                         VStack(spacing: 16) {
                             Button(action: {
                                 showingMessageSheet = true
@@ -224,6 +265,21 @@ struct PostDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .alert("posts.delete".localized, isPresented: $showingDeleteConfirmation) {
+            Button("common.cancel".localized, role: .cancel) { }
+            Button("common.delete".localized, role: .destructive) {
+                Task {
+                    await viewModel.deletePost()
+                }
+            }
+        } message: {
+            Text("posts.delete_confirmation".localized)
+        }
+        .onChange(of: viewModel.postDeleted) { deleted in
+            if deleted {
+                dismiss()
+            }
+        }
         .sheet(isPresented: $showingMessageSheet) {
             NavigationStack {
                 VStack(spacing: 16) {

@@ -852,6 +852,35 @@ class APIService {
             throw APIError.decodingError(error)
         }
     }
+    
+    // MARK: - Posts
+    
+    func deletePost(postId: String) async throws {
+        let url = URL(string: "\(baseURL)/posts/\(postId)")!
+        print("🗑️ Delete Post Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Delete Post Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Delete Post Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse?.message ?? "Failed to delete post: \(httpResponse.statusCode)")
+        }
+        
+        print("✅ Successfully deleted post with ID: \(postId)")
+    }
 }
 
 // Response Models

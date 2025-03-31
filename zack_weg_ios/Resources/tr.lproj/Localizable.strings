@@ -63,6 +63,7 @@
 "posts.create" = "İlan Oluştur";
 "posts.edit" = "İlanı Düzenle";
 "posts.delete" = "İlanı Sil";
+"posts.delete_confirmation" = "Bu ilanı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.";
 "posts.title_field" = "Başlık";
 "posts.description" = "Açıklama";
 "posts.category" = "Kategori";
@@ -248,6 +249,7 @@
 "post_detail.the_seller" = "satıcıya";
 "post_detail.posted_time_ago" = "%@ paylaşıldı";
 "post_detail.additional_info" = "Daha fazla bilgi ver (isteğe bağlı)";
+"post_detail.your_post" = "Senin İlanın";
 
 // MARK: - Report
 "report.title" = "İlanı Bildir";

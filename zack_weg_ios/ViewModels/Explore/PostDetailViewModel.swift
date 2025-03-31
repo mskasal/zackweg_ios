@@ -8,6 +8,8 @@ class PostDetailViewModel: ObservableObject {
     @Published var messageText = ""
     @Published var error: String?
     @Published var conversation: Conversation?
+    @Published var isDeleting = false
+    @Published var postDeleted = false
     
     init(post: Post) {
         self.post = post
@@ -105,6 +107,36 @@ class PostDetailViewModel: ObservableObject {
             return minutes == 1 ? "time.minute_ago".localized : String(format: "time.minutes_ago".localized, minutes)
         } else {
             return "time.just_now".localized
+        }
+    }
+    
+    func deletePost() async {
+        guard isOwner else {
+            print("Cannot delete post: User is not the owner")
+            return
+        }
+        
+        await MainActor.run {
+            isDeleting = true
+            error = nil
+        }
+        
+        do {
+            try await APIService.shared.deletePost(postId: post.id)
+            
+            await MainActor.run {
+                postDeleted = true
+                print("Successfully deleted post with ID: \(post.id)")
+            }
+        } catch {
+            await MainActor.run {
+                self.error = "Failed to delete post: \(error.localizedDescription)"
+                print("Error deleting post: \(error.localizedDescription)")
+            }
+        }
+        
+        await MainActor.run {
+            isDeleting = false
         }
     }
 } 

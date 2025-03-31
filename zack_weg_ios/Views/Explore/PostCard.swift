@@ -116,7 +116,23 @@ struct PostCard: View {
                 // Location, Seller and Date in a more refined layout - Rearranged for better UI
                 HStack {
                     // Left side: Seller info
-                    if let seller = viewModel.seller {
+                    if viewModel.isOwner {
+                        // Show "Your Post" indicator when user is the owner
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.fill.checkmark")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                
+                            Text("post_detail.your_post".localized)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.green)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green.opacity(0.08))
+                        .cornerRadius(12)
+                    } else if let seller = viewModel.seller {
                         HStack(spacing: 4) {
                             Image(systemName: "person.circle.fill")
                                 .font(.caption)
