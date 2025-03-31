@@ -96,15 +96,15 @@ class PostDetailViewModel: ObservableObject {
         let components = calendar.dateComponents([.minute, .hour, .day, .weekOfMonth], from: date, to: now)
         
         if let weeks = components.weekOfMonth, weeks > 0 {
-            return weeks == 1 ? "1 week ago" : "\(weeks) weeks ago"
+            return weeks == 1 ? "time.week_ago".localized : String(format: "time.weeks_ago".localized, weeks)
         } else if let days = components.day, days > 0 {
-            return days == 1 ? "Yesterday" : "\(days) days ago"
+            return days == 1 ? "time.yesterday".localized : String(format: "time.days_ago".localized, days)
         } else if let hours = components.hour, hours > 0 {
-            return hours == 1 ? "1 hour ago" : "\(hours) hours ago"
+            return hours == 1 ? "time.hour_ago".localized : String(format: "time.hours_ago".localized, hours)
         } else if let minutes = components.minute, minutes > 0 {
-            return minutes == 1 ? "1 minute ago" : "\(minutes) minutes ago"
+            return minutes == 1 ? "time.minute_ago".localized : String(format: "time.minutes_ago".localized, minutes)
         } else {
-            return "Just now"
+            return "time.just_now".localized
         }
     }
 } 
