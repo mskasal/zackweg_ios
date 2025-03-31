@@ -8,6 +8,7 @@ class ExploreViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var searchResults: [Post] = []
     @Published var searchFilters = SearchFilters()
+    @Published var lastViewedPostId: String? = nil
     
     private let apiService: APIService
     
@@ -17,6 +18,20 @@ class ExploreViewModel: ObservableObject {
         Task {
             await fetchUserProfile()
         }
+        
+        // Restore the last viewed post ID
+        self.lastViewedPostId = UserDefaults.standard.string(forKey: "ExploreLastViewedPostId")
+    }
+    
+    // Store the last viewed post ID when it changes
+    func setLastViewedPost(_ postId: String) {
+        lastViewedPostId = postId
+        UserDefaults.standard.set(postId, forKey: "ExploreLastViewedPostId")
+    }
+    
+    // Check if a post ID exists in the current search results
+    func containsPost(withId id: String) -> Bool {
+        return searchResults.contains { $0.id == id }
     }
     
     // Add a method to count active filters

@@ -113,11 +113,10 @@ struct PostCard: View {
                 
                 Divider()
                 
-                // Location, Seller and Date in a more refined layout - Rearranged for better UI
+                // Location and Date info
                 HStack {
-                    // Left side: Seller info
+                    // Show "Your Post" indicator when user is the owner
                     if viewModel.isOwner {
-                        // Show "Your Post" indicator when user is the owner
                         HStack(spacing: 4) {
                             Image(systemName: "person.fill.checkmark")
                                 .font(.caption)
@@ -132,26 +131,11 @@ struct PostCard: View {
                         .padding(.vertical, 4)
                         .background(Color.green.opacity(0.08))
                         .cornerRadius(12)
-                    } else if let seller = viewModel.seller {
-                        HStack(spacing: 4) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(.blue)
-                                
-                            Text(seller.nickName)
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(.primary)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.08))
-                        .cornerRadius(12)
                     }
                     
                     Spacer()
                     
-                    // Right side: Location and time info side by side
+                    // Location and time info side by side
                     HStack(spacing: 12) {
                         // Location with icon
                         HStack(spacing: 4) {
@@ -193,10 +177,6 @@ struct PostCard: View {
             PostCardImagePreviewView(imageUrls: post.imageUrls)
         }
         .environmentObject(categoryViewModel)
-        .task {
-            // Load seller information when card appears
-            await viewModel.loadSellerInfo()
-        }
     }
     
     // Optimized image loading with caching and better placeholders

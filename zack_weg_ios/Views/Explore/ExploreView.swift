@@ -42,6 +42,7 @@ struct ExploreView: View {
     @State private var showFilters = false
     @State private var showMap = false
     @State private var searchTask: Task<Void, Never>?
+    @State private var scrollToPostOnAppear = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -240,20 +241,37 @@ struct ExploreView: View {
                 }
                 .frame(maxHeight: .infinity)
             } else {
-                List {
-                    ForEach(viewModel.searchResults) { post in
-                        PostCard(post: post)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                ScrollViewReader { proxy in
+                    List {
+                        ForEach(viewModel.searchResults) { post in
+                            PostCard(post: post)
+                                .id(post.id) // Make sure each PostCard has an ID
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                .onAppear {
+                                    // Save the ID of the post as the user scrolls
+                                    viewModel.setLastViewedPost(post.id)
+                                }
+                        }
+                        .listRowBackground(Color.clear)
                     }
-                    .listRowBackground(Color.clear)
-                }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
-                .refreshable {
-                    // Refresh data when the user pulls down
-                    await categoryViewModel.fetchCategories()
-                    await viewModel.fetchPosts()
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .refreshable {
+                        // Refresh data when the user pulls down
+                        await categoryViewModel.fetchCategories()
+                        await viewModel.fetchPosts()
+                    }
+                    .onAppear {
+                        // Check if we should scroll to the last viewed post
+                        if scrollToPostOnAppear, 
+                           let postId = viewModel.lastViewedPostId,
+                           viewModel.containsPost(withId: postId) {
+                            // Remove animation for immediate jump to position
+                            proxy.scrollTo(postId, anchor: .top)
+                            scrollToPostOnAppear = false
+                        }
+                    }
                 }
             }
         }
@@ -269,6 +287,11 @@ struct ExploreView: View {
         .task {
             // Load posts
             await viewModel.fetchPosts()
+            
+            // Set flag to scroll to remembered position once data is loaded
+            if viewModel.lastViewedPostId != nil {
+                scrollToPostOnAppear = true
+            }
         }
     }
 }
