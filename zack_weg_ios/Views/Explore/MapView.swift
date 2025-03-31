@@ -199,48 +199,12 @@ struct VisiblePostsListView: View {
 }
 
 struct MapView: View {
-    let posts: [Post]
-    let categories: [Category]
+    @StateObject private var viewModel: MapViewModel
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 52.520008, longitude: 13.404954), // Berlin coordinates
-        span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-    )
-    @State private var selectedPost: Post?
-    @State private var showPostDetail = false
-    @State private var listVisible = false
-    @State private var appearingItems: Set<String> = []
-    @State private var mapPosition: MapCameraPosition = .automatic
-    
-    // Check if zoom level is close enough to show the list
-    private var isZoomedInEnough: Bool {
-        // Consider zoomed in when latitudeDelta is less than 0.05 (approximately city level)
-        return region.span.latitudeDelta < 0.05
-    }
-    
-    // Get posts that are likely visible in the current view
-    private var visiblePosts: [Post] {
-        guard !posts.isEmpty else { return [] }
-        
-        // Filter posts that are in the visible region with some padding
-        let visiblePosts = posts.filter { post in
-            let postLat = post.location.latitude
-            let postLong = post.location.longitude
-            let latDelta = region.span.latitudeDelta * 1.2 // Add 20% padding
-            let longDelta = region.span.longitudeDelta * 1.2
-            
-            let minLat = region.center.latitude - latDelta/2
-            let maxLat = region.center.latitude + latDelta/2
-            let minLong = region.center.longitude - longDelta/2
-            let maxLong = region.center.longitude + longDelta/2
-            
-            return postLat >= minLat && postLat <= maxLat && 
-                   postLong >= minLong && postLong <= maxLong
-        }
-        
-        // Limit to 5 items for the stack
-        return Array(visiblePosts.prefix(5))
+    init(posts: [Post] = []) {
+        _viewModel = StateObject(wrappedValue: MapViewModel(posts: posts))
     }
     
     var body: some View {
@@ -252,11 +216,18 @@ struct MapView: View {
                     leadingToolbarItems
                     trailingToolbarItems
                 }
-                .navigationDestination(isPresented: $showPostDetail) {
-                    if let post = selectedPost {
-                        PostDetailView(post: post, categories: categories)
+                .navigationDestination(isPresented: $viewModel.showPostDetail) {
+                    if let post = viewModel.selectedPost {
+                        PostDetailView(post: post)
                     }
                 }
+        }
+        .environmentObject(categoryViewModel)
+        .onAppear {
+            // Set dismiss action
+            viewModel.dismiss = {
+                dismiss()
+            }
         }
     }
     
@@ -264,8 +235,13 @@ struct MapView: View {
         ZStack {
             mapView
             
-            if selectedPost != nil {
-                selectedPostCard
+            if let selectedPost = viewModel.selectedPost {
+                PostDetailCardView(
+                    post: selectedPost,
+                    categories: [],
+                    showDetail: $viewModel.showPostDetail
+                )
+                    .transition(.move(edge: .bottom))
             } else if isZoomedInEnough && !visiblePosts.isEmpty {
                 visiblePostsList
             }
@@ -273,8 +249,8 @@ struct MapView: View {
     }
     
     private var mapView: some View {
-        Map(position: $mapPosition) {
-            ForEach(posts) { post in
+        Map(position: $viewModel.mapPosition) {
+            ForEach(viewModel.posts) { post in
                 let coordinate = CLLocationCoordinate2D(
                     latitude: post.location.latitude,
                     longitude: post.location.longitude
@@ -285,40 +261,51 @@ struct MapView: View {
                 ) {
                     PostAnnotationView(
                         post: post,
-                        isSelected: selectedPost?.id == post.id,
-                        action: { selectedPost = post }
+                        isSelected: viewModel.selectedPost?.id == post.id,
+                        action: { viewModel.selectedPost = post }
                     )
                 }
             }
         }
         .onAppear {
             // Initialize the position to match the region
-            mapPosition = .region(region)
+            viewModel.mapPosition = .region(viewModel.region)
         }
         .onMapCameraChange { context in
             // Update region from the map camera position for filtering posts
-            region = context.region
+            viewModel.region = context.region
         }
         .mapStyle(.standard(pointsOfInterest: [], showsTraffic: false))
     }
     
-    private var selectedPostCard: some View {
-        Group {
-            if let post = selectedPost {
-                PostDetailCardView(
-                    post: post, 
-                    categories: categories,
-                    showDetail: $showPostDetail
-                )
-            }
+    private var visiblePosts: [Post] {
+        guard !viewModel.posts.isEmpty else { return [] }
+        
+        // Filter posts that are in the visible region with some padding
+        let visiblePosts = viewModel.posts.filter { post in
+            let postLat = post.location.latitude
+            let postLong = post.location.longitude
+            let latDelta = viewModel.region.span.latitudeDelta * 1.2 // Add 20% padding
+            let longDelta = viewModel.region.span.longitudeDelta * 1.2
+            
+            let minLat = viewModel.region.center.latitude - latDelta/2
+            let maxLat = viewModel.region.center.latitude + latDelta/2
+            let minLong = viewModel.region.center.longitude - longDelta/2
+            let maxLong = viewModel.region.center.longitude + longDelta/2
+            
+            return postLat >= minLat && postLat <= maxLat && 
+                   postLong >= minLong && postLong <= maxLong
         }
+        
+        // Limit to 5 items for the stack
+        return Array(visiblePosts.prefix(5))
     }
     
     private var visiblePostsList: some View {
         VisiblePostsListView(
             posts: visiblePosts,
-            categories: categories,
-            onSelectPost: { selectedPost = $0 },
+            categories: [],
+            onSelectPost: { viewModel.selectedPost = $0 },
             isZoomedInEnough: isZoomedInEnough
         )
     }
@@ -335,15 +322,20 @@ struct MapView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: {
                 // Reset selection
-                selectedPost = nil
+                viewModel.selectedPost = nil
             }) {
                 Image(systemName: "arrow.counterclockwise")
             }
-            .disabled(selectedPost == nil)
+            .disabled(viewModel.selectedPost == nil)
         }
+    }
+    
+    private var isZoomedInEnough: Bool {
+        // Consider zoomed in when latitudeDelta is less than 0.05 (approximately city level)
+        return viewModel.region.span.latitudeDelta < 0.05
     }
 }
 
 #Preview {
-    MapView(posts: [], categories: [])
+    MapView()
 }

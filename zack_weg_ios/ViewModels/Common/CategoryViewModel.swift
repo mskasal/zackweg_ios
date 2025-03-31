@@ -3,6 +3,8 @@ import SwiftUI
 
 @MainActor
 class CategoryViewModel: ObservableObject {
+    static let shared = CategoryViewModel()
+    
     @Published var categories: [Category] = []
     @Published var topLevelCategories: [Category] = []
     @Published var subCategories: [String: [Category]] = [:]
@@ -11,8 +13,12 @@ class CategoryViewModel: ObservableObject {
     
     private let apiService: APIService
     
-    init(apiService: APIService = .shared) {
+    private init(apiService: APIService = .shared) {
         self.apiService = apiService
+        // Fetch categories on initialization
+        Task {
+            await fetchCategories()
+        }
     }
     
     func fetchCategories() async {

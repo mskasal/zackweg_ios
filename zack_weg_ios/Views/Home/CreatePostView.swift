@@ -8,7 +8,10 @@ struct ImagePreviewView: View {
     let onDelete: (Int) -> Void
     
     var body: some View {
-        if let uiImage = UIImage(data: imageData) {
+        // Extract the UIImage conversion to reduce expression complexity
+        let uiImage: UIImage? = UIImage(data: imageData)
+        
+        if let uiImage = uiImage {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFill()
@@ -47,111 +50,15 @@ struct CategoryPill: View {
     }
 }
 
-struct PostDetailsSection: View {
-    @Binding var title: String
-    @Binding var description: String
-    @Binding var selectedCategory: String
-    @Binding var offering: PostOffering
-    @Binding var price: String
-    let categories: [Category]
-    @Environment(\.colorScheme) private var colorScheme
+struct OfferingTypeCardView: View {
+    let isSelected: Bool
+    let title: String
+    let icon: String
+    let iconColor: Color
+    let description: String
+    let action: () -> Void
     
     var body: some View {
-        Section {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("posts.title_field".localized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                TextField("posts.enter_title".localized, text: $title)
-                    .padding(.vertical, 8)
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("posts.description".localized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                TextEditor(text: $description)
-                    .frame(minHeight: 120)
-                    .padding(4)
-                    .background(Color(.systemGray6).opacity(0.5))
-                    .cornerRadius(8)
-            }
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("posts.category".localized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                if categories.isEmpty {
-                    Text("posts.loading_categories".localized)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 8)
-                } else {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(categories) { category in
-                                CategoryPill(
-                                    category: category,
-                                    isSelected: selectedCategory == category.id
-                                ) {
-                                    selectedCategory = category.id
-                                }
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 12) {
-                Text("posts.offering_question".localized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                offeringTypeCard(
-                    isSelected: offering == .givingAway,
-                    title: "posts.give_away".localized,
-                    icon: "gift.fill",
-                    iconColor: .green,
-                    description: "posts.give_away_desc".localized
-                ) {
-                    offering = .givingAway
-                }
-                
-                offeringTypeCard(
-                    isSelected: offering == .soldAtPrice,
-                    title: "posts.sell".localized,
-                    icon: "eurosign.circle.fill",
-                    iconColor: .blue,
-                    description: "posts.sell_desc".localized
-                ) {
-                    offering = .soldAtPrice
-                }
-            }
-
-            if offering == .soldAtPrice {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("posts.price_currency".localized)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    HStack {
-                        Image(systemName: "eurosign.circle")
-                            .foregroundColor(.blue)
-                        TextField("posts.price_placeholder".localized, text: $price)
-                            .keyboardType(.decimalPad)
-                            .padding(.vertical, 8)
-                    }
-                }
-            }
-        } header: {
-            Text("posts.details".localized)
-                .font(.footnote)
-                .fontWeight(.semibold)
-        }
-    }
-    
-    private func offeringTypeCard(isSelected: Bool, title: String, icon: String, iconColor: Color, description: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(alignment: .center, spacing: 16) {
                 Image(systemName: icon)
@@ -183,6 +90,157 @@ struct PostDetailsSection: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct PriceInputView: View {
+    @Binding var price: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("posts.price_currency".localized)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            HStack {
+                Image(systemName: "eurosign.circle")
+                    .foregroundColor(.blue)
+                TextField("posts.price_placeholder".localized, text: $price)
+                    .keyboardType(.decimalPad)
+                    .padding(.vertical, 8)
+                    .onChange(of: price) { newValue in
+                        // Ensure only valid decimal characters are entered
+                        let filtered = newValue.filter { "0123456789.,".contains($0) }
+                        if filtered != newValue {
+                            price = filtered
+                        }
+                    }
+            }
+        }
+    }
+}
+
+struct CategorySelectionView: View {
+    @Binding var selectedCategory: String
+    let categories: [Category]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("posts.category".localized)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            if categories.isEmpty {
+                Text("posts.loading_categories".localized)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.vertical, 8)
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(categories, id: \.id) { category in
+                            let isSelected: Bool = selectedCategory == category.id
+                            CategoryPill(
+                                category: category,
+                                isSelected: isSelected
+                            ) {
+                                selectedCategory = category.id
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                }
+            }
+        }
+    }
+}
+
+struct TitleInputView: View {
+    @Binding var title: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("posts.title_field".localized)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            TextField("posts.enter_title".localized, text: $title)
+                .padding(.vertical, 8)
+        }
+    }
+}
+
+struct DescriptionInputView: View {
+    @Binding var description: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("posts.description".localized)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            TextEditor(text: $description)
+                .frame(minHeight: 120)
+                .padding(4)
+                .background(Color(.systemGray6).opacity(0.5))
+                .cornerRadius(8)
+        }
+    }
+}
+
+struct OfferingSelectionView: View {
+    @Binding var offering: PostOffering
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("posts.offering_question".localized)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            OfferingTypeCardView(
+                isSelected: offering == .givingAway,
+                title: "posts.give_away".localized,
+                icon: "gift.fill",
+                iconColor: .green,
+                description: "posts.give_away_desc".localized
+            ) {
+                offering = .givingAway
+            }
+            
+            OfferingTypeCardView(
+                isSelected: offering == .soldAtPrice,
+                title: "posts.sell".localized,
+                icon: "eurosign.circle.fill",
+                iconColor: .blue,
+                description: "posts.sell_desc".localized
+            ) {
+                offering = .soldAtPrice
+            }
+        }
+    }
+}
+
+struct PostDetailsSection: View {
+    @Binding var title: String
+    @Binding var description: String
+    @Binding var selectedCategory: String
+    @Binding var offering: PostOffering
+    @Binding var price: String
+    let categories: [Category]
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        Section {
+            TitleInputView(title: $title)
+            DescriptionInputView(description: $description)
+            CategorySelectionView(selectedCategory: $selectedCategory, categories: categories)
+            OfferingSelectionView(offering: $offering)
+
+            if offering == .soldAtPrice {
+                PriceInputView(price: $price)
+            }
+        } header: {
+            Text("posts.details".localized)
+                .font(.footnote)
+                .fontWeight(.semibold)
+        }
     }
 }
 
@@ -222,7 +280,8 @@ struct ImagesSection: View {
                         
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            ForEach(Array(imagePreviews.enumerated()), id: \.offset) { index, imageData in
+                            ForEach(0..<imagePreviews.count, id: \.self) { index in
+                                let imageData = imagePreviews[index]
                                 ImagePreviewView(
                                     imageData: imageData,
                                     index: index,
@@ -255,8 +314,10 @@ struct LocationSection: View {
     var countryCode: String = UserDefaults.standard.string(forKey: "countryCode") ?? ""
     
     var hasValidLocation: Bool {
-        return !postalCode.isEmpty && !countryCode.isEmpty && 
-               postalCode != "Unknown" && countryCode != "Unknown"
+        // Split into separate conditions to reduce complexity
+        let hasNonEmptyValues = !postalCode.isEmpty && !countryCode.isEmpty
+        let hasKnownValues = postalCode != "Unknown" && countryCode != "Unknown"
+        return hasNonEmptyValues && hasKnownValues
     }
     
     // Translate country code
@@ -277,7 +338,9 @@ struct LocationSection: View {
                     VStack(alignment: .leading) {
                         Text("posts.posting_location".localized)
                             .font(.subheadline)
-                        Text("\(postalCode), \(localizedCountry)")
+                        // Prepare formatted location string separately
+                        let locationText = "\(postalCode), \(localizedCountry)"
+                        Text(locationText)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -312,8 +375,64 @@ struct LocationSection: View {
     }
 }
 
+struct CreatePostButtonSection: View {
+    let isFormValid: Bool
+    let isLoading: Bool
+    let onCreatePost: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Button(action: onCreatePost) {
+                HStack {
+                    Spacer()
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    } else {
+                        Text("posts.create".localized)
+                            .fontWeight(.semibold)
+                    }
+                    Spacer()
+                }
+                .padding(.vertical, 16)
+                .background(isFormValid ? Color.blue : Color.gray.opacity(0.5))
+                .foregroundColor(.white)
+                .cornerRadius(12)
+            }
+            .disabled(isLoading || !isFormValid)
+            
+            if !isFormValid {
+                Text("posts.fill_required".localized)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+    }
+}
+
+struct FormHeaderView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("posts.create_new".localized)
+                .font(.title2)
+                .fontWeight(.bold)
+                
+            Text("posts.share_with_community".localized)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .listRowBackground(Color.clear)
+        .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
+    }
+}
+
 struct CreatePostView: View {
-    @ObservedObject var viewModel: CreatePostViewModel
+    @StateObject private var viewModel: CreatePostViewModel
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
+    @Environment(\.dismiss) private var dismiss
+    
+    // Form state properties
     @State private var title = ""
     @State private var description = ""
     @State private var selectedCategory = ""
@@ -324,129 +443,103 @@ struct CreatePostView: View {
     @State private var error: String?
     @State private var showSuccess = false
     @State private var isFormValid = false
-    @Environment(\.presentationMode) var presentationMode
+
+    init() {
+        _viewModel = StateObject(wrappedValue: CreatePostViewModel())
+    }
+    
+    // Computed properties to break down complex expressions
+    private var hasTitleAndDescription: Bool {
+        return !title.isEmpty && !description.isEmpty
+    }
+    
+    private var hasCategorySelected: Bool {
+        return !selectedCategory.isEmpty
+    }
+    
+    private var hasPriceIfNeeded: Bool {
+        return offering == .givingAway || (offering == .soldAtPrice && !price.isEmpty)
+    }
 
     var body: some View {
-        Form {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("posts.create_new".localized)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    
-                Text("posts.share_with_community".localized)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
-            
-            PostDetailsSection(
-                title: $title,
-                description: $description,
-                selectedCategory: $selectedCategory,
-                offering: $offering,
-                price: $price,
-                categories: viewModel.categories
-            )
-            
-            ImagesSection(
-                selectedImages: $selectedImages,
-                imagePreviews: $imagePreviews
-            )
-            
-            LocationSection()
-            
-            Section {
-                VStack(spacing: 16) {
-                    Button(action: {
-                        Task {
-                            do {
-                                try await viewModel.createPost(
-                                    title: title,
-                                    description: description,
-                                    category: selectedCategory,
-                                    offering: offering.rawValue,
-                                    images: imagePreviews,
-                                    price: offering == .soldAtPrice ? price : nil
-                                )
-                                showSuccess = true
-                                // Reset form
-                                resetForm()
-                            } catch {
-                                self.error = error.localizedDescription
+        NavigationView {
+            Form {
+                FormHeaderView()
+                
+                PostDetailsSection(
+                    title: $title,
+                    description: $description,
+                    selectedCategory: $selectedCategory,
+                    offering: $offering,
+                    price: $price,
+                    categories: categoryViewModel.topLevelCategories
+                )
+                
+                ImagesSection(
+                    selectedImages: $selectedImages,
+                    imagePreviews: $imagePreviews
+                )
+                
+                LocationSection()
+                
+                Section {
+                    CreatePostButtonSection(
+                        isFormValid: isFormValid,
+                        isLoading: viewModel.isLoading,
+                        onCreatePost: {
+                            Task {
+                                do {
+                                    try await viewModel.createPost(
+                                        title: title,
+                                        description: description,
+                                        category: selectedCategory,
+                                        offering: offering.rawValue,
+                                        images: imagePreviews,
+                                        price: offering == .soldAtPrice ? price : nil
+                                    )
+                                    showSuccess = true
+                                    // Reset form
+                                    resetForm()
+                                } catch {
+                                    self.error = error.localizedDescription
+                                }
                             }
                         }
-                    }) {
-                        HStack {
-                            Spacer()
-                            if viewModel.isLoading {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            } else {
-                                Text("posts.create".localized)
-                                    .fontWeight(.semibold)
-                            }
-                            Spacer()
-                        }
-                        .padding(.vertical, 16)
-                        .background(isFormValid ? Color.blue : Color.gray.opacity(0.5))
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                    }
-                    .disabled(
-                        viewModel.isLoading || !isFormValid
                     )
-                    
-                    if !isFormValid {
-                        Text("posts.fill_required".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .listRowBackground(Color.clear)
+            }
+            .navigationTitle("post.create".localized)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("common.cancel".localized) {
+                        dismiss()
                     }
                 }
             }
-            .listRowBackground(Color.clear)
-        }
-        .onChange(of: selectedImages) { items in
-            Task {
-                imagePreviews = []
-                for item in items {
-                    if let data = try? await item.loadTransferable(type: Data.self) {
-                        imagePreviews.append(data)
+            .onChange(of: selectedImages) { items in
+                Task {
+                    imagePreviews = []
+                    for item in items {
+                        if let data = try? await item.loadTransferable(type: Data.self) {
+                            imagePreviews.append(data)
+                        }
                     }
                 }
             }
+            .onChange(of: title) { _ in validateForm() }
+            .onChange(of: description) { _ in validateForm() }
+            .onChange(of: selectedCategory) { _ in validateForm() }
+            .onChange(of: price) { _ in validateForm() }
+            .onChange(of: offering) { _ in validateForm() }
+            .applyAlerts(error: $error, showSuccess: $showSuccess, onDismissSuccess: { dismiss() })
         }
-        .onChange(of: [title, description, selectedCategory, price]) { _ in
-            validateForm()
-        }
-        .onChange(of: offering) { _ in
-            validateForm()
-        }
-        .alert("common.error".localized, isPresented: .constant(error != nil)) {
-            Button("common.ok".localized) {
-                error = nil
-            }
-        } message: {
-            Text(error ?? "")
-        }
-        .alert("common.success".localized, isPresented: $showSuccess) {
-            Button("common.ok".localized, role: .cancel) {
-                presentationMode.wrappedValue.dismiss()
-            }
-        } message: {
-            Text("posts.post_created".localized)
-        }
-        .task {
-            await viewModel.fetchCategories()
-        }
+        .environmentObject(categoryViewModel)
     }
     
     private func validateForm() {
-        isFormValid = !title.isEmpty && 
-                     !description.isEmpty && 
-                     !selectedCategory.isEmpty && 
-                     (offering == .givingAway || (offering == .soldAtPrice && !price.isEmpty))
+        isFormValid = hasTitleAndDescription && hasCategorySelected && hasPriceIfNeeded
     }
     
     private func resetForm() {
@@ -460,6 +553,28 @@ struct CreatePostView: View {
     }
 }
 
+// Extension to apply alert modifiers
+extension View {
+    func applyAlerts(error: Binding<String?>, showSuccess: Binding<Bool>, onDismissSuccess: @escaping () -> Void) -> some View {
+        return self
+            .alert("common.error".localized, isPresented: .constant(error.wrappedValue != nil)) {
+                Button("common.ok".localized) {
+                    error.wrappedValue = nil
+                }
+            } message: {
+                Text(error.wrappedValue ?? "")
+            }
+            .alert("common.success".localized, isPresented: showSuccess) {
+                Button("common.ok".localized, role: .cancel) {
+                    onDismissSuccess()
+                }
+            } message: {
+                Text("posts.post_created".localized)
+            }
+    }
+}
+
 #Preview {
-    CreatePostView(viewModel: CreatePostViewModel())
+    CreatePostView()
+        .environmentObject(CategoryViewModel.shared)
 }

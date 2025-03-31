@@ -16,6 +16,7 @@ struct zack_weg_iosApp: App {
     @StateObject private var navigationState = NavigationState()
     @StateObject private var languageManager = LanguageManager.shared
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var categoryViewModel = CategoryViewModel.shared
     
     init() {
         // Configure services
@@ -99,6 +100,7 @@ struct zack_weg_iosApp: App {
                 .environmentObject(navigationState)
                 .environmentObject(languageManager)
                 .environmentObject(themeManager)
+                .environmentObject(categoryViewModel)
                 .preferredColorScheme(themeManager.currentTheme.colorScheme)
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                     // Clean up services when app terminates

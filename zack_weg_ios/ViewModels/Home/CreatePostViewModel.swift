@@ -3,49 +3,51 @@ import SwiftUI
 
 @MainActor
 class CreatePostViewModel: ObservableObject {
-    @Published var categories: [Category] = []
-    @Published var error: String?
     @Published var isLoading = false
+    @Published var error: String?
     
     private let apiService: APIService
     
-    init(apiService: APIService = .shared) {
+    init(apiService: APIService = APIService.shared) {
         self.apiService = apiService
     }
     
-    func fetchCategories() async {
+    func createPost(
+        title: String,
+        description: String,
+        category: String,
+        offering: String,
+        images: [Data],
+        price: String?
+    ) async throws {
         isLoading = true
         defer { isLoading = false }
         
         do {
-            categories = try await apiService.getCategories()
+            // First upload all images
+            var imageUrls: [String] = []
+            for imageData in images {
+                let url: String = try await apiService.uploadImage(imageData)
+                imageUrls.append(url)
+            }
+            
+            // Convert price string to Double if needed
+            let priceDouble: Double? = price.flatMap { priceString in
+                return Double(priceString)
+            }
+            
+            // Create the post with the uploaded image URLs
+            try await apiService.createPost(
+                title: title,
+                description: description,
+                categoryId: category,
+                offering: offering,
+                imageUrls: imageUrls,
+                price: priceDouble
+            )
         } catch {
             self.error = error.localizedDescription
+            throw error
         }
-    }
-    
-    func createPost(title: String, description: String, category: String, offering: String, images: [Data], price: String? = nil) async throws {
-        isLoading = true
-        defer { isLoading = false }
-        
-        let imageUrls = try await uploadImages(images)
-        let priceDouble = price.flatMap { Double($0) }
-        try await apiService.createPost(
-            title: title,
-            description: description,
-            categoryId: category,
-            offering: offering,
-            imageUrls: imageUrls,
-            price: priceDouble
-        )
-    }
-    
-    private func uploadImages(_ images: [Data]) async throws -> [String] {
-        var urls: [String] = []
-        for image in images {
-            let url = try await apiService.uploadImage(image)
-            urls.append(url)
-        }
-        return urls
     }
 } 

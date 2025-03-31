@@ -5,7 +5,7 @@ struct HomeView: View {
     @StateObject private var viewModel = CreatePostViewModel()
     
     var body: some View {
-        CreatePostView(viewModel: viewModel)
+        CreatePostView()
             .navigationTitle("posts.create".localized)
             .navigationBarTitleDisplayMode(.inline)
     }

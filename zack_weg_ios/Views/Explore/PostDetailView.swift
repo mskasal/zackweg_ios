@@ -2,20 +2,19 @@ import SwiftUI
 
 struct PostDetailView: View {
     let post: Post
-    let categories: [Category]
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @StateObject private var viewModel: PostDetailViewModel
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
     @Environment(\.dismiss) private var dismiss
     
-    init(post: Post, categories: [Category]) {
+    init(post: Post) {
         self.post = post
-        self.categories = categories
         _viewModel = StateObject(wrappedValue: PostDetailViewModel(post: post))
     }
     
     private var category: Category? {
-        categories.first { $0.id == post.categoryId }
+        categoryViewModel.getCategory(byId: post.categoryId)
     }
     
     var body: some View {
@@ -318,6 +317,7 @@ struct PostDetailView: View {
                 await viewModel.loadSellerInfo()
             }
         }
+        .environmentObject(categoryViewModel)
     }
 }
 
@@ -350,11 +350,6 @@ struct PostDetailView: View {
         decoder.dateDecodingStrategy = .iso8601
         let post = try! decoder.decode(Post.self, from: jsonData)
         
-        return PostDetailView(
-            post: post,
-            categories: [
-                Category(id: "1", title: "Toys", parentId: "parent1")
-            ]
-        )
+        return PostDetailView(post: post)
     }
 } 

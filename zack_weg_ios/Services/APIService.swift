@@ -206,7 +206,7 @@ class APIService {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        var body: [String: Any] = [
+        let body: [String: Any] = [
             "title": title,
             "description": description,
             "category_id": categoryId,

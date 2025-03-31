@@ -38,6 +38,7 @@ fileprivate struct BadgeView: View {
 
 struct ExploreView: View {
     @StateObject private var viewModel = ExploreViewModel()
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @State private var showFilters = false
     @State private var showMap = false
     @State private var searchTask: Task<Void, Never>?
@@ -185,7 +186,7 @@ struct ExploreView: View {
                     
                     // Display active category filter
                     if !viewModel.searchFilters.categoryId.isEmpty {
-                        let categoryName = viewModel.categories.first(where: { $0.id == viewModel.searchFilters.categoryId })?.title ?? "Category"
+                        let categoryName = categoryViewModel.getCategory(byId: viewModel.searchFilters.categoryId)?.title ?? "Category"
                         
                         HStack {
                             Text(categoryName)
@@ -193,7 +194,6 @@ struct ExploreView: View {
                             
                             Button(action: {
                                 viewModel.searchFilters.categoryId = ""
-                                viewModel.selectedParentCategory = nil
                                 Task {
                                     await viewModel.searchPosts()
                                 }
@@ -242,7 +242,7 @@ struct ExploreView: View {
             } else {
                 List {
                     ForEach(viewModel.searchResults) { post in
-                        PostCard(post: post, categories: viewModel.categories)
+                        PostCard(post: post)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                     }
@@ -252,7 +252,7 @@ struct ExploreView: View {
                 .scrollContentBackground(.hidden)
                 .refreshable {
                     // Refresh data when the user pulls down
-                    await viewModel.fetchCategories()
+                    await categoryViewModel.fetchCategories()
                     await viewModel.fetchPosts()
                 }
             }
@@ -261,18 +261,14 @@ struct ExploreView: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showFilters) {
             FilterView(viewModel: viewModel)
+                .environmentObject(categoryViewModel)
         }
         .sheet(isPresented: $showMap) {
-            MapView(posts: viewModel.searchResults, categories: viewModel.categories)
+            MapView(posts: viewModel.searchResults)
         }
         .task {
-            // Load categories first, then posts
-            await viewModel.fetchCategories()
-            
-            // Only fetch posts if categories loaded successfully or we already have categories
-            if !viewModel.categories.isEmpty {
-                await viewModel.fetchPosts()
-            }
+            // Load posts
+            await viewModel.fetchPosts()
         }
     }
 }
@@ -305,275 +301,6 @@ struct CategoryButton: View {
                 .background(isSelected ? Color.blue : Color(uiColor: .systemGray6))
                 .foregroundColor(isSelected ? .white : .primary)
                 .cornerRadius(20)
-        }
-    }
-}
-
-struct FilterView: View {
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var viewModel: ExploreViewModel
-    
-    // Add these offering constants
-    private let allOfferings = ["GIVING_AWAY", "SOLD_AT_PRICE"]
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Location Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("explore.filter_location".localized)
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 12) {
-                            TextField("Postal Code", text: $viewModel.searchFilters.postalCode)
-                                .keyboardType(.numberPad)
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
-                            
-                            TextField("Country Code", text: $viewModel.searchFilters.countryCode)
-                                .textInputAutocapitalization(.characters)
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
-                            
-                            VStack(spacing: 8) {
-                                HStack {
-                                    Text("explore.filter_radius".localized)
-                                    Spacer()
-                                    Text(String(format: "explore.filter_distance_km".localized, Int(viewModel.searchFilters.radiusKm)))
-                                }
-                                
-                                Slider(value: $viewModel.searchFilters.radiusKm, in: 1...100, step: 1)
-                            }
-                            .padding(.horizontal, 4)
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    Divider()
-                        .padding(.horizontal)
-                    
-                    // Categories Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Text("explore.filter_categories".localized)
-                                .font(.headline)
-                            Spacer()
-                            Button("common.clear".localized) {
-                                viewModel.selectedParentCategory = nil
-                                viewModel.searchFilters.categoryId = ""
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.blue)
-                        }
-                        .padding(.horizontal)
-                        
-                        if viewModel.isCategoriesLoading {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                Spacer()
-                            }
-                            .padding()
-                        } else if viewModel.error != nil && viewModel.topLevelCategories.isEmpty {
-                            HStack {
-                                Text("explore.failed_categories".localized)
-                                    .foregroundColor(.red)
-                                Button(action: {
-                                    Task {
-                                        await viewModel.fetchCategories()
-                                    }
-                                }) {
-                                    Image(systemName: "arrow.clockwise")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .padding()
-                        } else {
-                            // Parent Categories
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    // "All" option
-                                    Button(action: {
-                                        viewModel.selectParentCategory(nil)
-                                    }) {
-                                        Text("common.all".localized)
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                viewModel.selectedParentCategory == nil ? 
-                                                    Color.blue : 
-                                                    Color(UIColor.secondarySystemBackground)
-                                            )
-                                            .foregroundColor(viewModel.selectedParentCategory == nil ? .white : .primary)
-                                            .cornerRadius(20)
-                                    }
-                                    
-                                    // Parent categories
-                                    ForEach(viewModel.topLevelCategories) { category in
-                                        Button(action: {
-                                            viewModel.selectParentCategory(category)
-                                        }) {
-                                            Text(category.title)
-                                                .padding(.horizontal, 16)
-                                                .padding(.vertical, 8)
-                                                .background(
-                                                    viewModel.selectedParentCategory?.id == category.id ? 
-                                                        Color.blue : 
-                                                        Color(UIColor.secondarySystemBackground)
-                                                )
-                                                .foregroundColor(viewModel.selectedParentCategory?.id == category.id ? .white : .primary)
-                                                .cornerRadius(20)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                            }
-                            
-                            // Subcategories (only shown when a parent is selected with children)
-                            if let parentCategory = viewModel.selectedParentCategory,
-                               let subcategories = viewModel.subCategories[parentCategory.id],
-                               !subcategories.isEmpty {
-                                
-                                Text("explore.filter_subcategories".localized)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal)
-                                    .padding(.top, 8)
-                                
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 12) {
-                                        // "All in [Parent]" option
-                                        Button(action: {
-                                            viewModel.searchFilters.categoryId = parentCategory.id
-                                        }) {
-                                            Text(String(format: "explore.filter_all_in".localized, parentCategory.title))
-                                                .padding(.horizontal, 16)
-                                                .padding(.vertical, 8)
-                                                .background(
-                                                    viewModel.searchFilters.categoryId == parentCategory.id ? 
-                                                        Color.blue : 
-                                                        Color(UIColor.secondarySystemBackground)
-                                                )
-                                                .foregroundColor(viewModel.searchFilters.categoryId == parentCategory.id ? .white : .primary)
-                                                .cornerRadius(20)
-                                        }
-                                        
-                                        // Subcategories
-                                        ForEach(subcategories) { subcategory in
-                                            Button(action: {
-                                                viewModel.selectSubcategory(subcategory)
-                                            }) {
-                                                Text(subcategory.title)
-                                                    .padding(.horizontal, 16)
-                                                    .padding(.vertical, 8)
-                                                    .background(
-                                                        viewModel.searchFilters.categoryId == subcategory.id ? 
-                                                            Color.blue : 
-                                                            Color(UIColor.secondarySystemBackground)
-                                                    )
-                                                    .foregroundColor(viewModel.searchFilters.categoryId == subcategory.id ? .white : .primary)
-                                                    .cornerRadius(20)
-                                            }
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
-                            }
-                        }
-                    }
-                    
-                    Divider()
-                        .padding(.horizontal)
-                    
-                    // Offering Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("explore.filter_offering".localized)
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack(alignment: .leading, spacing: 10) {
-                            Button(action: {
-                                viewModel.searchFilters.offering = nil
-                            }) {
-                                HStack {
-                                    Text("common.all".localized)
-                                    Spacer()
-                                    if viewModel.searchFilters.offering == nil {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
-                            }
-                            .foregroundColor(.primary)
-                            
-                            ForEach(allOfferings, id: \.self) { offering in
-                                Button(action: {
-                                    viewModel.searchFilters.offering = offering
-                                }) {
-                                    HStack {
-                                        Text(offering.replacingOccurrences(of: "_", with: " ").capitalized)
-                                        Spacer()
-                                        if viewModel.searchFilters.offering == offering {
-                                            Image(systemName: "checkmark")
-                                                .foregroundColor(.blue)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(Color(UIColor.secondarySystemBackground))
-                                    .cornerRadius(10)
-                                }
-                                .foregroundColor(.primary)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    Button(action: {
-                        viewModel.searchFilters = SearchFilters()
-                        viewModel.selectedParentCategory = nil
-                        Task {
-                            await viewModel.searchPosts()
-                        }
-                        dismiss()
-                    }) {
-                        Text("explore.clear_filters".localized)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.red.opacity(0.1))
-                            .foregroundColor(.red)
-                            .cornerRadius(10)
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 10)
-                }
-                .padding(.vertical)
-            }
-            .navigationTitle("explore.filters".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("common.cancel".localized) {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("explore.apply_filters".localized) {
-                        Task {
-                            await viewModel.searchPosts()
-                        }
-                        dismiss()
-                    }
-                    .fontWeight(.bold)
-                }
-            }
         }
     }
 }

@@ -3,14 +3,14 @@ import Foundation
 
 struct PostCard: View {
     let post: Post
-    let categories: [Category]
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
     var userLocation: Location? = nil // Optional user location
     @State private var showingImagePreview = false
     @State private var loadedImages = false
     @Environment(\.colorScheme) private var colorScheme
     
     private var category: Category? {
-        categories.first { $0.id == post.categoryId }
+        categoryViewModel.getCategory(byId: post.categoryId)
     }
     
     var body: some View {
@@ -44,7 +44,7 @@ struct PostCard: View {
                 // Title and Price/Free badge
                 HStack(alignment: .top) {
                     ZStack(alignment: .leading) {
-                        NavigationLink(destination: PostDetailView(post: post, categories: categories)) {
+                        NavigationLink(destination: PostDetailView(post: post)) {
                             EmptyView()
                         }
                         .opacity(0)
@@ -146,6 +146,7 @@ struct PostCard: View {
         .fullScreenCover(isPresented: $showingImagePreview) {
             PostCardImagePreviewView(imageUrls: post.imageUrls)
         }
+        .environmentObject(categoryViewModel)
     }
     
     // Optimized image loading with caching and better placeholders

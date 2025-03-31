@@ -4,17 +4,10 @@ import SwiftUI
 @MainActor
 class ExploreViewModel: ObservableObject {
     @Published var posts: [Post] = []
-    @Published var categories: [Category] = []
     @Published var error: String?
     @Published var isLoading = false
-    @Published var isCategoriesLoading = false  // Add specific loading state for categories
     @Published var searchResults: [Post] = []
     @Published var searchFilters = SearchFilters()
-    
-    // Add new properties for hierarchical categories
-    @Published var topLevelCategories: [Category] = []
-    @Published var subCategories: [String: [Category]] = [:] // Parent ID to list of child categories
-    @Published var selectedParentCategory: Category? = nil
     
     private let apiService: APIService
     
@@ -62,53 +55,9 @@ class ExploreViewModel: ObservableObject {
         }
     }
     
-    func fetchCategories() async {
-        isCategoriesLoading = true
-        
-        do {
-            categories = try await apiService.getCategories()
-            
-            // Organize categories hierarchically
-            topLevelCategories = categories.filter { $0.isTopLevel }
-            
-            // Group subcategories by parent ID
-            subCategories = Dictionary(grouping: categories.filter { !$0.isTopLevel }, 
-                                     by: { $0.parentId! })
-            
-            // If we previously had a selectedParentCategory, try to find it in the new data
-            if let selectedId = selectedParentCategory?.id {
-                selectedParentCategory = categories.first { $0.id == selectedId }
-            }
-            
-        } catch {
-            self.error = "Failed to load categories: \(error.localizedDescription)"
-            print("Error fetching categories: \(error)")
-        }
-        
-        isCategoriesLoading = false
-    }
-    
-    // Add method to select a parent category
-    func selectParentCategory(_ category: Category?) {
-        selectedParentCategory = category
-        // If nil, clear the category filter
-        if category == nil {
-            searchFilters.categoryId = ""
-            Task {
-                await searchPosts()
-            }
-        } else if !category!.hasChildren(in: categories) {
-            // If category has no children, set it as the filter directly
-            searchFilters.categoryId = category!.id
-            Task {
-                await searchPosts()
-            }
-        }
-    }
-    
-    // Add method to select a subcategory
-    func selectSubcategory(_ category: Category) {
-        searchFilters.categoryId = category.id
+    // Add method to select a category
+    func selectCategory(_ categoryId: String) {
+        searchFilters.categoryId = categoryId
         Task {
             await searchPosts()
         }
