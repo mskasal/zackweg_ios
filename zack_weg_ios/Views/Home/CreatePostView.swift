@@ -121,7 +121,9 @@ struct PriceInputView: View {
 
 struct CategorySelectionView: View {
     @Binding var selectedCategory: String
+    @Binding var selectedParentCategoryId: String?
     let categories: [Category]
+    @EnvironmentObject private var categoryViewModel: CategoryViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -135,19 +137,74 @@ struct CategorySelectionView: View {
                     .foregroundColor(.secondary)
                     .padding(.vertical, 8)
             } else {
+                // Parent Categories
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(categories, id: \.id) { category in
-                            let isSelected: Bool = selectedCategory == category.id
+                            let isSelected: Bool = selectedParentCategoryId == category.id
                             CategoryPill(
                                 category: category,
                                 isSelected: isSelected
                             ) {
-                                selectedCategory = category.id
+                                selectedParentCategoryId = category.id
+                                
+                                // If category has no children, set it directly as the selected category
+                                if !categoryViewModel.hasChildren(for: category.id) {
+                                    selectedCategory = category.id
+                                } else {
+                                    // Clear selection when parent category changes
+                                    selectedCategory = ""
+                                }
                             }
                         }
                     }
                     .padding(.vertical, 8)
+                }
+                
+                // Show subcategories if a parent is selected
+                if let parentCategoryId = selectedParentCategoryId,
+                   categoryViewModel.hasChildren(for: parentCategoryId) {
+                    
+                    let subcategories = categoryViewModel.getChildCategories(for: parentCategoryId)
+                    
+                    Text("explore.filter_subcategories".localized)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            // Add option to select the parent category itself
+                            if let parentCategory = categoryViewModel.getCategory(byId: parentCategoryId) {
+                                Button(action: {
+                                    selectedCategory = parentCategory.id
+                                }) {
+                                    Text(String(format: "explore.filter_all_in".localized, parentCategory.title))
+                                        .font(.subheadline)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            selectedCategory == parentCategory.id ? 
+                                                Color.blue : 
+                                                Color(UIColor.secondarySystemBackground)
+                                        )
+                                        .foregroundColor(selectedCategory == parentCategory.id ? .white : .primary)
+                                        .cornerRadius(20)
+                                }
+                            }
+                            
+                            // Subcategories
+                            ForEach(subcategories) { subcategory in
+                                CategoryPill(
+                                    category: subcategory,
+                                    isSelected: selectedCategory == subcategory.id
+                                ) {
+                                    selectedCategory = subcategory.id
+                                }
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
                 }
             }
         }
@@ -221,6 +278,7 @@ struct PostDetailsSection: View {
     @Binding var title: String
     @Binding var description: String
     @Binding var selectedCategory: String
+    @Binding var selectedParentCategoryId: String?
     @Binding var offering: PostOffering
     @Binding var price: String
     let categories: [Category]
@@ -230,7 +288,11 @@ struct PostDetailsSection: View {
         Section {
             TitleInputView(title: $title)
             DescriptionInputView(description: $description)
-            CategorySelectionView(selectedCategory: $selectedCategory, categories: categories)
+            CategorySelectionView(
+                selectedCategory: $selectedCategory,
+                selectedParentCategoryId: $selectedParentCategoryId,
+                categories: categories
+            )
             OfferingSelectionView(offering: $offering)
 
             if offering == .soldAtPrice {
@@ -443,6 +505,7 @@ struct CreatePostView: View {
     @State private var error: String?
     @State private var showSuccess = false
     @State private var isFormValid = false
+    @State private var selectedParentCategoryId: String? = nil
 
     init() {
         _viewModel = StateObject(wrappedValue: CreatePostViewModel())
@@ -469,6 +532,7 @@ struct CreatePostView: View {
                 title: $title,
                 description: $description,
                 selectedCategory: $selectedCategory,
+                selectedParentCategoryId: $selectedParentCategoryId,
                 offering: $offering,
                 price: $price,
                 categories: categoryViewModel.topLevelCategories
@@ -536,6 +600,7 @@ struct CreatePostView: View {
         title = ""
         description = ""
         selectedCategory = ""
+        selectedParentCategoryId = nil
         offering = .givingAway
         price = ""
         selectedImages = []
