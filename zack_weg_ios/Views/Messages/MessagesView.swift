@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MessagesView: View {
     @StateObject private var viewModel = MessagesViewModel()
+    @EnvironmentObject private var unreadMessagesViewModel: UnreadMessagesViewModel
     @State private var shouldRefresh = false
     
     var body: some View {
@@ -69,8 +70,10 @@ struct MessagesView: View {
             ForEach(viewModel.conversations) { conversation in
                 NavigationLink(destination: ConversationDetailView(conversation: conversation)
                     .onDisappear {
-                        // When returning from conversation detail, trigger a refresh
+                        // When returning from conversation detail, trigger a refresh of conversations
                         shouldRefresh = true
+                        // Also refresh the unread count
+                        unreadMessagesViewModel.refreshUnreadCount()
                     }
                 ) {
                     ConversationRow(conversation: conversation, viewModel: viewModel)

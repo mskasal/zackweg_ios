@@ -7,6 +7,7 @@ struct ConversationDetailView: View {
     let seller: PublicUser?
     let post: Post?
     @StateObject private var viewModel: ConversationDetailViewModel
+    @EnvironmentObject private var unreadMessagesViewModel: UnreadMessagesViewModel
     @State private var messageText = ""
     @FocusState private var isFocused: Bool
     
@@ -144,6 +145,16 @@ struct ConversationDetailView: View {
         .navigationTitle(seller?.nickName ?? viewModel.conversation.user2.nickName)
         .navigationBarTitleDisplayMode(.inline)
         .task {
+            // Mark conversation as read when opening the view
+            do {
+                let conversationId = viewModel.conversation.id
+                try await APIService.shared.markConversationAsRead(conversationId: conversationId)
+                // Refresh unread count after marking this conversation as read
+                unreadMessagesViewModel.refreshUnreadCount()
+            } catch {
+                print("Error marking conversation as read: \(error)")
+            }
+            
             await viewModel.fetchMessages()
         }
     }

@@ -10,6 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var unreadMessagesViewModel = UnreadMessagesViewModel()
     @EnvironmentObject var themeManager: ThemeManager
     @State private var showDebugMenu = false
     @State private var isShowingSplash = true
@@ -43,6 +44,7 @@ struct ContentView: View {
                             .tabItem {
                                 Label("messages.title".localized, systemImage: "message.fill")
                             }
+                            .badge(unreadMessagesViewModel.unreadCount)
                             .tag(2)
                             
                             NavigationStack {
@@ -54,6 +56,7 @@ struct ContentView: View {
                             .tag(3)
                             .environmentObject(authViewModel)
                         }
+                        .environmentObject(unreadMessagesViewModel)
                     } else {
                         NavigationStack {
                             SignInView(authViewModel: authViewModel)
@@ -91,6 +94,11 @@ struct ContentView: View {
                             isShowingSplash = false
                         }
                     }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            if authViewModel.isAuthenticated {
+                unreadMessagesViewModel.refreshUnreadCount()
             }
         }
     }

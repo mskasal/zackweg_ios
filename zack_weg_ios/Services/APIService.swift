@@ -814,6 +814,44 @@ class APIService {
         print("✅ getUserById Success: Retrieved user with nickname: \(user.nickName)")
         return user
     }
+    
+    func getUnreadMessagesCount() async throws -> Int {
+        let url = URL(string: "\(baseURL)/messages/conversations/unread")!
+        print("📱 Get Total Unread Count Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get Total Unread Count Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get Total Unread Count Response Body: \(responseString)")
+        }
+        
+        if httpResponse.statusCode == 401 {
+            throw APIError.unauthorized
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            throw APIError.serverError("Invalid status code: \(httpResponse.statusCode)")
+        }
+        
+        do {
+            let decoder = JSONDecoder()
+            let countResponse = try decoder.decode([String: Int].self, from: data)
+            print("✅ Successfully got total unread count: \(countResponse["count"] ?? 0)")
+            return countResponse["count"] ?? 0
+        } catch {
+            print("❌ Error decoding unread count: \(error)")
+            throw APIError.decodingError(error)
+        }
+    }
 }
 
 // Response Models
