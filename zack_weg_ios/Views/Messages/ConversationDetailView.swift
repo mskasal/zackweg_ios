@@ -147,8 +147,7 @@ struct ConversationDetailView: View {
         .task {
             // Mark conversation as read when opening the view
             do {
-                let conversationId = viewModel.conversation.id
-                try await APIService.shared.markConversationAsRead(conversationId: conversationId)
+                try await viewModel.markConversationAsRead()
                 // Refresh unread count after marking this conversation as read
                 unreadMessagesViewModel.refreshUnreadCount()
             } catch {
