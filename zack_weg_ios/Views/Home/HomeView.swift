@@ -6,8 +6,6 @@ struct HomeView: View {
     
     var body: some View {
         CreatePostView()
-            .navigationTitle("posts.create".localized)
-            .navigationBarTitleDisplayMode(.inline)
     }
 }
 

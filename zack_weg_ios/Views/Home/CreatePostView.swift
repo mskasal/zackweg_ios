@@ -423,7 +423,7 @@ struct FormHeaderView: View {
                 .foregroundColor(.secondary)
         }
         .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 20, leading: 20, bottom: 20, trailing: 20))
+        .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
     }
 }
 
@@ -462,80 +462,70 @@ struct CreatePostView: View {
     }
 
     var body: some View {
-        NavigationView {
-            Form {
-                FormHeaderView()
-                
-                PostDetailsSection(
-                    title: $title,
-                    description: $description,
-                    selectedCategory: $selectedCategory,
-                    offering: $offering,
-                    price: $price,
-                    categories: categoryViewModel.topLevelCategories
-                )
-                
-                ImagesSection(
-                    selectedImages: $selectedImages,
-                    imagePreviews: $imagePreviews
-                )
-                
-                LocationSection()
-                
-                Section {
-                    CreatePostButtonSection(
-                        isFormValid: isFormValid,
-                        isLoading: viewModel.isLoading,
-                        onCreatePost: {
-                            Task {
-                                do {
-                                    try await viewModel.createPost(
-                                        title: title,
-                                        description: description,
-                                        category: selectedCategory,
-                                        offering: offering.rawValue,
-                                        images: imagePreviews,
-                                        price: offering == .soldAtPrice ? price : nil
-                                    )
-                                    showSuccess = true
-                                    // Reset form
-                                    resetForm()
-                                } catch {
-                                    self.error = error.localizedDescription
-                                }
+        Form {
+            FormHeaderView()
+            
+            PostDetailsSection(
+                title: $title,
+                description: $description,
+                selectedCategory: $selectedCategory,
+                offering: $offering,
+                price: $price,
+                categories: categoryViewModel.topLevelCategories
+            )
+            
+            ImagesSection(
+                selectedImages: $selectedImages,
+                imagePreviews: $imagePreviews
+            )
+            
+            LocationSection()
+            
+            Section {
+                CreatePostButtonSection(
+                    isFormValid: isFormValid,
+                    isLoading: viewModel.isLoading,
+                    onCreatePost: {
+                        Task {
+                            do {
+                                try await viewModel.createPost(
+                                    title: title,
+                                    description: description,
+                                    category: selectedCategory,
+                                    offering: offering.rawValue,
+                                    images: imagePreviews,
+                                    price: offering == .soldAtPrice ? price : nil
+                                )
+                                showSuccess = true
+                                // Reset form
+                                resetForm()
+                            } catch {
+                                self.error = error.localizedDescription
                             }
                         }
-                    )
-                }
-                .listRowBackground(Color.clear)
-            }
-            .navigationTitle("post.create".localized)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("common.cancel".localized) {
-                        dismiss()
                     }
-                }
+                )
             }
-            .onChange(of: selectedImages) { items in
-                Task {
-                    imagePreviews = []
-                    for item in items {
-                        if let data = try? await item.loadTransferable(type: Data.self) {
-                            imagePreviews.append(data)
-                        }
-                    }
-                }
-            }
-            .onChange(of: title) { _ in validateForm() }
-            .onChange(of: description) { _ in validateForm() }
-            .onChange(of: selectedCategory) { _ in validateForm() }
-            .onChange(of: price) { _ in validateForm() }
-            .onChange(of: offering) { _ in validateForm() }
-            .applyAlerts(error: $error, showSuccess: $showSuccess, onDismissSuccess: { dismiss() })
+            .listRowBackground(Color.clear)
         }
-        .environmentObject(categoryViewModel)
+        .navigationTitle("posts.create".localized)
+        .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: selectedImages) { items in
+            Task {
+                imagePreviews = []
+                for item in items {
+                    if let data = try? await item.loadTransferable(type: Data.self) {
+                        imagePreviews.append(data)
+                    }
+                }
+            }
+        }
+        .onChange(of: title) { _ in validateForm() }
+        .onChange(of: description) { _ in validateForm() }
+        .onChange(of: selectedCategory) { _ in validateForm() }
+        .onChange(of: price) { _ in validateForm() }
+        .onChange(of: offering) { _ in validateForm() }
+        .applyAlerts(error: $error, showSuccess: $showSuccess, onDismissSuccess: { dismiss() })
     }
     
     private func validateForm() {
