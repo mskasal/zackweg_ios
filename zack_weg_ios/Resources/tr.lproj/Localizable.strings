@@ -252,11 +252,12 @@
 "post_detail.message_seller" = "Satıcıya Mesaj Gönder";
 "post_detail.report_post" = "İlanı Bildir";
 "post_detail.new_message" = "Yeni Mesaj";
-"post_detail.send_message_to" = "%@ kişisine bir mesaj gönder";
+"post_detail.send_message_to" = "%@ kişisine mesaj gönder";
 "post_detail.the_seller" = "satıcıya";
-"post_detail.posted_time_ago" = "%@ paylaşıldı";
-"post_detail.additional_info" = "Daha fazla bilgi ver (isteğe bağlı)";
+"post_detail.posted_time_ago" = "%@ önce paylaşıldı";
+"post_detail.additional_info" = "Daha fazla bilgi sağlayın (isteğe bağlı)";
 "post_detail.your_post" = "Senin İlanın";
+"post_detail.loading" = "İlan detayları yükleniyor...";
 
 // MARK: - Report
 "report.title" = "İlanı Bildir";

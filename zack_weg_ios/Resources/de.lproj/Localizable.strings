@@ -249,14 +249,15 @@
 // MARK: - Post Detail
 "post_detail.details" = "DETAILS";
 "post_detail.description" = "BESCHREIBUNG";
-"post_detail.message_seller" = "Nachricht an Verkäufer";
-"post_detail.report_post" = "Anzeige melden";
+"post_detail.message_seller" = "Verkäufer kontaktieren";
+"post_detail.report_post" = "Beitrag melden";
 "post_detail.new_message" = "Neue Nachricht";
 "post_detail.send_message_to" = "Sende eine Nachricht an %@";
 "post_detail.the_seller" = "den Verkäufer";
-"post_detail.posted_time_ago" = "Gepostet %@";
-"post_detail.additional_info" = "Weitere Informationen angeben (optional)";
+"post_detail.posted_time_ago" = "Eingestellt vor %@";
+"post_detail.additional_info" = "Weitere Informationen (optional)";
 "post_detail.your_post" = "Dein Beitrag";
+"post_detail.loading" = "Beitragsdetails werden geladen...";
 
 // MARK: - Report
 "report.title" = "Anzeige melden";

@@ -257,6 +257,7 @@
 "post_detail.posted_time_ago" = "Posted %@";
 "post_detail.additional_info" = "Provide more information (optional)";
 "post_detail.your_post" = "Your Post";
+"post_detail.loading" = "Loading post details...";
 
 // MARK: - Report
 "report.title" = "Report Listing";

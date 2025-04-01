@@ -55,7 +55,7 @@ struct PostDetailView: View {
         VStack {
             ProgressView()
                 .padding()
-            Text("Loading post details...")
+            Text("post_detail.loading".localized)
                 .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

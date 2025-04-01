@@ -245,7 +245,7 @@ struct ConversationHeaderView: View {
                             }
                         } else {
                             // Show loading text if post details aren't available yet
-                            Text("messages.loading".localized)
+                            Text("common.loading".localized)
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
