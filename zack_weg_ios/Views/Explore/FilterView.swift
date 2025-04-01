@@ -172,55 +172,6 @@ struct FilterView: View {
                         }
                     }
                     
-                    Divider()
-                        .padding(.horizontal)
-                    
-                    // Offering Section
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("explore.filter_offering".localized)
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        VStack(alignment: .leading, spacing: 10) {
-                            Button(action: {
-                                viewModel.searchFilters.offering = nil
-                            }) {
-                                HStack {
-                                    Text("common.all".localized)
-                                    Spacer()
-                                    if viewModel.searchFilters.offering == nil {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
-                            }
-                            .foregroundColor(.primary)
-                            
-                            ForEach(allOfferings, id: \.self) { offering in
-                                Button(action: {
-                                    viewModel.searchFilters.offering = offering
-                                }) {
-                                    HStack {
-                                        Text(getLocalizedOffering(offering))
-                                        Spacer()
-                                        if viewModel.searchFilters.offering == offering {
-                                            Image(systemName: "checkmark")
-                                                .foregroundColor(.blue)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(Color(UIColor.secondarySystemBackground))
-                                    .cornerRadius(10)
-                                }
-                                .foregroundColor(.primary)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    
                     Button(action: {
                         viewModel.searchFilters = SearchFilters()
                         selectedParentCategoryId = nil

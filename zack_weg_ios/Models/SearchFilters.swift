@@ -8,5 +8,4 @@ struct SearchFilters {
     var limit: Int = 10
     var offset: Int = 0
     var categoryId: String = ""
-    var offering: String?
 } 

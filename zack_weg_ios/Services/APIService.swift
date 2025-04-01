@@ -367,8 +367,8 @@ class APIService {
     
     func searchPosts(
         keyword: String? = nil,
-        postal_code: String? = "10317",
-        country_code: String? = "DEU",
+        postal_code: String? = nil,
+        country_code: String? = nil,
         radius_km: Double? = 1.0,
         limit: Int? = 10,
         offset: Int? = 0,
@@ -377,12 +377,38 @@ class APIService {
     ) async throws -> [Post] {
         var components = URLComponents(string: "\(baseURL)/posts/search")!
         
+        // Determine postal_code to use (parameter > keychain > userdefaults > default)
+        let finalPostalCode: String
+        if let postal_code = postal_code, !postal_code.isEmpty {
+            finalPostalCode = postal_code
+        } else if let keychainPostalCode = KeychainManager.shared.getPostalCode(), !keychainPostalCode.isEmpty {
+            finalPostalCode = keychainPostalCode
+        } else if let userDefaultsPostalCode = UserDefaults.standard.string(forKey: "postalCode"), !userDefaultsPostalCode.isEmpty {
+            finalPostalCode = userDefaultsPostalCode
+        } else {
+            finalPostalCode = "10317" // Default fallback
+            print("⚠️ Using default postal code for search: 10317")
+        }
+        
+        // Determine country_code to use (parameter > keychain > userdefaults > default)
+        let finalCountryCode: String
+        if let country_code = country_code, !country_code.isEmpty {
+            finalCountryCode = country_code
+        } else if let keychainCountryCode = KeychainManager.shared.getCountryCode(), !keychainCountryCode.isEmpty {
+            finalCountryCode = keychainCountryCode
+        } else if let userDefaultsCountryCode = UserDefaults.standard.string(forKey: "countryCode"), !userDefaultsCountryCode.isEmpty {
+            finalCountryCode = userDefaultsCountryCode
+        } else {
+            finalCountryCode = "DEU" // Default fallback
+            print("⚠️ Using default country code for search: DEU")
+        }
+        
         var queryItems: [URLQueryItem] = []
         if let keyword = keyword {
             queryItems.append(URLQueryItem(name: "keyword", value: keyword))
         }
-        queryItems.append(URLQueryItem(name: "postal_code", value: postal_code))
-        queryItems.append(URLQueryItem(name: "country_code", value: country_code))
+        queryItems.append(URLQueryItem(name: "postal_code", value: finalPostalCode))
+        queryItems.append(URLQueryItem(name: "country_code", value: finalCountryCode))
         queryItems.append(URLQueryItem(name: "radius_km", value: String(radius_km ?? 1.0)))
         queryItems.append(URLQueryItem(name: "limit", value: String(limit ?? 10)))
         queryItems.append(URLQueryItem(name: "offset", value: String(offset ?? 0)))
@@ -395,21 +421,61 @@ class APIService {
         
         components.queryItems = queryItems
         
+        // Log the request URL and parameters
+        print("🔍 Search Posts Request URL: \(components.url!.absoluteString)")
+        print("🔍 Search Parameters - Keyword: \(keyword ?? "None"), Postal Code: \(finalPostalCode), Country: \(finalCountryCode), Radius: \(radius_km ?? 1.0)km")
+        print("🔍 Search Pagination - Limit: \(limit ?? 10), Offset: \(offset ?? 0)")
+        if let category_id = category_id {
+            print("🔍 Search Category: \(category_id)")
+        }
+        if let offering = offering {
+            print("🔍 Search Offering Type: \(offering)")
+        }
+        
         var request = URLRequest(url: components.url!)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIError.invalidResponse
-        }
-        
-        if httpResponse.statusCode == 200 {
-            return try JSONDecoder().decode([Post].self, from: data)
-        } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("❌ Search Posts Error: Invalid response type")
+                throw APIError.invalidResponse
+            }
+            
+            print("📥 Search Posts Response Status: \(httpResponse.statusCode)")
+            
+            // Log response size for performance monitoring
+            let dataSizeKB = Double(data.count) / 1024.0
+            print("📦 Search Posts Response Size: \(String(format: "%.2f", dataSizeKB))KB")
+            
+            // Log abbreviated response for debugging
+            if let responseString = String(data: data, encoding: .utf8) {
+                // Only log the first part of the response to avoid console flooding
+                let maxLength = min(responseString.count, 500)
+                let truncatedResponse = responseString.prefix(maxLength)
+                print("📦 Search Posts Response (truncated): \(truncatedResponse)\(responseString.count > maxLength ? "..." : "")")
+            }
+            
+            if httpResponse.statusCode == 200 {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                
+                let posts = try decoder.decode([Post].self, from: data)
+                print("✅ Search Posts Success: Found \(posts.count) posts")
+                return posts
+            } else {
+                let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+                print("❌ Search Posts Error: \(errorResponse.message)")
+                throw APIError.serverError(errorResponse.message)
+            }
+        } catch let error as APIError {
+            print("❌ Search Posts API Error: \(error.localizedDescription)")
+            throw error
+        } catch {
+            print("❌ Search Posts Unexpected Error: \(error.localizedDescription)")
+            throw APIError.networkError(error)
         }
     }
     

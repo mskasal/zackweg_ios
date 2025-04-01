@@ -42,7 +42,6 @@ struct ExploreView: View {
     @State private var showFilters = false
     @State private var showMap = false
     @State private var searchTask: Task<Void, Never>?
-    @State private var scrollToPostOnAppear = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -60,7 +59,7 @@ struct ExploreView: View {
                         searchTask = Task {
                             try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
                             if !Task.isCancelled {
-                                await viewModel.searchPosts()
+                                await viewModel.searchPosts(resetOffset: true)
                             }
                         }
                     }
@@ -105,7 +104,7 @@ struct ExploreView: View {
                             Button(action: {
                                 viewModel.searchFilters.postalCode = ""
                                 Task {
-                                    await viewModel.searchPosts()
+                                    await viewModel.searchPosts(resetOffset: true)
                                 }
                             }) {
                                 Image(systemName: "xmark.circle.fill")
@@ -127,29 +126,7 @@ struct ExploreView: View {
                             Button(action: {
                                 viewModel.searchFilters.radiusKm = 20.0
                                 Task {
-                                    await viewModel.searchPosts()
-                                }
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.caption)
-                            }
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundColor(.blue)
-                        .cornerRadius(8)
-                    }
-                    
-                    if let offering = viewModel.searchFilters.offering {
-                        HStack {
-                            Text(offering.replacingOccurrences(of: "_", with: " ").capitalized)
-                                .font(.caption)
-                            
-                            Button(action: {
-                                viewModel.searchFilters.offering = nil
-                                Task {
-                                    await viewModel.searchPosts()
+                                    await viewModel.searchPosts(resetOffset: true)
                                 }
                             }) {
                                 Image(systemName: "xmark.circle.fill")
@@ -171,7 +148,7 @@ struct ExploreView: View {
                             Button(action: {
                                 viewModel.searchFilters.keyword = ""
                                 Task {
-                                    await viewModel.searchPosts()
+                                    await viewModel.searchPosts(resetOffset: true)
                                 }
                             }) {
                                 Image(systemName: "xmark.circle.fill")
@@ -196,7 +173,7 @@ struct ExploreView: View {
                             Button(action: {
                                 viewModel.searchFilters.categoryId = ""
                                 Task {
-                                    await viewModel.searchPosts()
+                                    await viewModel.searchPosts(resetOffset: true)
                                 }
                             }) {
                                 Image(systemName: "xmark.circle.fill")
@@ -222,7 +199,7 @@ struct ExploreView: View {
             .animation(.easeInOut(duration: 0.2), value: viewModel.countActiveFilters())
             
             // Search Results
-            if viewModel.isLoading {
+            if viewModel.isLoading && viewModel.searchResults.isEmpty {
                 VStack {
                     Spacer(minLength: 44) // Add space for filter chips
                     ProgressView()
@@ -249,28 +226,32 @@ struct ExploreView: View {
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .onAppear {
-                                    // Save the ID of the post as the user scrolls
-                                    viewModel.setLastViewedPost(post.id)
+                                    // Check if we need to load more posts
+                                    Task {
+                                        await viewModel.loadMoreIfNeeded(currentItem: post)
+                                    }
                                 }
                         }
                         .listRowBackground(Color.clear)
+                        
+                        // Loading indicator at the bottom when loading more
+                        if viewModel.isLoadingMore {
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                    .padding()
+                                Spacer()
+                            }
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        }
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
                     .refreshable {
                         // Refresh data when the user pulls down
                         await categoryViewModel.fetchCategories()
-                        await viewModel.fetchPosts()
-                    }
-                    .onAppear {
-                        // Check if we should scroll to the last viewed post
-                        if scrollToPostOnAppear, 
-                           let postId = viewModel.lastViewedPostId,
-                           viewModel.containsPost(withId: postId) {
-                            // Remove animation for immediate jump to position
-                            proxy.scrollTo(postId, anchor: .top)
-                            scrollToPostOnAppear = false
-                        }
+                        await viewModel.searchPosts(resetOffset: true)
                     }
                 }
             }
@@ -286,12 +267,7 @@ struct ExploreView: View {
         }
         .task {
             // Load posts
-            await viewModel.fetchPosts()
-            
-            // Set flag to scroll to remembered position once data is loaded
-            if viewModel.lastViewedPostId != nil {
-                scrollToPostOnAppear = true
-            }
+            await viewModel.searchPosts(resetOffset: true)
         }
     }
 }

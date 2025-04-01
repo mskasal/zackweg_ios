@@ -6,9 +6,14 @@ class ExploreViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var error: String?
     @Published var isLoading = false
+    @Published var isLoadingMore = false
     @Published var searchResults: [Post] = []
     @Published var searchFilters = SearchFilters()
-    @Published var lastViewedPostId: String? = nil
+    @Published var hasMoreResults = true
+    
+    // Pagination properties
+    private var currentOffset = 0
+    private let pageSize = 10
     
     private let apiService: APIService
     
@@ -18,33 +23,6 @@ class ExploreViewModel: ObservableObject {
         Task {
             await fetchUserProfile()
         }
-        
-        // Restore the last viewed post ID
-        self.lastViewedPostId = UserDefaults.standard.string(forKey: "ExploreLastViewedPostId")
-    }
-    
-    // Store the last viewed post ID when it changes
-    func setLastViewedPost(_ postId: String) {
-        lastViewedPostId = postId
-        UserDefaults.standard.set(postId, forKey: "ExploreLastViewedPostId")
-    }
-    
-    // Check if a post ID exists in the current search results
-    func containsPost(withId id: String) -> Bool {
-        return searchResults.contains { $0.id == id }
-    }
-    
-    // Add a method to count active filters
-    func countActiveFilters() -> Int {
-        var count = 0
-        
-        if !searchFilters.keyword.isEmpty { count += 1 }
-        if !searchFilters.postalCode.isEmpty { count += 1 }
-        if searchFilters.radiusKm != 20.0 { count += 1 }
-        if !searchFilters.categoryId.isEmpty { count += 1 }
-        if searchFilters.offering != nil { count += 1 }
-        
-        return count
     }
     
     private func fetchUserProfile() async {
@@ -57,24 +35,11 @@ class ExploreViewModel: ObservableObject {
         }
     }
     
-    func fetchPosts() async {
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            posts = try await apiService.getPosts()
-            // Initially, show all posts in search results
-            searchResults = posts
-        } catch {
-            self.error = error.localizedDescription
-        }
-    }
-    
     // Add method to select a category
     func selectCategory(_ categoryId: String) {
         searchFilters.categoryId = categoryId
         Task {
-            await searchPosts()
+            await searchPosts(resetOffset: true)
         }
     }
     
@@ -85,32 +50,96 @@ class ExploreViewModel: ObservableObject {
         try await apiService.reportPost(postId: postId, reason: reason)
     }
     
-    func searchPosts() async {
-        isLoading = true
-        defer { isLoading = false }
+    // Modified to support pagination
+    func searchPosts(resetOffset: Bool = true) async {
+        if resetOffset {
+            isLoading = true
+            currentOffset = 0
+            hasMoreResults = true
+        } else {
+            isLoadingMore = true
+        }
+        
+        defer { 
+            isLoading = false
+            isLoadingMore = false
+        }
         
         do {
-            // If no filters are active, show all posts
+            // If no filters are active and it's the initial load, show all posts
             if searchFilters.keyword.isEmpty && 
                searchFilters.postalCode.isEmpty && 
                searchFilters.countryCode.isEmpty && 
                searchFilters.categoryId.isEmpty && 
-               searchFilters.offering == nil {
+               resetOffset {
                 searchResults = posts
                 return
             }
             
-            // Otherwise, perform filtered search
-            searchResults = try await apiService.searchPosts(
+            // Otherwise, perform filtered search with pagination
+            let newResults = try await apiService.searchPosts(
                 keyword: searchFilters.keyword.isEmpty ? nil : searchFilters.keyword,
                 postal_code: searchFilters.postalCode.isEmpty ? nil : searchFilters.postalCode,
                 country_code: searchFilters.countryCode.isEmpty ? nil : searchFilters.countryCode,
                 radius_km: searchFilters.radiusKm,
-                category_id: searchFilters.categoryId.isEmpty ? nil : searchFilters.categoryId,
-                offering: searchFilters.offering
+                limit: pageSize,
+                offset: currentOffset,
+                category_id: searchFilters.categoryId.isEmpty ? nil : searchFilters.categoryId
             )
+            
+            // Update hasMoreResults based on the number of results returned
+            hasMoreResults = newResults.count >= pageSize
+            
+            // If resetting, replace results, otherwise append
+            if resetOffset {
+                searchResults = newResults
+            } else {
+                // Filter out any posts that already exist in searchResults
+                let duplicates = newResults.filter { newPost in
+                    searchResults.contains { existingPost in
+                        existingPost.id == newPost.id
+                    }
+                }
+                
+                // Log information about duplicates if any are found
+                if !duplicates.isEmpty {
+                    print("⚠️ Found \(duplicates.count) duplicate posts while loading more!")
+                    for duplicate in duplicates {
+                        print("🔄 Duplicate post ID: \(duplicate.id), title: \(duplicate.title)")
+                    }
+                    print("💡 Working around ForEach duplicate ID issue by filtering them out")
+                }
+                
+                // Filter out duplicates before appending
+                let uniqueNewResults = newResults.filter { newPost in
+                    !searchResults.contains { existingPost in
+                        existingPost.id == newPost.id
+                    }
+                }
+                
+                print("📊 Pagination stats: Loaded \(newResults.count) posts, \(duplicates.count) duplicates, adding \(uniqueNewResults.count) unique posts")
+                searchResults.append(contentsOf: uniqueNewResults)
+                
+                // Update the offset with the actual number of unique results to maintain pagination correctly
+                currentOffset += uniqueNewResults.count
+                return
+            }
+            
+            // Update the offset for the next page
+            currentOffset += newResults.count
         } catch {
             self.error = error.localizedDescription
+        }
+    }
+    
+    // New method to load more posts when scrolling
+    func loadMoreIfNeeded(currentItem: Post) async {
+        // Check if we're near the end of the list and not already loading more
+        let thresholdIndex = searchResults.index(searchResults.endIndex, offsetBy: -3)
+        if searchResults.firstIndex(where: { $0.id == currentItem.id }) ?? 0 >= thresholdIndex,
+           !isLoadingMore && hasMoreResults {
+            // Load the next page
+            await searchPosts(resetOffset: false)
         }
     }
     
@@ -120,5 +149,17 @@ class ExploreViewModel: ObservableObject {
     
     func sendMessage(conversationId: String, content: String) async throws -> Message {
         return try await apiService.sendMessage(conversationId: conversationId, content: content)
+    }
+    
+    // Add a method to count active filters
+    func countActiveFilters() -> Int {
+        var count = 0
+        
+        if !searchFilters.keyword.isEmpty { count += 1 }
+        if !searchFilters.postalCode.isEmpty { count += 1 }
+        if searchFilters.radiusKm != 20.0 { count += 1 }
+        if !searchFilters.categoryId.isEmpty { count += 1 }
+        
+        return count
     }
 } 
