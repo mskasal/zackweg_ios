@@ -8,7 +8,7 @@ API_BASE_DOMAIN = staging-api.zackweg.com
 
 // Environment
 ENV_NAME = Staging
-LOG_LEVEL = INFO
+LOG_LEVEL = DEBUG
 ENABLE_DEBUG_MENU = YES
 
 // Build Settings

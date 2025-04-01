@@ -881,6 +881,68 @@ class APIService {
         
         print("✅ Successfully deleted post with ID: \(postId)")
     }
+    
+    func getPostsByUser(userId: String) async throws -> [Post] {
+        let url = URL(string: "\(baseURL)/posts?user_id=\(userId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        print("🔍 Get Posts by User Request URL: \(url.absoluteString)")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get Posts by User Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get Posts by User Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw APIError.serverError(errorResponse.message)
+            }
+            throw APIError.serverError("Failed to fetch posts for user \(userId)")
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        return try decoder.decode([Post].self, from: data)
+    }
+    
+    func getUserProfile(userId: String) async throws -> PublicUser {
+        let url = URL(string: "\(baseURL)/users/\(userId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        print("👤 Get User Profile Request URL: \(url.absoluteString)")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get User Profile Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get User Profile Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                throw APIError.serverError(errorResponse.message)
+            }
+            throw APIError.serverError("Failed to fetch user profile for \(userId)")
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        return try decoder.decode(PublicUser.self, from: data)
+    }
 }
 
 // Response Models

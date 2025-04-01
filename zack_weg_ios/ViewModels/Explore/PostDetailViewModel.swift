@@ -2,9 +2,12 @@ import Foundation
 import SwiftUI
 
 class PostDetailViewModel: ObservableObject {
-    private let post: Post
+    private let post: Post?
+    private let postId: String
+    @Published var loadedPost: Post?
     @Published var seller: PublicUser?
     @Published var isLoadingSeller = false
+    @Published var isLoadingPost = false
     @Published var messageText = ""
     @Published var error: String?
     @Published var conversation: Conversation?
@@ -13,11 +16,55 @@ class PostDetailViewModel: ObservableObject {
     
     init(post: Post) {
         self.post = post
+        self.postId = post.id
+        self.loadedPost = post
         print("PostDetailViewModel initialized for post: \(post.id)")
     }
     
+    init(postId: String) {
+        self.post = nil
+        self.postId = postId
+        print("PostDetailViewModel initialized with postId: \(postId)")
+    }
+    
     var isOwner: Bool {
-        UserDefaults.standard.string(forKey: "userId") == post.userId
+        let userId = UserDefaults.standard.string(forKey: "userId")
+        if let post = post {
+            return userId == post.userId
+        } else if let loadedPost = loadedPost {
+            return userId == loadedPost.userId
+        }
+        return false
+    }
+    
+    func loadPostDetails() async {
+        guard loadedPost == nil, !isLoadingPost else {
+            return
+        }
+        
+        await MainActor.run {
+            isLoadingPost = true
+            error = nil
+        }
+        
+        do {
+            let fetchedPost = try await APIService.shared.getPostById(postId)
+            await MainActor.run {
+                self.loadedPost = fetchedPost
+                print("Successfully loaded post details for ID: \(postId)")
+            }
+            // Load seller info after post is loaded
+            await loadSellerInfo()
+        } catch {
+            await MainActor.run {
+                self.error = "Failed to load post: \(error.localizedDescription)"
+                print("Error loading post: \(error.localizedDescription)")
+            }
+        }
+        
+        await MainActor.run {
+            isLoadingPost = false
+        }
     }
     
     func loadSellerInfo() async {
@@ -27,14 +74,20 @@ class PostDetailViewModel: ObservableObject {
             return 
         }
         
-        print("Loading seller info for post: \(post.id), seller ID: \(post.userId)")
+        let userId = (post?.userId ?? loadedPost?.userId)
+        guard let userId = userId else {
+            print("Cannot load seller: No post data available")
+            return
+        }
+        
+        print("Loading seller info for post: \(postId), seller ID: \(userId)")
         
         await MainActor.run {
             isLoadingSeller = true
         }
         
         do {
-            let user = try await APIService.shared.getUserById(post.userId)
+            let user = try await APIService.shared.getUserById(userId)
             print("DEBUG: Received user data")
             print("DEBUG: User nickname: \(user.nickName)")
             
@@ -58,11 +111,11 @@ class PostDetailViewModel: ObservableObject {
             return
         }
         
-        print("Sending message to post: \(post.id), message: \(messageText)")
+        print("Sending message to post: \(postId), message: \(messageText)")
         
         do {
             let newConversation = try await APIService.shared.startConversation(
-                postId: post.id,
+                postId: postId,
                 message: messageText
             )
             
@@ -122,11 +175,11 @@ class PostDetailViewModel: ObservableObject {
         }
         
         do {
-            try await APIService.shared.deletePost(postId: post.id)
+            try await APIService.shared.deletePost(postId: postId)
             
             await MainActor.run {
                 postDeleted = true
-                print("Successfully deleted post with ID: \(post.id)")
+                print("Successfully deleted post with ID: \(postId)")
             }
         } catch {
             await MainActor.run {

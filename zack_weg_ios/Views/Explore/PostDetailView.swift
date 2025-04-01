@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct PostDetailView: View {
-    let post: Post
+    let post: Post?
+    let postId: String
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @StateObject private var viewModel: PostDetailViewModel
     @State private var showingMessageSheet = false
@@ -11,14 +12,53 @@ struct PostDetailView: View {
     
     init(post: Post) {
         self.post = post
+        self.postId = post.id
         _viewModel = StateObject(wrappedValue: PostDetailViewModel(post: post))
     }
     
+    init(postId: String) {
+        self.post = nil
+        self.postId = postId
+        _viewModel = StateObject(wrappedValue: PostDetailViewModel(postId: postId))
+    }
+    
     private var category: Category? {
-        categoryViewModel.getCategory(byId: post.categoryId)
+        if let post = post {
+            return categoryViewModel.getCategory(byId: post.categoryId)
+        } else if let post = viewModel.loadedPost {
+            return categoryViewModel.getCategory(byId: post.categoryId)
+        }
+        return nil
     }
     
     var body: some View {
+        Group {
+            if let displayPost = post ?? viewModel.loadedPost {
+                postContent(displayPost)
+            } else {
+                loadingView
+            }
+        }
+        .onAppear {
+            if post == nil {
+                Task {
+                    await viewModel.loadPostDetails()
+                }
+            }
+        }
+    }
+    
+    private var loadingView: some View {
+        VStack {
+            ProgressView()
+                .padding()
+            Text("Loading post details...")
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func postContent(_ post: Post) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 // Image Gallery - only this part ignores the safe area
@@ -141,27 +181,34 @@ struct PostDetailView: View {
                         }
                         .padding(.vertical, 8)
                     } else if let seller = viewModel.seller {
-                        HStack(spacing: 8) {
-                            // Avatar icon
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.1))
-                                    .frame(width: 36, height: 36)
+                        NavigationLink(destination: UserPostsView(userId: seller.id, userName: seller.nickName)) {
+                            HStack(spacing: 8) {
+                                // Avatar icon
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.blue.opacity(0.1))
+                                        .frame(width: 36, height: 36)
+                                    
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.blue)
+                                }
                                 
-                                Image(systemName: "person.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.blue)
+                                // Nickname
+                                Text(seller.nickName)
+                                    .font(.callout)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.primary)
+                                    
+                                Spacer()
+                                
+                                // Forward chevron
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
-                            
-                            // Nickname
-                            Text(seller.nickName)
-                                .font(.callout)
-                                .fontWeight(.medium)
-                                .foregroundColor(.primary)
-                                
-                            Spacer()
+                            .padding(.vertical, 8)
                         }
-                        .padding(.vertical, 8)
                     }
                     
                     // Location and Date section
