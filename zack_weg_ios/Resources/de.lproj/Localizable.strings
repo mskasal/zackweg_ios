@@ -100,6 +100,13 @@
 "posts.location_footer" = "Artikel werden Benutzern in der Nähe dieses Standorts angezeigt";
 "posts.fill_required" = "Bitte fülle alle erforderlichen Felder aus";
 "posts.post_created" = "Dein Beitrag wurde erfolgreich erstellt!";
+"posts.my_posts" = "Meine Beiträge";
+"posts.view_my_posts" = "Meine Beiträge ansehen";
+"posts.see_all_items" = "Alle deine Artikel ansehen";
+"posts.sign_in_to_view" = "Melde dich an, um deine Beiträge zu sehen";
+"posts.user_posts" = "Beiträge des Benutzers";
+"posts.no_posts_yet" = "Noch keine Beiträge vorhanden";
+"posts.create_post" = "Beitrag erstellen";
 
 // MARK: - Categories
 "categories.title" = "Kategorien";

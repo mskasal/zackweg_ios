@@ -8,6 +8,7 @@ struct ErrorMessage: Identifiable {
 struct UserPostsView: View {
     @StateObject private var viewModel = UserPostsViewModel()
     @State private var errorMessage: ErrorMessage?
+    @Environment(\.dismiss) private var dismiss
     let userId: String
     let userName: String?
     
@@ -19,17 +20,8 @@ struct UserPostsView: View {
     
     var body: some View {
         VStack {
-            if let user = viewModel.user {
-                Text(user.nickName)
-                    .font(.headline)
-                    .padding(.top)
-            } else if let name = userName {
-                Text(name)
-                    .font(.headline)
-                    .padding(.top)
-            }
             
-            if viewModel.isLoading {
+            if viewModel.isLoading && viewModel.posts.isEmpty {
                 ProgressView()
                     .padding()
             } else if viewModel.posts.isEmpty {
@@ -39,9 +31,24 @@ struct UserPostsView: View {
                         .foregroundColor(.gray)
                         .padding()
                     
-                    Text("No posts yet")
+                    Text("posts.no_posts_yet".localized)
                         .font(.headline)
                         .foregroundColor(.gray)
+                    
+                    if viewModel.isCurrentUser {
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Text("posts.create_post".localized)
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(Color.blue)
+                                .cornerRadius(8)
+                        }
+                        .padding(.top, 16)
+                    }
                 }
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -56,9 +63,12 @@ struct UserPostsView: View {
                     }
                     .padding()
                 }
+                .refreshable {
+                    await viewModel.refresh(userId: userId)
+                }
             }
         }
-        .navigationTitle(userName ?? "User Posts")
+        .navigationTitle(userName ?? "posts.user_posts".localized)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
@@ -73,9 +83,9 @@ struct UserPostsView: View {
         }
         .alert(item: $errorMessage) { error in
             Alert(
-                title: Text("Error"),
+                title: Text("common.error".localized),
                 message: Text(error.message),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text("common.ok".localized))
             )
         }
     }
@@ -86,44 +96,46 @@ struct PostGridItemView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        Rectangle()
-                            .foregroundColor(.gray.opacity(0.3))
-                            .aspectRatio(1, contentMode: .fill)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(height: 150)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    case .failure:
-                        Rectangle()
-                            .foregroundColor(.gray.opacity(0.3))
-                            .aspectRatio(1, contentMode: .fill)
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .foregroundColor(.gray)
-                            )
-                    @unknown default:
-                        EmptyView()
+            // Image container with fixed aspect ratio
+            ZStack {
+                if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Rectangle()
+                                .foregroundColor(.gray.opacity(0.3))
+                                .overlay(
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                )
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                        case .failure:
+                            Rectangle()
+                                .foregroundColor(.gray.opacity(0.3))
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .foregroundColor(.gray)
+                                )
+                        @unknown default:
+                            EmptyView()
+                        }
                     }
+                } else {
+                    Rectangle()
+                        .foregroundColor(.gray.opacity(0.3))
+                        .overlay(
+                            Image(systemName: "photo")
+                                .foregroundColor(.gray)
+                        )
                 }
-                .frame(height: 150)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                Rectangle()
-                    .foregroundColor(.gray.opacity(0.3))
-                    .aspectRatio(1, contentMode: .fill)
-                    .frame(height: 150)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        Image(systemName: "photo")
-                            .foregroundColor(.gray)
-                    )
             }
+            .aspectRatio(1, contentMode: .fill)
+            .frame(height: 150)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipped() // This ensures the image doesn't overflow
             
             Text(post.title)
                 .font(.subheadline)
@@ -136,7 +148,7 @@ struct PostGridItemView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
-                Text("Free")
+                Text("common.free".localized)
                     .font(.caption)
                     .foregroundColor(.green)
             }

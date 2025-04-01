@@ -100,6 +100,13 @@
 "posts.location_footer" = "Items will be shown to users near this location";
 "posts.fill_required" = "Please fill in all required fields";
 "posts.post_created" = "Your post has been created successfully!";
+"posts.my_posts" = "My Posts";
+"posts.view_my_posts" = "View My Posts";
+"posts.see_all_items" = "See all your posted items";
+"posts.sign_in_to_view" = "Sign in to view your posts";
+"posts.user_posts" = "User Posts";
+"posts.no_posts_yet" = "No posts yet";
+"posts.create_post" = "Create Post";
 
 // MARK: - Categories
 "categories.title" = "Categories";

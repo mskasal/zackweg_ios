@@ -100,6 +100,13 @@
 "posts.location_footer" = "Eşyalar bu konumun yakınındaki kullanıcılara gösterilecek";
 "posts.fill_required" = "Lütfen tüm gerekli alanları doldur";
 "posts.post_created" = "İlanın başarıyla oluşturuldu!";
+"posts.my_posts" = "İlanlarım";
+"posts.view_my_posts" = "İlanlarımı Görüntüle";
+"posts.see_all_items" = "Tüm eşyalarını gör";
+"posts.sign_in_to_view" = "İlanlarını görmek için giriş yap";
+"posts.user_posts" = "Kullanıcı İlanları";
+"posts.no_posts_yet" = "Henüz ilan yok";
+"posts.create_post" = "İlan Oluştur";
 
 // MARK: - Categories
 "categories.title" = "Kategoriler";
