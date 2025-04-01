@@ -54,14 +54,21 @@ struct UserPostsView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
+                    let gridSpacing: CGFloat = 12
+                    let columns = [
+                        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: gridSpacing)
+                    ]
+                    
+                    LazyVGrid(columns: columns, spacing: gridSpacing) {
                         ForEach(viewModel.posts) { post in
                             NavigationLink(destination: PostDetailView(postId: post.id)) {
                                 PostGridItemView(post: post)
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    .padding()
+                    .padding(.horizontal, gridSpacing)
+                    .padding(.vertical)
                 }
                 .refreshable {
                     await viewModel.refresh(userId: userId)
@@ -95,8 +102,8 @@ struct PostGridItemView: View {
     let post: Post
     
     var body: some View {
-        VStack(alignment: .leading) {
-            // Image container with fixed aspect ratio
+        VStack(alignment: .leading, spacing: 4) {
+            // Image container with fixed size
             ZStack {
                 if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
                     AsyncImage(url: url) { phase in
@@ -132,26 +139,28 @@ struct PostGridItemView: View {
                         )
                 }
             }
-            .aspectRatio(1, contentMode: .fill)
-            .frame(height: 150)
+            .frame(height: 160) // Fixed height
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .clipped() // This ensures the image doesn't overflow
+            .clipped() // Ensure content doesn't overflow
             
-            Text(post.title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .lineLimit(1)
-                .padding(.top, 4)
-            
-            if post.offering == "SOLD_AT_PRICE" && post.price != nil {
-                Text("€\(String(format: "%.2f", post.price!))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            } else {
-                Text("common.free".localized)
-                    .font(.caption)
-                    .foregroundColor(.green)
+            // Title and price in a fixed-height container
+            VStack(alignment: .leading, spacing: 2) {
+                Text(post.title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .lineLimit(1)
+                
+                if post.offering == "SOLD_AT_PRICE" && post.price != nil {
+                    Text("€\(String(format: "%.2f", post.price!))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("common.free".localized)
+                        .font(.caption)
+                        .foregroundColor(.green)
+                }
             }
+            .frame(height: 40) // Fixed height for text area
         }
         .padding(8)
         .background(Color.secondary.opacity(0.1))
