@@ -11,16 +11,17 @@ struct UserPostsView: View {
     @Environment(\.dismiss) private var dismiss
     let userId: String
     let userName: String?
+    var disablePostNavigation: Bool = false
     
-    init(userId: String, userName: String? = nil) {
+    init(userId: String, userName: String? = nil, disablePostNavigation: Bool = false) {
         self.userId = userId
         self.userName = userName
+        self.disablePostNavigation = disablePostNavigation
         _viewModel = StateObject(wrappedValue: UserPostsViewModel())
     }
     
     var body: some View {
         VStack {
-            
             if viewModel.isLoading && viewModel.posts.isEmpty {
                 ProgressView()
                     .padding()
@@ -54,20 +55,19 @@ struct UserPostsView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
-                    let gridSpacing: CGFloat = 12
                     let columns = [
-                        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: gridSpacing)
+                        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 12)
                     ]
                     
-                    LazyVGrid(columns: columns, spacing: gridSpacing) {
+                    LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(viewModel.posts) { post in
-                            NavigationLink(destination: PostDetailView(postId: post.id)) {
+                            NavigationLink(destination: PostDetailView(postId: post.id, fromUserPostsView: true)) {
                                 PostGridItemView(post: post)
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
-                    .padding(.horizontal, gridSpacing)
+                    .padding(.horizontal, 12)
                     .padding(.vertical)
                 }
                 .refreshable {

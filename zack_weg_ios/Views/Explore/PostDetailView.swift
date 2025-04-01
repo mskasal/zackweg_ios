@@ -3,6 +3,7 @@ import SwiftUI
 struct PostDetailView: View {
     let post: Post?
     let postId: String
+    let fromUserPostsView: Bool
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @StateObject private var viewModel: PostDetailViewModel
     @State private var showingMessageSheet = false
@@ -10,15 +11,17 @@ struct PostDetailView: View {
     @State private var showingDeleteConfirmation = false
     @Environment(\.dismiss) private var dismiss
     
-    init(post: Post) {
+    init(post: Post, fromUserPostsView: Bool = false) {
         self.post = post
         self.postId = post.id
+        self.fromUserPostsView = fromUserPostsView
         _viewModel = StateObject(wrappedValue: PostDetailViewModel(post: post))
     }
     
-    init(postId: String) {
+    init(postId: String, fromUserPostsView: Bool = false) {
         self.post = nil
         self.postId = postId
+        self.fromUserPostsView = fromUserPostsView
         _viewModel = StateObject(wrappedValue: PostDetailViewModel(postId: postId))
     }
     
@@ -181,7 +184,8 @@ struct PostDetailView: View {
                         }
                         .padding(.vertical, 8)
                     } else if let seller = viewModel.seller {
-                        NavigationLink(destination: UserPostsView(userId: seller.id, userName: seller.nickName)) {
+                        if fromUserPostsView {
+                            // Just show seller info without navigation when coming from UserPostsView
                             HStack(spacing: 8) {
                                 // Avatar icon
                                 ZStack {
@@ -201,13 +205,38 @@ struct PostDetailView: View {
                                     .foregroundColor(.primary)
                                     
                                 Spacer()
-                                
-                                // Forward chevron
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
                             }
                             .padding(.vertical, 8)
+                        } else {
+                            // Include navigation to UserPostsView when not coming from UserPostsView
+                            NavigationLink(destination: UserPostsView(userId: seller.id, userName: seller.nickName, disablePostNavigation: true)) {
+                                HStack(spacing: 8) {
+                                    // Avatar icon
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.blue.opacity(0.1))
+                                            .frame(width: 36, height: 36)
+                                        
+                                        Image(systemName: "person.circle.fill")
+                                            .font(.title3)
+                                            .foregroundColor(.blue)
+                                    }
+                                    
+                                    // Nickname
+                                    Text(seller.nickName)
+                                        .font(.callout)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                        
+                                    Spacer()
+                                    
+                                    // Forward chevron
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .padding(.vertical, 8)
+                            }
                         }
                     }
                     
