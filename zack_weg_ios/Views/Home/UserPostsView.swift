@@ -23,7 +23,7 @@ struct UserPostsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Tab selector for the current user's posts
-            if viewModel.isCurrentUser && !viewModel.posts.isEmpty {
+            if viewModel.isCurrentUser {
                 statusTabSelector
             }
             
