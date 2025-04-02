@@ -107,6 +107,19 @@
 "posts.user_posts" = "User Posts";
 "posts.no_posts_yet" = "No posts yet";
 "posts.create_post" = "Create Post";
+"posts.update" = "Update Post";
+"posts.post_updated" = "Your post has been updated successfully!";
+"posts.status_active" = "Active";
+"posts.status_archived" = "Archived";
+"posts.status_active_desc" = "Visible to everyone";
+"posts.status_archived_desc" = "Hidden from other users";
+"posts.no_active_posts" = "No active posts";
+"posts.no_archived_posts" = "No archived posts";
+"posts.update_post" = "Update Post";
+"posts.update_details" = "Update post details and status";
+"posts.post_status" = "Post Status";
+"posts.existing_images" = "Existing Images";
+"posts.new_images" = "New Images";
 
 // MARK: - Categories
 "categories.title" = "Categories";

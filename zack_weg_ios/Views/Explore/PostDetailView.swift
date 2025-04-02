@@ -43,11 +43,13 @@ struct PostDetailView: View {
             }
         }
         .onAppear {
-            if post == nil {
-                Task {
-                    await viewModel.loadPostDetails()
-                }
+            // Always refresh post data when the view appears
+            Task {
+                await viewModel.loadPostDetails()
             }
+        }
+        .onDisappear {
+            // Clear any cached states if needed when leaving the view
         }
     }
     
@@ -288,12 +290,30 @@ struct PostDetailView: View {
                     // Action Buttons
                     if viewModel.isOwner {
                         VStack(spacing: 16) {
+                            // Add edit button
+                            NavigationLink(
+                                destination: EditPostView(
+                                    postId: post.id
+                                )
+                            ) {
+                                HStack {
+                                    Image(systemName: "pencil")
+                                    Text("posts.edit".localized)
+                                        .fontWeight(.semibold)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
+                            }
+                            
                             Button(action: {
                                 showingDeleteConfirmation = true
                             }) {
                                 HStack {
                                     Image(systemName: "trash.fill")
-                                    Text("posts.delete")
+                                    Text("posts.delete".localized)
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)

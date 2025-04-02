@@ -21,58 +21,19 @@ struct UserPostsView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+            // Tab selector for the current user's posts
+            if viewModel.isCurrentUser && !viewModel.posts.isEmpty {
+                statusTabSelector
+            }
+            
             if viewModel.isLoading && viewModel.posts.isEmpty {
                 ProgressView()
                     .padding()
             } else if viewModel.posts.isEmpty {
-                VStack {
-                    Image(systemName: "tray")
-                        .font(.system(size: 60))
-                        .foregroundColor(.gray)
-                        .padding()
-                    
-                    Text("posts.no_posts_yet".localized)
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    if viewModel.isCurrentUser {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Text("posts.create_post".localized)
-                                .font(.subheadline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                        }
-                        .padding(.top, 16)
-                    }
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                emptyStateView
             } else {
-                ScrollView {
-                    let columns = [
-                        GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 12)
-                    ]
-                    
-                    LazyVGrid(columns: columns, spacing: 12) {
-                        ForEach(viewModel.posts) { post in
-                            NavigationLink(destination: PostDetailView(postId: post.id, fromUserPostsView: true)) {
-                                PostGridItemView(post: post)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical)
-                }
-                .refreshable {
-                    await viewModel.refresh(userId: userId)
-                }
+                postsGridView
             }
         }
         .navigationTitle(userName ?? "posts.user_posts".localized)
@@ -94,6 +55,107 @@ struct UserPostsView: View {
                 message: Text(error.message),
                 dismissButton: .default(Text("common.ok".localized))
             )
+        }
+    }
+    
+    // MARK: - View Components
+    
+    private var statusTabSelector: some View {
+        HStack(spacing: 0) {
+            ForEach(UserPostsViewModel.PostStatus.allCases) { tab in
+                tabButton(for: tab)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+        .background(Color(UIColor.systemBackground))
+    }
+    
+    private func tabButton(for status: UserPostsViewModel.PostStatus) -> some View {
+        let isSelected = viewModel.selectedTab == status
+        
+        return Button(action: {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                viewModel.setTab(status)
+            }
+        }) {
+            VStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Image(systemName: status.icon)
+                        .font(.caption)
+                    Text(status.displayName)
+                        .font(.subheadline)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                }
+                .foregroundColor(isSelected ? status.color : .secondary)
+                
+                // Active indicator
+                Rectangle()
+                    .fill(isSelected ? status.color : Color.clear)
+                    .frame(height: 2)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .frame(maxWidth: .infinity)
+    }
+    
+    private var emptyStateView: some View {
+        VStack {
+            Image(systemName: "tray")
+                .font(.system(size: 60))
+                .foregroundColor(.gray)
+                .padding()
+            
+            if viewModel.isCurrentUser {
+                Text(
+                    viewModel.selectedTab == .active
+                    ? "posts.no_active_posts".localized 
+                    : "posts.no_archived_posts".localized
+                )
+                .font(.headline)
+                .foregroundColor(.gray)
+                
+                Button(action: {
+                    dismiss()
+                }) {
+                    Text("posts.create_post".localized)
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
+                        .background(Color.blue)
+                        .cornerRadius(8)
+                }
+                .padding(.top, 16)
+            } else {
+                Text("posts.no_posts_yet".localized)
+                    .font(.headline)
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var postsGridView: some View {
+        ScrollView {
+            let columns = [
+                GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 12)
+            ]
+            
+            LazyVGrid(columns: columns, spacing: 12) {
+                ForEach(viewModel.posts) { post in
+                    NavigationLink(destination: PostDetailView(postId: post.id, fromUserPostsView: true)) {
+                        PostGridItemView(post: post)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical)
+        }
+        .refreshable {
+            await viewModel.refresh(userId: userId)
         }
     }
 }
@@ -150,14 +212,25 @@ struct PostGridItemView: View {
                     .fontWeight(.semibold)
                     .lineLimit(1)
                 
-                if post.offering == "SOLD_AT_PRICE" && post.price != nil {
-                    Text("€\(String(format: "%.2f", post.price!))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                } else {
-                    Text("common.free".localized)
-                        .font(.caption)
-                        .foregroundColor(.green)
+                HStack {
+                    if post.offering == "SOLD_AT_PRICE" && post.price != nil {
+                        Text("€\(String(format: "%.2f", post.price!))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("common.free".localized)
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                    
+                    Spacer()
+                    
+                    // Status indicator for the owner
+                    if post.status == "ARCHIVED" {
+                        Image(systemName: "archivebox.fill")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
                 }
             }
             .frame(height: 40) // Fixed height for text area

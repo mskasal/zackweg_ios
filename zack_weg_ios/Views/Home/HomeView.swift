@@ -14,9 +14,6 @@ struct HomeView: View {
                         .fontWeight(.bold)
                     
                     Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
                 }
                 .padding(.horizontal)
                 

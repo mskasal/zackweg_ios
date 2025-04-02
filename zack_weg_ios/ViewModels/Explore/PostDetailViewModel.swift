@@ -38,13 +38,15 @@ class PostDetailViewModel: ObservableObject {
     }
     
     func loadPostDetails() async {
-        guard loadedPost == nil, !isLoadingPost else {
+        guard !isLoadingPost else {
             return
         }
         
         await MainActor.run {
             isLoadingPost = true
             error = nil
+            // Clear the cached post to ensure we get fresh data
+            loadedPost = nil
         }
         
         do {

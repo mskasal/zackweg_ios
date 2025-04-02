@@ -105,8 +105,21 @@
 "posts.see_all_items" = "Alle deine Artikel ansehen";
 "posts.sign_in_to_view" = "Melde dich an, um deine Beiträge zu sehen";
 "posts.user_posts" = "Beiträge des Benutzers";
-"posts.no_posts_yet" = "Noch keine Beiträge vorhanden";
+"posts.no_posts_yet" = "Noch keine Beiträge";
 "posts.create_post" = "Beitrag erstellen";
+"posts.update" = "Beitrag aktualisieren";
+"posts.post_updated" = "Dein Beitrag wurde erfolgreich aktualisiert!";
+"posts.status_active" = "Aktiv";
+"posts.status_archived" = "Archiviert";
+"posts.status_active_desc" = "Für alle sichtbar";
+"posts.status_archived_desc" = "Für andere Benutzer ausgeblendet";
+"posts.no_active_posts" = "Keine aktiven Beiträge";
+"posts.no_archived_posts" = "Keine archivierten Beiträge";
+"posts.update_post" = "Beitrag aktualisieren";
+"posts.update_details" = "Beitragsdetails und Status aktualisieren";
+"posts.post_status" = "Beitragsstatus";
+"posts.existing_images" = "Vorhandene Bilder";
+"posts.new_images" = "Neue Bilder";
 
 // MARK: - Categories
 "categories.title" = "Kategorien";

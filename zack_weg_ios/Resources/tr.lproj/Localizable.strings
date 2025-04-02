@@ -105,8 +105,21 @@
 "posts.see_all_items" = "Tüm eşyalarını gör";
 "posts.sign_in_to_view" = "İlanlarını görmek için giriş yap";
 "posts.user_posts" = "Kullanıcı İlanları";
-"posts.no_posts_yet" = "Henüz ilan yok";
-"posts.create_post" = "İlan Oluştur";
+"posts.no_posts_yet" = "Henüz gönderi yok";
+"posts.create_post" = "Gönderi Oluştur";
+"posts.update" = "Gönderiyi Güncelle";
+"posts.post_updated" = "Gönderiniz başarıyla güncellendi!";
+"posts.status_active" = "Aktif";
+"posts.status_archived" = "Arşivlendi";
+"posts.status_active_desc" = "Herkese görünür";
+"posts.status_archived_desc" = "Diğer kullanıcılardan gizlendi";
+"posts.no_active_posts" = "Aktif gönderi yok";
+"posts.no_archived_posts" = "Arşivlenmiş gönderi yok";
+"posts.update_post" = "Gönderiyi Güncelle";
+"posts.update_details" = "Gönderi detaylarını ve durumunu güncelle";
+"posts.post_status" = "Gönderi Durumu";
+"posts.existing_images" = "Mevcut Görseller";
+"posts.new_images" = "Yeni Görseller";
 
 // MARK: - Categories
 "categories.title" = "Kategoriler";

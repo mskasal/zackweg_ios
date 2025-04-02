@@ -1009,6 +1009,55 @@ class APIService {
         
         return try decoder.decode(PublicUser.self, from: data)
     }
+    
+    func updatePost(
+        postId: String,
+        title: String,
+        description: String,
+        categoryId: String,
+        offering: String,
+        imageUrls: [String],
+        price: Double? = nil,
+        status: String
+    ) async throws {
+        let url = URL(string: "\(baseURL)/posts/\(postId)")!
+        print("🔄 Update Post Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        var body: [String: Any] = [
+            "title": title,
+            "description": description,
+            "category_id": categoryId,
+            "offering": offering,
+            "image_urls": imageUrls,
+            "price": price ?? 0,
+            "status": status
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        print("📦 Update Post Request Body: \(body)")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Update Post Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Update Post Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse.message)
+        }
+        
+        print("✅ Successfully updated post with ID: \(postId)")
+    }
 }
 
 // Response Models
