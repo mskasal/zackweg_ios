@@ -136,6 +136,7 @@
 "messages.no_conversations" = "Henüz konuşma yok";
 "messages.empty_state_message" = "Diğer kullanıcılarla bir konuşma başlattığında, burada görünecek";
 "messages.explore_to_message" = "Başlamak için ilanları keşfet ve satıcılara mesaj gönder";
+"messages.post_not_available" = "Bu eşya artık mevcut değil";
 
 // MARK: - Settings
 "settings.title" = "Ayarlar";

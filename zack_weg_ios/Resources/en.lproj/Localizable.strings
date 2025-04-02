@@ -136,6 +136,7 @@
 "messages.no_conversations" = "No conversations yet";
 "messages.empty_state_message" = "When you start a conversation with other users, it will appear here";
 "messages.explore_to_message" = "Explore items and message sellers to get started";
+"messages.post_not_available" = "This item is no longer available";
 
 // MARK: - Settings
 "settings.title" = "Settings";

@@ -136,6 +136,7 @@
 "messages.no_conversations" = "Noch keine Konversationen";
 "messages.empty_state_message" = "Wenn du eine Konversation mit anderen Benutzern startest, wird sie hier angezeigt";
 "messages.explore_to_message" = "Erkunde Artikel und schreibe Verkäufern, um loszulegen";
+"messages.post_not_available" = "Dieser Artikel ist nicht mehr verfügbar";
 
 // MARK: - Settings
 "settings.title" = "Einstellungen";

@@ -66,11 +66,19 @@ struct ConversationDetailView: View {
             
             Divider()
             
+            if !viewModel.isPostAvailable {
+                Text("messages.post_not_available".localized)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding()
+            }
+            
             MessageInputView(messageText: $messageText, onSend: {
                 Task {
                     await sendMessage()
                 }
             })
+            .disabled(!viewModel.isPostAvailable)
         }
         .navigationTitle(seller?.nickName ?? viewModel.conversation.user2.nickName)
         .navigationBarTitleDisplayMode(.inline)
@@ -145,6 +153,7 @@ struct ConversationHeaderView: View {
     @State private var otherUser: PublicUser?
     @State private var isLoading = false
     @State private var isInitialized = false
+    @State private var isPostAvailable = true
     
     var body: some View {
         VStack(spacing: 8) {
@@ -157,60 +166,28 @@ struct ConversationHeaderView: View {
                 .frame(height: 60)
             } else {
                 HStack(spacing: 12) {
-                    // Post image section - always navigable
-                    NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
-                        if let post = postDetails, !post.imageUrls.isEmpty, let imageUrl = post.imageUrls.first, let url = URL(string: imageUrl) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .empty:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(ProgressView())
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                case .failure:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(
-                                            Image(systemName: "photo")
-                                                .foregroundColor(.gray)
-                                        )
-                                @unknown default:
-                                    EmptyView()
+                    // User info
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let user = otherUser {
+                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
+                                HStack(spacing: 2) {
+                                    Text(user.nickName)
+                                        .font(.subheadline)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.primary)
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 8))
+                                        .foregroundColor(.secondary)
                                 }
                             }
-                            .frame(width: 50, height: 50)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                        } else {
-                            // Placeholder is also navigable
-                            Rectangle()
-                                .fill(Color.gray.opacity(0.2))
-                                .frame(width: 50, height: 50)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundColor(.gray)
-                                )
                         }
-                    }
-                    .buttonStyle(PlainButtonStyle()) // Prevents button styling from affecting appearance
-                    
-                    // Post and user info
-                    VStack(alignment: .leading, spacing: 4) {
-                        if let post = postDetails {
-                            NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
-                                Text(post.title)
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.primary)
-                                    .lineLimit(1)
-                            }
+                        
+                        if isPostAvailable, let post = postDetails {
+                            Text(post.title)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
                             
                             HStack(spacing: 6) {
                                 if post.offering == "SOLD_AT_PRICE" && post.price != nil {
@@ -222,31 +199,10 @@ struct ConversationHeaderView: View {
                                         .font(.caption)
                                         .foregroundColor(.green)
                                 }
-                                
-                                // Bullet separator
-                                Circle()
-                                    .fill(Color.gray.opacity(0.5))
-                                    .frame(width: 3, height: 3)
-                                
-                                // User link that navigates to user posts
-                                if let user = otherUser {
-                                    NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
-                                        HStack(spacing: 2) {
-                                            Text(user.nickName)
-                                                .font(.caption)
-                                                .foregroundColor(.secondary)
-                                            
-                                            Image(systemName: "chevron.right")
-                                                .font(.system(size: 8))
-                                                .foregroundColor(.secondary)
-                                        }
-                                    }
-                                }
                             }
                         } else {
-                            // Show loading text if post details aren't available yet
-                            Text("common.loading".localized)
-                                .font(.subheadline)
+                            Text("messages.post_not_available".localized)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -272,7 +228,22 @@ struct ConversationHeaderView: View {
         Task {
             do {
                 // Fetch post details
-                let post = try await APIService.shared.getPostById(conversation.postId)
+                do {
+                    let post = try await APIService.shared.getPostById(conversation.postId)
+                    await MainActor.run {
+                        self.postDetails = post
+                        self.isPostAvailable = true
+                    }
+                } catch let error as APIError {
+                    if case .serverError(let message) = error, message.contains("404") {
+                        print("❌ Post is no longer available (404)")
+                        await MainActor.run {
+                            self.isPostAvailable = false
+                        }
+                    } else {
+                        throw error
+                    }
+                }
                 
                 // Fetch other user's details
                 let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
@@ -280,7 +251,6 @@ struct ConversationHeaderView: View {
                 let user = try await APIService.shared.getUserProfile(userId: otherUserId)
                 
                 await MainActor.run {
-                    self.postDetails = post
                     self.otherUser = user
                     self.isLoading = false
                 }

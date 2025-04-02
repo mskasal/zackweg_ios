@@ -7,6 +7,7 @@ class ConversationDetailViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
     @Published var isTyping = false
+    @Published var isPostAvailable = true
     
     private let apiService: APIService
     
@@ -26,6 +27,20 @@ class ConversationDetailViewModel: ObservableObject {
         print("📱 Fetching messages for conversation: \(conversation.id)")
         
         do {
+            // First check if the post is still available
+            do {
+                _ = try await apiService.getPostById(conversation.postId)
+                isPostAvailable = true
+            } catch let error as APIError {
+                if case .serverError(let message) = error, message.contains("404") {
+                    print("❌ Post is no longer available (404)")
+                    isPostAvailable = false
+                } else {
+                    print("❌ Error checking post availability: \(error.localizedDescription)")
+                    throw error
+                }
+            }
+            
             // Use the new getConversationWithMessages method
             let conversationWithMessages = try await apiService.getConversationWithMessages(conversationId: conversation.id)
             
