@@ -113,7 +113,7 @@ struct ConversationRow: View {
                     .fill(Color.gray.opacity(0.2))
                     .frame(width: 50, height: 50)
                     .overlay(
-                        Text(conversation.user2.nickName.prefix(1).uppercased())
+                        Text(conversation.user1.nickName.prefix(1).uppercased())
                             .font(.system(size: 20, weight: .medium))
                             .foregroundColor(.gray)
                     )
@@ -133,7 +133,7 @@ struct ConversationRow: View {
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(conversation.user2.nickName)
+                    Text(conversation.user1.nickName)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(unreadCount > 0 ? .primary : .secondary)
                     

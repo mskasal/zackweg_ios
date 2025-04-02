@@ -80,8 +80,6 @@ struct ConversationDetailView: View {
             })
             .disabled(!viewModel.isPostAvailable)
         }
-        .navigationTitle(seller?.nickName ?? viewModel.conversation.user2.nickName)
-        .navigationBarTitleDisplayMode(.inline)
         .task {
             // Mark conversation as read when opening the view
             do {
@@ -166,48 +164,83 @@ struct ConversationHeaderView: View {
                 .frame(height: 60)
             } else {
                 HStack(spacing: 12) {
-                    // User info
-                    VStack(alignment: .leading, spacing: 4) {
-                        if let user = otherUser {
-                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
-                                HStack(spacing: 2) {
-                                    Text(user.nickName)
+                    if isPostAvailable {
+                        // Post image section
+                        if let post = postDetails, !post.imageUrls.isEmpty, let imageUrl = post.imageUrls.first, let url = URL(string: imageUrl) {
+                            NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .frame(width: 50, height: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        } else {
+                            // Placeholder when post is not available
+                            Rectangle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 50, height: 50)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    Image(systemName: "photo")
+                                        .foregroundColor(.gray)
+                                )
+                        }
+                        
+                        // Post info section
+                        NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                if let post = postDetails {
+                                    Text(post.title)
                                         .font(.subheadline)
                                         .fontWeight(.medium)
                                         .foregroundColor(.primary)
+                                        .lineLimit(1)
                                     
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 8))
+                                    Text(post.offering == "SOLD_AT_PRICE" ? "common.selling".localized : "common.giving_away".localized)
+                                        .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
                             }
                         }
                         
-                        if isPostAvailable, let post = postDetails {
-                            Text(post.title)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(1)
-                            
-                            HStack(spacing: 6) {
-                                if post.offering == "SOLD_AT_PRICE" && post.price != nil {
-                                    Text("€\(String(format: "%.2f", post.price!))")
-                                        .font(.caption)
-                                        .foregroundColor(.blue)
-                                } else {
-                                    Text("common.free".localized)
-                                        .font(.caption)
-                                        .foregroundColor(.green)
+                        Spacer()
+                        
+                        // User info
+                        if let user = otherUser {
+                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "person.circle.fill")
+                                        .foregroundColor(.secondary)
+                                    Text(user.nickName)
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
                                 }
                             }
-                        } else {
-                            Text("messages.post_not_available".localized)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
+                    } else {
+                        // When post is not available, show only user info on the left
+                        if let user = otherUser {
+                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "person.circle.fill")
+                                        .foregroundColor(.secondary)
+                                    Text(user.nickName)
+                                        .font(.subheadline)
+                                        .foregroundColor(.primary)
+                                }
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        Text("messages.post_not_available".localized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
-                    
-                    Spacer()
                 }
                 .padding(.horizontal)
             }
