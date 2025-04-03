@@ -6,6 +6,7 @@ struct FilterView: View {
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var selectedParentCategoryId: String? = nil
+    @State private var selectedCountry: Country? = Country.germany
     
     // Add these offering constants
     private let allOfferings = ["GIVING_AWAY", "SOLD_AT_PRICE"]
@@ -27,11 +28,13 @@ struct FilterView: View {
                                 .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(10)
                             
-                            TextField("explore.country_code".localized, text: $viewModel.searchFilters.countryCode)
-                                .textInputAutocapitalization(.characters)
-                                .padding()
-                                .background(Color(UIColor.secondarySystemBackground))
-                                .cornerRadius(10)
+                            CountrySelectView(
+                                selectedCountry: $selectedCountry,
+                                label: "explore.country".localized
+                            )
+                            .onChange(of: selectedCountry) { newCountry in
+                                viewModel.searchFilters.countryCode = newCountry?.code ?? "DEU"
+                            }
                             
                             VStack(spacing: 8) {
                                 HStack {

@@ -9,6 +9,7 @@ struct PostDetailView: View {
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
     @State private var showingDeleteConfirmation = false
+    @State private var shouldRefreshPost = false
     @Environment(\.dismiss) private var dismiss
     
     init(post: Post, fromUserPostsView: Bool = false) {
@@ -48,8 +49,13 @@ struct PostDetailView: View {
                 await viewModel.loadPostDetails()
             }
         }
-        .onDisappear {
-            // Clear any cached states if needed when leaving the view
+        .onChange(of: shouldRefreshPost) { newValue in
+            if newValue {
+                Task {
+                    await viewModel.loadPostDetails()
+                    shouldRefreshPost = false
+                }
+            }
         }
     }
     
@@ -293,7 +299,8 @@ struct PostDetailView: View {
                             // Add edit button
                             NavigationLink(
                                 destination: EditPostView(
-                                    postId: post.id
+                                    postId: post.id,
+                                    shouldRefresh: $shouldRefreshPost
                                 )
                             ) {
                                 HStack {
