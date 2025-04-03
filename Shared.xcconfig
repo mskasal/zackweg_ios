@@ -1,0 +1,7 @@
+// Shared.xcconfig
+// Shared configuration settings
+
+// Development Assets
+DEVELOPMENT_ASSET_PATHS = zack_weg_ios/Preview Content
+
+// Other shared settings can be added here 
