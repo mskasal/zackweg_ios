@@ -1,3 +1,5 @@
+#include "Shared.xcconfig"
+
 // Development.xcconfig
 // Configuration for Development environment
 
