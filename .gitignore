@@ -121,9 +121,6 @@ Temporary Items
 # Xcode Cloud
 .xcodecloud/
 
-# SwiftUI Preview Content
-Preview Content/
-
 # Temporary files
 *.swp
 *.swo

@@ -33,7 +33,7 @@ struct UserPostsView: View {
             } else if viewModel.posts.isEmpty {
                 emptyStateView
             } else {
-                postsGridView
+                postsListView
             }
         }
         .navigationTitle(userName ?? "posts.user_posts".localized)
@@ -137,22 +137,18 @@ struct UserPostsView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private var postsGridView: some View {
+    private var postsListView: some View {
         ScrollView {
-            let columns = [
-                GridItem(.adaptive(minimum: 160, maximum: 180), spacing: 12)
-            ]
-            
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVStack(spacing: 12) {
                 ForEach(viewModel.posts) { post in
                     NavigationLink(destination: PostDetailView(postId: post.id, fromUserPostsView: true)) {
-                        PostGridItemView(post: post)
+                        PostRowView(post: post)
                     }
                     .buttonStyle(PlainButtonStyle())
                 }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
         .refreshable {
             await viewModel.refresh(userId: userId)
@@ -160,84 +156,92 @@ struct UserPostsView: View {
     }
 }
 
-struct PostGridItemView: View {
+struct PostRowView: View {
     let post: Post
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            // Image container with fixed size
-            ZStack {
-                if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .empty:
-                            Rectangle()
-                                .foregroundColor(.gray.opacity(0.3))
-                                .overlay(
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle())
-                                )
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .scaledToFill()
-                        case .failure:
-                            Rectangle()
-                                .foregroundColor(.gray.opacity(0.3))
-                                .overlay(
-                                    Image(systemName: "photo")
-                                        .foregroundColor(.gray)
-                                )
-                        @unknown default:
-                            EmptyView()
-                        }
+        HStack(spacing: 12) {
+            // Image
+            if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        Rectangle()
+                            .foregroundColor(.gray.opacity(0.3))
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                            )
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        Rectangle()
+                            .foregroundColor(.gray.opacity(0.3))
+                            .overlay(
+                                Image(systemName: "photo")
+                                    .foregroundColor(.gray)
+                            )
+                    @unknown default:
+                        EmptyView()
                     }
-                } else {
-                    Rectangle()
-                        .foregroundColor(.gray.opacity(0.3))
-                        .overlay(
-                            Image(systemName: "photo")
-                                .foregroundColor(.gray)
-                        )
                 }
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                Rectangle()
+                    .foregroundColor(.gray.opacity(0.3))
+                    .frame(width: 80, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        Image(systemName: "photo")
+                            .foregroundColor(.gray)
+                    )
             }
-            .frame(height: 160) // Fixed height
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .clipped() // Ensure content doesn't overflow
             
-            // Title and price in a fixed-height container
-            VStack(alignment: .leading, spacing: 2) {
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
                 Text(post.title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .lineLimit(1)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
                 
-                HStack {
+                HStack(spacing: 8) {
                     if post.offering == "SOLD_AT_PRICE" && post.price != nil {
                         Text("€\(String(format: "%.2f", post.price!))")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.blue)
                     } else {
                         Text("common.free".localized)
-                            .font(.caption)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
                             .foregroundColor(.green)
                     }
                     
-                    Spacer()
-                    
-                    // Status indicator for the owner
                     if post.status == "ARCHIVED" {
                         Image(systemName: "archivebox.fill")
                             .font(.caption)
                             .foregroundColor(.orange)
                     }
                 }
+                
+                Text(post.location.postalCode)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
-            .frame(height: 40) // Fixed height for text area
+            
+            Spacer()
+            
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.secondary)
         }
-        .padding(8)
-        .background(Color.secondary.opacity(0.1))
-        .cornerRadius(10)
+        .padding(12)
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
 }
 
