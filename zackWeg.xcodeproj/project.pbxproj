@@ -17,6 +17,7 @@
 		106305BA2D99982F0067BBDD /* zackWeg-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "zackWeg-Info.plist"; sourceTree = "<group>"; };
 		106305BB2D99A6580067BBDD /* zackWeg.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = zackWeg.entitlements; sourceTree = "<group>"; };
 		106305BE2D99A8140067BBDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1063082A2D9E52E20067BBDD /* Dev.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dev.xctestplan; sourceTree = "<group>"; };
 		108513042D998CE30097F77C /* zackWeg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zackWeg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -55,6 +56,7 @@
 		10832D212D934B0F0086754D = {
 			isa = PBXGroup;
 			children = (
+				1063082A2D9E52E20067BBDD /* Dev.xctestplan */,
 				106305BB2D99A6580067BBDD /* zackWeg.entitlements */,
 				106305BA2D99982F0067BBDD /* zackWeg-Info.plist */,
 				10832D2C2D934B0F0086754D /* zack_weg_ios */,
@@ -151,6 +153,7 @@
 /* Begin XCBuildConfiguration section */
 		103051A02D9983FE00DD0BDD /* Staging */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 103051A22D99840A00DD0BDD /* Staging.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -254,6 +257,7 @@
 		};
 		10832D382D934B100086754D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1030519E2D9983F000DD0BDD /* Development.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -317,6 +321,7 @@
 		};
 		10832D392D934B100086754D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1030519F2D9983F900DD0BDD /* Production.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
