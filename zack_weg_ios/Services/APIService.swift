@@ -1058,6 +1058,33 @@ class APIService {
         
         print("✅ Successfully updated post with ID: \(postId)")
     }
+    
+    func getCurrentUserPosts() async throws -> [Post] {
+        let url = URL(string: "\(baseURL)/posts/me")!
+        print("🔑 Get Current User Posts Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get Current User Posts Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get Current User Posts Response Body: \(responseString)")
+        }
+        
+        if httpResponse.statusCode == 200 {
+            return try JSONDecoder().decode([Post].self, from: data)
+        } else {
+            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse.message)
+        }
+    }
 }
 
 // Response Models

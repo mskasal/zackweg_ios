@@ -7,9 +7,13 @@ class UserPostsViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var error: String?
     @Published var isLoading = false
-    @Published var user: PublicUser?
     @Published var isRefreshing = false
     @Published var selectedTab: PostStatus = .active
+    
+    // Different types of user data
+    @Published var currentUser: User?      // Full user data (only for current user)
+    @Published var publicUser: PublicUser? // Public user data (for other users)
+    @Published var postUser: PostUser?     // Basic user data from posts
     
     // All posts fetched from API, used as source of truth
     private var allPosts: [Post] = []
@@ -54,43 +58,79 @@ class UserPostsViewModel: ObservableObject {
         self.apiService = apiService
     }
     
-    func fetchUserPosts(userId: String) async {
+    func fetchUserPosts(userId: String?) async {
         isLoading = true
         defer { isLoading = false }
         
         do {
-            allPosts = try await apiService.getPostsByUser(userId: userId)
+            // If userId is nil or matches current user, fetch current user's posts
+            if userId == nil || userId == UserDefaults.standard.string(forKey: "userId") {
+                allPosts = try await apiService.getCurrentUserPosts()
+                if !allPosts.isEmpty {
+                    // Store basic user info from posts
+                    postUser = allPosts[0].user
+                    // Clear other user types since this is current user
+                    publicUser = nil
+                }
+            } else {
+                // Fetch other user's posts
+                allPosts = try await apiService.getPostsByUser(userId: userId!)
+                if !allPosts.isEmpty {
+                    // Store basic user info from posts
+                    postUser = allPosts[0].user
+                    // Clear current user since this is another user
+                    currentUser = nil
+                }
+            }
             filterPosts()
         } catch {
             self.error = error.localizedDescription
         }
     }
     
-    func fetchUserProfile(userId: String) async {
+    func fetchUserProfile(userId: String?) async {
+        // Only fetch if we don't have any user info yet
+        guard postUser == nil else { return }
+        
         isLoading = true
         defer { isLoading = false }
         
         do {
-            user = try await apiService.getUserProfile(userId: userId)
+            if userId == nil || userId == UserDefaults.standard.string(forKey: "userId") {
+                currentUser = try await apiService.getMyProfile()
+            } else {
+                publicUser = try await apiService.getUserProfile(userId: userId!)
+            }
         } catch {
             self.error = error.localizedDescription
         }
     }
     
-    func refresh(userId: String) async {
+    func refresh(userId: String?) async {
         guard !isRefreshing else { return }
         
         isRefreshing = true
         defer { isRefreshing = false }
         
-        // Fetch both user profile and posts concurrently
-        async let userTask = apiService.getUserProfile(userId: userId)
-        async let postsTask = apiService.getPostsByUser(userId: userId)
+        // Determine if we're fetching current user or other user
+        let isCurrentUser = userId == nil || userId == UserDefaults.standard.string(forKey: "userId")
         
         do {
-            let (fetchedUser, fetchedPosts) = try await (userTask, postsTask)
-            self.user = fetchedUser
-            self.allPosts = fetchedPosts
+            // Just fetch posts since they contain user information
+            allPosts = try await (isCurrentUser ? 
+                apiService.getCurrentUserPosts() : 
+                apiService.getPostsByUser(userId: userId!))
+            
+            if !allPosts.isEmpty {
+                postUser = allPosts[0].user
+                // Clear appropriate user type based on who we're viewing
+                if isCurrentUser {
+                    publicUser = nil
+                } else {
+                    currentUser = nil
+                }
+            }
+            
             filterPosts()
         } catch {
             self.error = error.localizedDescription
@@ -98,8 +138,19 @@ class UserPostsViewModel: ObservableObject {
     }
     
     var isCurrentUser: Bool {
-        guard let userId = user?.id else { return false }
-        return UserDefaults.standard.string(forKey: "userId") == userId
+        guard let postUserId = postUser?.id else { return false }
+        return UserDefaults.standard.string(forKey: "userId") == postUserId
+    }
+    
+    // Helper to get the display name, prioritizing the most detailed user info available
+    var displayName: String {
+        if let name = currentUser?.nickName {
+            return name
+        }
+        if let name = publicUser?.nickName {
+            return name
+        }
+        return postUser?.nickName ?? "Unknown"
     }
     
     func setTab(_ tab: PostStatus) {

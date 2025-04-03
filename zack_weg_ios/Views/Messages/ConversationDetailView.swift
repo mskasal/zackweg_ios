@@ -4,16 +4,14 @@ import Foundation
 struct ConversationDetailView: View {
     // Store the initial conversation just for the init, but use the one from ViewModel for display
     private let initialConversation: Conversation
-    let seller: PublicUser?
     let post: Post?
     @StateObject private var viewModel: ConversationDetailViewModel
     @EnvironmentObject private var unreadMessagesViewModel: UnreadMessagesViewModel
     @State private var messageText = ""
     @FocusState private var isFocused: Bool
     
-    init(conversation: Conversation, seller: PublicUser? = nil, post: Post? = nil) {
+    init(conversation: Conversation, post: Post? = nil) {
         self.initialConversation = conversation
-        self.seller = seller
         self.post = post
         _viewModel = StateObject(wrappedValue: ConversationDetailViewModel(conversation: conversation))
     }
@@ -153,6 +151,16 @@ struct ConversationHeaderView: View {
     @State private var isInitialized = false
     @State private var isPostAvailable = true
     
+    private var isUser1Seller: Bool {
+        guard let post = postDetails else { return false }
+        return post.user.id == conversation.user1.id
+    }
+    
+    private var otherUserId: String {
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        return conversation.user1.id == currentUserId ? conversation.user2.id : conversation.user1.id
+    }
+    
     var body: some View {
         VStack(spacing: 8) {
             if isLoading {
@@ -279,8 +287,6 @@ struct ConversationHeaderView: View {
                 }
                 
                 // Fetch other user's details
-                let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
-                let otherUserId = conversation.user1.id == currentUserId ? conversation.user2.id : conversation.user1.id
                 let user = try await APIService.shared.getUserProfile(userId: otherUserId)
                 
                 await MainActor.run {

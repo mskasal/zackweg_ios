@@ -17,6 +17,7 @@
 "common.apply" = "Apply";
 "common.selling" = "Selling";
 "common.giving_away" = "Giving Away";
+"common.country_germany" = "Germany";
 
 // MARK: - Authentication
 "auth.sign_in" = "Sign In";
@@ -42,12 +43,12 @@
 "auth.location" = "Location";
 "auth.postal_code" = "Postal Code";
 "auth.country" = "Country";
+"auth.country_germany" = "Germany";
 "auth.terms_agree" = "By signing up, you agree to our Terms of Service and Privacy Policy";
 "auth.already_have_account" = "Already have an account?";
 "auth.reset_instructions" = "Enter your email to get password reset instructions";
 "auth.email_sent" = "Email sent";
 "auth.check_email" = "Please check your email for password reset instructions";
-"auth.country_germany" = "Germany";
 "auth.postal_code_required" = "Postal code is required";
 "auth.nickname_required" = "Nickname is required";
 

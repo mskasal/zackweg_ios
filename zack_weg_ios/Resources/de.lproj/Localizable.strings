@@ -17,6 +17,7 @@
 "common.apply" = "Anwenden";
 "common.selling" = "Verkauf";
 "common.giving_away" = "Verschenken";
+"common.country_germany" = "Deutschland";
 
 // MARK: - Authentication
 "auth.sign_in" = "Anmelden";
@@ -42,12 +43,12 @@
 "auth.location" = "Standort";
 "auth.postal_code" = "Postleitzahl";
 "auth.country" = "Land";
+"auth.country_germany" = "Deutschland";
 "auth.terms_agree" = "Durch die Registrierung stimmst du unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu";
 "auth.already_have_account" = "Bereits ein Konto?";
 "auth.reset_instructions" = "Gib deine E-Mail ein, um Anweisungen zum Zurücksetzen des Passworts zu erhalten";
 "auth.email_sent" = "E-Mail gesendet";
 "auth.check_email" = "Bitte überprüfe deine E-Mails für Anweisungen zum Zurücksetzen des Passworts";
-"auth.country_germany" = "Deutschland";
 "auth.postal_code_required" = "Postleitzahl ist erforderlich";
 "auth.nickname_required" = "Spitzname ist erforderlich";
 

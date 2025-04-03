@@ -17,6 +17,7 @@
 "common.apply" = "Uygula";
 "common.selling" = "Satılık";
 "common.giving_away" = "Ücretsiz";
+"common.country_germany" = "Almanya";
 
 // MARK: - Authentication
 "auth.sign_in" = "Giriş Yap";
@@ -42,12 +43,12 @@
 "auth.location" = "Konum";
 "auth.postal_code" = "Posta Kodu";
 "auth.country" = "Ülke";
+"auth.country_germany" = "Almanya";
 "auth.terms_agree" = "Kaydolarak, Kullanım Koşullarımızı ve Gizlilik Politikamızı kabul etmiş olursun";
 "auth.already_have_account" = "Zaten hesabın var mı?";
 "auth.reset_instructions" = "Şifre sıfırlama talimatları için e-posta adresinizi girin";
 "auth.email_sent" = "E-posta gönderildi";
 "auth.check_email" = "Şifre sıfırlama talimatları için lütfen e-postanızı kontrol edin";
-"auth.country_germany" = "Almanya";
 "auth.postal_code_required" = "Posta kodu gereklidir";
 "auth.nickname_required" = "Kullanıcı adı gereklidir";
 

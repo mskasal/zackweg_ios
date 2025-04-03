@@ -5,8 +5,6 @@ class PostDetailViewModel: ObservableObject {
     private let post: Post?
     private let postId: String
     @Published var loadedPost: Post?
-    @Published var seller: PublicUser?
-    @Published var isLoadingSeller = false
     @Published var isLoadingPost = false
     @Published var messageText = ""
     @Published var error: String?
@@ -30,9 +28,9 @@ class PostDetailViewModel: ObservableObject {
     var isOwner: Bool {
         let userId = UserDefaults.standard.string(forKey: "userId")
         if let post = post {
-            return userId == post.userId
+            return userId == post.user.id
         } else if let loadedPost = loadedPost {
-            return userId == loadedPost.userId
+            return userId == loadedPost.user.id
         }
         return false
     }
@@ -55,8 +53,6 @@ class PostDetailViewModel: ObservableObject {
                 self.loadedPost = fetchedPost
                 print("Successfully loaded post details for ID: \(postId)")
             }
-            // Load seller info after post is loaded
-            await loadSellerInfo()
         } catch {
             await MainActor.run {
                 self.error = "Failed to load post: \(error.localizedDescription)"
@@ -66,44 +62,6 @@ class PostDetailViewModel: ObservableObject {
         
         await MainActor.run {
             isLoadingPost = false
-        }
-    }
-    
-    func loadSellerInfo() async {
-        // Guard against reloading if already loaded or in progress
-        guard !isLoadingSeller && seller == nil else { 
-            print("Seller info already loaded or in progress")
-            return 
-        }
-        
-        let userId = (post?.userId ?? loadedPost?.userId)
-        guard let userId = userId else {
-            print("Cannot load seller: No post data available")
-            return
-        }
-        
-        print("Loading seller info for post: \(postId), seller ID: \(userId)")
-        
-        await MainActor.run {
-            isLoadingSeller = true
-        }
-        
-        do {
-            let user = try await APIService.shared.getUserById(userId)
-            print("DEBUG: Received user data")
-            print("DEBUG: User nickname: \(user.nickName)")
-            
-            await MainActor.run {
-                self.seller = user
-                print("Successfully loaded seller info: \(user.nickName)")
-                print("DEBUG: Seller in ViewModel: Present")
-            }
-        } catch {
-            print("Failed to load seller information: \(error.localizedDescription)")
-        }
-        
-        await MainActor.run {
-            isLoadingSeller = false
         }
     }
     
@@ -131,37 +89,6 @@ class PostDetailViewModel: ObservableObject {
                 self.error = error.localizedDescription
                 print("Error sending message: \(error.localizedDescription)")
             }
-        }
-    }
-    
-    func getInitials(for name: String) -> String {
-        let components = name.components(separatedBy: " ")
-        if components.count > 1, 
-           let firstInitial = components[0].first,
-           let lastInitial = components[1].first {
-            return "\(firstInitial)\(lastInitial)"
-        } else if let firstInitial = components[0].first {
-            return String(firstInitial)
-        }
-        return "?"
-    }
-    
-    // Human-readable time ago display
-    func timeAgo(from date: Date) -> String {
-        let calendar = Calendar.current
-        let now = Date()
-        let components = calendar.dateComponents([.minute, .hour, .day, .weekOfMonth], from: date, to: now)
-        
-        if let weeks = components.weekOfMonth, weeks > 0 {
-            return weeks == 1 ? "time.week_ago".localized : String(format: "time.weeks_ago".localized, weeks)
-        } else if let days = components.day, days > 0 {
-            return days == 1 ? "time.yesterday".localized : String(format: "time.days_ago".localized, days)
-        } else if let hours = components.hour, hours > 0 {
-            return hours == 1 ? "time.hour_ago".localized : String(format: "time.hours_ago".localized, hours)
-        } else if let minutes = components.minute, minutes > 0 {
-            return minutes == 1 ? "time.minute_ago".localized : String(format: "time.minutes_ago".localized, minutes)
-        } else {
-            return "time.just_now".localized
         }
     }
     
@@ -193,5 +120,23 @@ class PostDetailViewModel: ObservableObject {
         await MainActor.run {
             isDeleting = false
         }
+    }
+    
+    func timeAgo(from date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
+    }
+    
+    func getInitials(for name: String) -> String {
+        let components = name.components(separatedBy: " ")
+        if components.count >= 2 {
+            let firstInitial = components[0].prefix(1)
+            let lastInitial = components[1].prefix(1)
+            return "\(firstInitial)\(lastInitial)".uppercased()
+        } else if let firstChar = name.first {
+            return String(firstChar).uppercased()
+        }
+        return "?"
     }
 } 

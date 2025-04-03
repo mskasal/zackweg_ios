@@ -5,6 +5,16 @@ enum PostOffering: String, Codable, CaseIterable {
     case soldAtPrice = "SOLD_AT_PRICE"
 }
 
+struct PostUser: Codable {
+    let id: String
+    let nickName: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case nickName = "nick_name"
+    }
+}
+
 struct Post: Identifiable, Codable {
     let id: String
     let title: String
@@ -15,7 +25,7 @@ struct Post: Identifiable, Codable {
     let status: String
     let imageUrls: [String]
     let location: Location
-    let userId: String
+    let user: PostUser
     let createdAt: Date
     let updatedAt: Date
     
@@ -31,7 +41,7 @@ struct Post: Identifiable, Codable {
         case location
         case createdAt = "created_at"
         case updatedAt = "updated_at"
-        case userId = "user_id"
+        case user
     }
     
     init(from decoder: Decoder) throws {
@@ -46,7 +56,7 @@ struct Post: Identifiable, Codable {
         status = try container.decode(String.self, forKey: .status)
         imageUrls = try container.decode([String].self, forKey: .imageUrls)
         location = try container.decode(Location.self, forKey: .location)
-        userId = try container.decode(String.self, forKey: .userId)
+        user = try container.decode(PostUser.self, forKey: .user)
         
         let formatter = ISO8601DateFormatter()
         // Handle updated at date string
@@ -73,5 +83,10 @@ struct Post: Identifiable, Codable {
                 throw DecodingError.dataCorruptedError(forKey: .createdAt, in: container, debugDescription: "Invalid date format")
             }
         }
+    }
+    
+    // Computed property to maintain backward compatibility
+    var userId: String {
+        user.id
     }
 }

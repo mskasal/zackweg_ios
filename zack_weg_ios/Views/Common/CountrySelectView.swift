@@ -5,7 +5,7 @@ struct Country: Identifiable, Hashable {
     let name: String
     let code: String
     
-    static let germany = Country(name: "Deutschland", code: "DEU")
+    static let germany = Country(name: "common.country_germany".localized, code: "DEU")
     
     static let allCountries = [germany]
 }

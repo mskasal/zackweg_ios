@@ -9,6 +9,7 @@ struct PostDetailView: View {
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
     @State private var showingDeleteConfirmation = false
+    @State private var shouldRefreshPost = false
     @Environment(\.dismiss) private var dismiss
     
     init(post: Post, fromUserPostsView: Bool = false) {
@@ -48,8 +49,13 @@ struct PostDetailView: View {
                 await viewModel.loadPostDetails()
             }
         }
-        .onDisappear {
-            // Clear any cached states if needed when leaving the view
+        .onChange(of: shouldRefreshPost) { newValue in
+            if newValue {
+                Task {
+                    await viewModel.loadPostDetails()
+                    shouldRefreshPost = false
+                }
+            }
         }
     }
     
@@ -185,7 +191,7 @@ struct PostDetailView: View {
                             Spacer()
                         }
                         .padding(.vertical, 8)
-                    } else if let seller = viewModel.seller {
+                    } else if post.user.id != "" {
                         if fromUserPostsView {
                             // Just show seller info without navigation when coming from UserPostsView
                             HStack(spacing: 8) {
@@ -201,7 +207,7 @@ struct PostDetailView: View {
                                 }
                                 
                                 // Nickname
-                                Text(seller.nickName)
+                                Text(post.user.nickName)
                                     .font(.callout)
                                     .fontWeight(.medium)
                                     .foregroundColor(.primary)
@@ -211,7 +217,7 @@ struct PostDetailView: View {
                             .padding(.vertical, 8)
                         } else {
                             // Include navigation to UserPostsView when not coming from UserPostsView
-                            NavigationLink(destination: UserPostsView(userId: seller.id, userName: seller.nickName, disablePostNavigation: true)) {
+                            NavigationLink(destination: UserPostsView(userId: post.user.id, userName: post.user.nickName, disablePostNavigation: true)) {
                                 HStack(spacing: 8) {
                                     // Avatar icon
                                     ZStack {
@@ -225,7 +231,7 @@ struct PostDetailView: View {
                                     }
                                     
                                     // Nickname
-                                    Text(seller.nickName)
+                                    Text(post.user.nickName)
                                         .font(.callout)
                                         .fontWeight(.medium)
                                         .foregroundColor(.primary)
@@ -293,7 +299,8 @@ struct PostDetailView: View {
                             // Add edit button
                             NavigationLink(
                                 destination: EditPostView(
-                                    postId: post.id
+                                    postId: post.id,
+                                    shouldRefresh: $shouldRefreshPost
                                 )
                             ) {
                                 HStack {
@@ -389,27 +396,16 @@ struct PostDetailView: View {
                                     .fill(Color.blue.opacity(0.1))
                                     .frame(width: 60, height: 60)
                                 
-                                if viewModel.isLoadingSeller {
-                                    ProgressView()
-                                        .scaleEffect(0.8)
-                                } else {
-                                    Text(viewModel.getInitials(for: viewModel.seller?.nickName ?? "User"))
-                                        .font(.system(size: 24, weight: .medium))
-                                        .foregroundColor(.blue)
-                                }
+                                Text(viewModel.getInitials(for: post.user.nickName))
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.blue)
                             }
                             
                             VStack(alignment: .leading, spacing: 6) {
-                                if viewModel.isLoadingSeller {
-                                    Text("common.loading".localized)
-                                        .font(.title3)
-                                        .foregroundColor(.secondary)
-                                } else {
-                                    Text(viewModel.seller?.nickName ?? "Seller")
-                                        .font(.title3)
-                                        .fontWeight(.semibold)
-                                        .foregroundColor(.primary)
-                                }
+                                Text(post.user.nickName)
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
                             }
                             
                             Spacer()
@@ -426,7 +422,7 @@ struct PostDetailView: View {
                         .font(.title3)
                         .fontWeight(.bold)
                     
-                    Text(String(format: "post_detail.send_message_to".localized, viewModel.seller?.nickName ?? "post_detail.the_seller".localized))
+                    Text(String(format: "post_detail.send_message_to".localized, post.user.nickName))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -478,21 +474,17 @@ struct PostDetailView: View {
             }
             .presentationDetents([.height(480)]) // Slightly reduced height since we removed product info
             .task {
-                // Load seller information when sheet appears
-                await viewModel.loadSellerInfo()
+                // No need to load seller info anymore
             }
         }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(postId: post.id)
         }
         .sheet(item: $viewModel.conversation) { conversation in
-            ConversationDetailView(conversation: conversation, seller: viewModel.seller, post: post)
+            ConversationDetailView(conversation: conversation, post: post)
         }
         .onAppear {
-            // Load seller information when view appears
-            Task {
-                await viewModel.loadSellerInfo()
-            }
+            // No need to load seller info anymore
         }
         .environmentObject(categoryViewModel)
     }

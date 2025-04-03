@@ -48,6 +48,7 @@ struct StatusCardView: View {
 
 struct EditPostView: View {
     let postId: String
+    @Binding var shouldRefresh: Bool
     
     @StateObject private var viewModel = EditPostViewModel()
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
@@ -386,11 +387,26 @@ struct EditPostView: View {
     // MARK: - Helper Functions
 
     private func validateForm() {
-        isFormValid = hasTitleAndDescription && 
-                     hasCategorySelected && 
-                     hasPriceIfNeeded && 
-                     hasImages &&
-                     !viewModel.status.isEmpty
+        // Check if any field has changed from the original post
+        let hasChanges = viewModel.post.map { post in
+            title != post.title ||
+            description != post.description ||
+            selectedCategory != post.categoryId ||
+            offering.rawValue != post.offering ||
+            (offering == .soldAtPrice ? price != String(format: "%.2f", post.price ?? 0) : false) ||
+            viewModel.status != post.status ||
+            !imagePreviews.isEmpty ||
+            !viewModel.removedImageUrls.isEmpty
+        } ?? false
+        
+        // Also ensure all required fields are filled
+        let hasRequiredFields = hasTitleAndDescription && 
+                              hasCategorySelected && 
+                              hasPriceIfNeeded && 
+                              hasImages &&
+                              !viewModel.status.isEmpty
+        
+        isFormValid = hasChanges && hasRequiredFields
     }
 
     private func handleImageSelection(_ items: [PhotosPickerItem]) {
@@ -461,6 +477,7 @@ struct EditPostView: View {
                 price: offering == .soldAtPrice ? price : "0",
                 status: viewModel.status
             )
+            shouldRefresh = true
             showSuccess = true
         } catch {
             self.error = error.localizedDescription

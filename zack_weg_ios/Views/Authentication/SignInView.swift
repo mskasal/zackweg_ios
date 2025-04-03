@@ -9,6 +9,7 @@ struct SignInView: View {
     @State private var showSignUp = false
     @State private var showForgotPassword = false
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var languageManager: LanguageManager
     
     // Form validation
     private var isEmailValid: Bool {
@@ -27,20 +28,28 @@ struct SignInView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
+                // Language switcher
+                HStack {
+                    LanguageSwitcherView()
+                    Spacer()
+                }
+                .padding(.horizontal, 25)
+                .padding(.top, 20)
+                
                 // Logo - different for dark/light mode
                 if colorScheme == .dark {
                     Image("Logo-nobg")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 200, height: 200)
-                        .padding(.top, 100)
+                        .padding(.top, 60)
                         .padding(.bottom, 20)
                 } else {
                     Image("Logo-no-bg-reverse-blue")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 200, height: 200)
-                        .padding(.top, 100)
+                        .padding(.top, 60)
                         .padding(.bottom, 20)
                 }
                 
@@ -199,6 +208,7 @@ struct SignInView: View {
 
 #Preview {
     SignInView(authViewModel: AuthViewModel())
+        .environmentObject(LanguageManager.shared)
     // Add the line below if testing in previews
     // .environment(\.locale, .init(identifier: "de"))
 } 
