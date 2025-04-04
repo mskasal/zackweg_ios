@@ -21,22 +21,9 @@
 		108513042D998CE30097F77C /* zackWeg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zackWeg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		106305C12D99AA4E0067BBDD /* Exceptions for "zack_weg_ios" folder in "zackWeg" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Preview Content/Preview Assets.xcassets",
-			);
-			target = 10832D292D934B0F0086754D /* zackWeg */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		10832D2C2D934B0F0086754D /* zack_weg_ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				106305C12D99AA4E0067BBDD /* Exceptions for "zack_weg_ios" folder in "zackWeg" target */,
-			);
 			path = zack_weg_ios;
 			sourceTree = "<group>";
 		};
