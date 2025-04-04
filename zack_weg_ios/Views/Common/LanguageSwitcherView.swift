@@ -8,17 +8,18 @@ struct LanguageSwitcherView: View {
             ForEach(LanguageManager.Language.allCases) { language in
                 Button(action: {
                     languageManager.currentLanguage = language
-                }) {
+                },label: {
                     HStack {
-                        Text(getFlagEmoji(for: language))
                         Text(language.displayName)
                             .font(.caption)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.primary);
+                    
                         if languageManager.currentLanguage == language {
+                            Spacer()
                             Image(systemName: "checkmark")
                         }
-                    }
-                }
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                }).padding()
             }
         } label: {
             HStack(spacing: 8) {
