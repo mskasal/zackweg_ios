@@ -52,6 +52,20 @@
 "auth.postal_code_required" = "Postal code is required";
 "auth.nickname_required" = "Nickname is required";
 
+// Field placeholders
+"auth.signup.email.placeholder" = "Enter your email";
+"auth.signup.password.placeholder" = "Create a password";
+"auth.signup.nickname.placeholder" = "Choose a nickname";
+"auth.signup.postal_code.placeholder" = "e.g., 10115";
+
+// Terms
+"auth.signup.agreement" = "By pressing Next, you agree to our Terms of Service and Privacy Policy";
+"auth.signup.password.toggle" = "Toggle password visibility";
+"auth.signup.agree_prefix" = "By pressing Next, you agree to our";
+"auth.signup.terms" = "Terms of Service";
+"auth.signup.and" = "and";
+"auth.signup.privacy" = "Privacy Policy";
+
 // MARK: - Profile
 "profile.title" = "Profile";
 "profile.edit" = "Edit Profile";

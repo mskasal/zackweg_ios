@@ -52,6 +52,20 @@
 "auth.postal_code_required" = "Posta kodu gereklidir";
 "auth.nickname_required" = "Kullanıcı adı gereklidir";
 
+// Field placeholders
+"auth.signup.email.placeholder" = "E-posta adresini gir";
+"auth.signup.password.placeholder" = "Şifre oluştur";
+"auth.signup.nickname.placeholder" = "Kullanıcı adı seç";
+"auth.signup.postal_code.placeholder" = "örn. 10115";
+
+// Terms
+"auth.signup.agreement" = "İleri'ye basarak Kullanım Koşullarını ve Gizlilik Politikasını kabul etmiş olursun";
+"auth.signup.password.toggle" = "Şifre görünürlüğünü değiştir";
+"auth.signup.agree_prefix" = "İleri'ye basarak şunları kabul etmiş olursun:";
+"auth.signup.terms" = "Kullanım Koşullarını";
+"auth.signup.and" = "ve";
+"auth.signup.privacy" = "Gizlilik Politikasını";
+
 // MARK: - Profile
 "profile.title" = "Profil";
 "profile.edit" = "Profili Düzenle";

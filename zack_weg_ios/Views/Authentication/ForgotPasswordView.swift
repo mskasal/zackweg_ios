@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct ForgotPasswordView: View {
     @Environment(\.dismiss) private var dismiss
@@ -48,11 +49,7 @@ struct ForgotPasswordView: View {
                 VStack(spacing: 12) {
                     // Email field
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("auth.email".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        TextField("", text: $email)
+                        TextField("auth.signup.email.placeholder".localized, text: $email)
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
                             .cornerRadius(10)
