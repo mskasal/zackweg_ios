@@ -14,7 +14,6 @@ struct SignUpView: View {
     @State private var currentStep = 0
     @State private var termsAccepted = false
     @State private var showPassword = false
-    @State private var showConfirmPassword = false
     @State private var shakeFieldIndex: Int? = nil
     @State private var fieldInFocus: String? = nil
     
@@ -282,37 +281,26 @@ struct SignUpView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                HStack {
-                    if showPassword {
-                        TextField("", text: $password)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
-                            )
-                            .accessibilityLabel("auth.password".localized)
-                    } else {
-                        SecureField("", text: $password)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
-                            )
-                            .accessibilityLabel("auth.password".localized)
-                    }
-                    
-                    Button(action: {
-                        showPassword.toggle()
-                    }) {
-                        Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 10)
-                    }
-                    .accessibilityLabel(showPassword ? "Hide password" : "Show password")
+                if showPassword {
+                    TextField("", text: $password)
+                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                        )
+                        .accessibilityLabel("auth.password".localized)
+                } else {
+                    SecureField("", text: $password)
+                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                        )
+                        .accessibilityLabel("auth.password".localized)
                 }
                 
                 // Password strength indicator
@@ -358,37 +346,26 @@ struct SignUpView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
-                HStack {
-                    if showConfirmPassword {
-                        TextField("", text: $confirmPassword)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isConfirmPasswordValid || confirmPassword.isEmpty ? Color.clear : Color.red, lineWidth: 1)
-                            )
-                            .accessibilityLabel("auth.confirm_password".localized)
-                    } else {
-                        SecureField("", text: $confirmPassword)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isConfirmPasswordValid || confirmPassword.isEmpty ? Color.clear : Color.red, lineWidth: 1)
-                            )
-                            .accessibilityLabel("auth.confirm_password".localized)
-                    }
-                    
-                    Button(action: {
-                        showConfirmPassword.toggle()
-                    }) {
-                        Image(systemName: showConfirmPassword ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 10)
-                    }
-                    .accessibilityLabel(showConfirmPassword ? "Hide password" : "Show password")
+                if showPassword {
+                    TextField("", text: $confirmPassword)
+                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isConfirmPasswordValid || confirmPassword.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                        )
+                        .accessibilityLabel("auth.confirm_password".localized)
+                } else {
+                    SecureField("", text: $confirmPassword)
+                        .padding()
+                        .background(Color(UIColor.secondarySystemBackground))
+                        .cornerRadius(10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isConfirmPasswordValid || confirmPassword.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                        )
+                        .accessibilityLabel("auth.confirm_password".localized)
                 }
                 
                 // Error message
@@ -403,6 +380,48 @@ struct SignUpView: View {
                         .accessibilityLabel("Error: Passwords do not match")
                 }
             }
+            
+            // Password visibility toggle
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    showPassword.toggle()
+                }
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(showPassword ? .blue : .secondary)
+                    
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(showPassword ? "auth.hide_passwords".localized : "auth.show_passwords".localized)
+                            .font(.footnote)
+                            .fontWeight(.medium)
+                            .foregroundColor(showPassword ? .blue : .primary)
+                        
+                        Text(showPassword ? "auth.passwords_visible".localized : "auth.passwords_hidden".localized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: showPassword ? "lock.open.fill" : "lock.fill")
+                        .foregroundColor(showPassword ? .blue : .secondary)
+                        .font(.system(size: 14))
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(showPassword ? Color.blue.opacity(0.1) : Color(UIColor.secondarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(showPassword ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 1)
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+            .padding(.top, 8)
+            .accessibilityLabel(showPassword ? "Hide passwords" : "Show passwords")
         }
     }
     
