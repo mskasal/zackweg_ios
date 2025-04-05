@@ -52,6 +52,20 @@
 "auth.postal_code_required" = "Postleitzahl ist erforderlich";
 "auth.nickname_required" = "Spitzname ist erforderlich";
 
+// Field placeholders
+"auth.signup.email.placeholder" = "E-Mail-Adresse eingeben";
+"auth.signup.password.placeholder" = "Passwort erstellen";
+"auth.signup.nickname.placeholder" = "Spitznamen wählen";
+"auth.signup.postal_code.placeholder" = "z.B. 10115";
+
+// Terms
+"auth.signup.agreement" = "Durch Drücken von Weiter stimmst du unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu";
+"auth.signup.password.toggle" = "Passwort-Sichtbarkeit umschalten";
+"auth.signup.agree_prefix" = "Durch Drücken von Weiter stimmst du unseren";
+"auth.signup.terms" = "Nutzungsbedingungen";
+"auth.signup.and" = "und";
+"auth.signup.privacy" = "Datenschutzrichtlinie";
+
 // MARK: - Profile
 "profile.title" = "Profil";
 "profile.edit" = "Profil bearbeiten";

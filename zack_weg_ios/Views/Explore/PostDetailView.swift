@@ -75,37 +75,16 @@ struct PostDetailView: View {
                 // Image Gallery - only this part ignores the safe area
                 ZStack(alignment: .topTrailing) {
                     TabView {
-                        ForEach(post.imageUrls, id: \.self) { imageUrl in
-                            AsyncImage(url: URL(string: imageUrl), 
-                                       transaction: Transaction(animation: .easeInOut)) { phase in
-                                switch phase {
-                                case .empty:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(
-                                            ProgressView()
-                                                .progressViewStyle(CircularProgressViewStyle())
-                                                .scaleEffect(1.5)
-                                        )
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .transition(.opacity)
-                                case .failure:
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.2))
-                                        .overlay(
-                                            Image(systemName: "exclamationmark.triangle")
-                                                .font(.largeTitle)
-                                                .foregroundColor(.red)
-                                        )
-                                @unknown default:
-                                    EmptyView()
-                                }
+                        if post.imageUrls.isEmpty {
+                            // Placeholder when no images available
+                            EmptyImagePlaceholderView(height: 350)
+                        } else {
+                            ForEach(post.imageUrls, id: \.self) { imageUrl in
+                                OptimizedAsyncImageView(
+                                    imageUrl: imageUrl,
+                                    height: 350
+                                )
                             }
-                            .frame(height: 350)
-                            .clipped()
                         }
                     }
                     .frame(height: 350)
@@ -258,9 +237,9 @@ struct PostDetailView: View {
                         HStack(spacing: 8) {
                             // Location with map pin
                             HStack(spacing: 6) {
-                                Image(systemName: "mappin.circle.fill")
+                                Image(systemName: "location.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(.red)
+                                    .foregroundColor(.secondary)
                                 Text(post.location.postalCode)
                                     .font(.subheadline)
                                     .foregroundColor(.primary)

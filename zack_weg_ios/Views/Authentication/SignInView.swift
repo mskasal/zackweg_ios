@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SignInView: View {
     @ObservedObject var authViewModel: AuthViewModel
@@ -8,6 +9,7 @@ struct SignInView: View {
     @State private var errorMessage = ""
     @State private var showSignUp = false
     @State private var showForgotPassword = false
+    @State private var showPassword = false
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var languageManager: LanguageManager
     
@@ -68,11 +70,7 @@ struct SignInView: View {
                 VStack(spacing: 12) {
                     // Email field
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("auth.email".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        TextField("", text: $email)
+                        TextField("auth.signup.email.placeholder".localized, text: $email)
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
                             .cornerRadius(10)
@@ -97,18 +95,33 @@ struct SignInView: View {
                     
                     // Password field
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("auth.password".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        SecureField("", text: $password)
-                            .padding()
-                            .background(Color(UIColor.secondarySystemBackground))
-                            .cornerRadius(10)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
-                            )
+                        ZStack(alignment: .trailing) {
+                            if showPassword {
+                                TextField("auth.signup.password.placeholder".localized, text: $password)
+                                    .padding()
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(10)
+                            } else {
+                                SecureField("auth.signup.password.placeholder".localized, text: $password)
+                                    .padding()
+                                    .background(Color(UIColor.secondarySystemBackground))
+                                    .cornerRadius(10)
+                            }
+                            
+                            Button(action: {
+                                showPassword.toggle()
+                            }) {
+                                Image(systemName: showPassword ? "eye.fill" : "eye.slash.fill")
+                                    .foregroundColor(.secondary)
+                                    .padding(.trailing, 16)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("auth.signup.password.toggle".localized)
+                        }
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                        )
                         
                         // Error message
                         if !isPasswordValid && !password.isEmpty {

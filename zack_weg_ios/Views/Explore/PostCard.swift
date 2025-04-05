@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import UIKit
 
 struct PostCard: View {
     let post: Post
@@ -27,17 +28,14 @@ struct PostCard: View {
                 TabView {
                     if post.imageUrls.isEmpty {
                         // Placeholder when no images available
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(height: 250)
-                            .overlay(
-                                Image(systemName: "photo.fill")
-                                    .font(.largeTitle)
-                                    .foregroundColor(.gray)
-                            )
+                        EmptyImagePlaceholderView(height: 250)
                     } else {
                         ForEach(post.imageUrls, id: \.self) { imageUrl in
-                            optimizedAsyncImage(for: imageUrl)
+                            OptimizedAsyncImageView(
+                                imageUrl: imageUrl,
+                                height: 250,
+                                onTapAction: { showingImagePreview = true }
+                            )
                         }
                     }
                 }
@@ -115,7 +113,7 @@ struct PostCard: View {
                 
                 // Location and Date info
                 HStack {
-                    // Show "Your Post" indicator when user is the owner
+                    // Show "Your Post" indicator when user is the owner, otherwise show poster's nickname
                     if viewModel.isOwner {
                         HStack(spacing: 4) {
                             Image(systemName: "person.fill.checkmark")
@@ -130,6 +128,21 @@ struct PostCard: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.green.opacity(0.08))
+                        .cornerRadius(12)
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                
+                            Text(post.user.nickName)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.08))
                         .cornerRadius(12)
                     }
                     
@@ -177,53 +190,6 @@ struct PostCard: View {
             PostCardImagePreviewView(imageUrls: post.imageUrls)
         }
         .environmentObject(categoryViewModel)
-    }
-    
-    // Optimized image loading with caching and better placeholders
-    private func optimizedAsyncImage(for imageUrlString: String) -> some View {
-        AsyncImage(url: URL(string: imageUrlString), 
-                   transaction: Transaction(animation: .easeInOut)) { phase in
-            switch phase {
-            case .empty:
-                // Placeholder with shimmer effect
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .overlay(
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                            .scaleEffect(1.5)
-                    )
-                    .frame(height: 250)
-                    .clipped()
-                    .transition(.opacity)
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 250)
-                    .clipped()
-                    .transition(.opacity)
-                    .onTapGesture {
-                        showingImagePreview = true
-                    }
-            case .failure:
-                // Error placeholder
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .overlay(
-                        Image(systemName: "exclamationmark.triangle")
-                            .font(.title)
-                            .foregroundColor(.gray)
-                    )
-                    .frame(height: 250)
-                    .clipped()
-            @unknown default:
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 250)
-                    .clipped()
-            }
-        }
     }
     
     // Calculate distance between two locations
