@@ -124,7 +124,7 @@ struct SettingsView: View {
             // Support section
             Section(header: Text("settings.support".localized)) {
                 Button(action: {
-                    // Open help/support (placeholder)
+                    openHelpSupportURL()
                 }) {
                     HStack {
                         Label("settings.help".localized, systemImage: "questionmark.circle")
@@ -137,10 +137,23 @@ struct SettingsView: View {
                 }
                 
                 Button(action: {
-                    // Open terms/privacy (placeholder)
+                    openTermsURL()
                 }) {
                     HStack {
-                        Label("settings.terms_privacy".localized, systemImage: "doc.text")
+                        Label("settings.terms".localized, systemImage: "doc.text")
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                Button(action: {
+                    openPrivacyURL()
+                }) {
+                    HStack {
+                        Label("settings.privacy".localized, systemImage: "hand.raised")
                             .foregroundColor(.primary)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -204,6 +217,27 @@ struct SettingsView: View {
         }
         
         return "U"
+    }
+    
+    // Open Help & Support in browser
+    private func openHelpSupportURL() {
+        if let url = URL(string: "https://zackweg.com/support") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    // Open Terms of Service in browser
+    private func openTermsURL() {
+        if let url = URL(string: "https://zackweg.com/terms") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    // Open Privacy Policy in browser
+    private func openPrivacyURL() {
+        if let url = URL(string: "https://zackweg.com/privacy") {
+            UIApplication.shared.open(url)
+        }
     }
 }
 
