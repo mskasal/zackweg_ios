@@ -288,9 +288,14 @@ struct SignUpView: View {
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                                .stroke(getBorderColor(for: password), lineWidth: 1)
                         )
                         .accessibilityLabel("auth.password".localized)
+                        .onChange(of: password) { _ in
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                // Trigger animation of requirement indicators
+                            }
+                        }
                 } else {
                     SecureField("", text: $password)
                         .padding()
@@ -298,33 +303,19 @@ struct SignUpView: View {
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
-                                .stroke(isPasswordValid || password.isEmpty ? Color.clear : Color.red, lineWidth: 1)
+                                .stroke(getBorderColor(for: password), lineWidth: 1)
                         )
                         .accessibilityLabel("auth.password".localized)
-                }
-                
-                // Password strength indicator
-                if !password.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        // Strength bar
-                        HStack(spacing: 4) {
-                            ForEach(1...4, id: \.self) { index in
-                                Rectangle()
-                                    .fill(passwordStrength >= index ? 
-                                          (passwordStrength < 3 ? Color.orange : Color.green) :
-                                          Color.gray.opacity(0.3))
-                                    .frame(height: 4)
+                        .onChange(of: password) { _ in
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                // Trigger animation of requirement indicators
                             }
                         }
-                        
-                        // Requirements checklist
-                        VStack(alignment: .leading, spacing: 4) {
-                            requirementText("8+ characters", password.count >= 8)
-                            requirementText("Contains numbers", password.rangeOfCharacter(from: .decimalDigits) != nil)
-                            requirementText("Contains special characters", password.rangeOfCharacter(from: CharacterSet(charactersIn: "!@#$%^&*()")) != nil)
-                        }
-                        .font(.caption)
-                    }
+                }
+                
+                // Password strength indicators
+                if !password.isEmpty {
+                    AnimatedRequirementsView(password: password)
                 }
                 
                 // Error message
@@ -874,6 +865,139 @@ struct SignUpView: View {
         default:
             // Default case
             break
+        }
+    }
+    
+    // Border color based on password strength
+    private func getBorderColor(for password: String) -> Color {
+        if password.isEmpty {
+            return Color.clear
+        }
+        
+        let strength = passwordStrength
+        
+        if strength == 0 {
+            return Color.red.opacity(0.5)
+        } else if strength < 3 {
+            return Color.orange.opacity(0.7)
+        } else {
+            return Color.green.opacity(0.7)
+        }
+    }
+    
+    // Animated requirements view
+    struct AnimatedRequirementsView: View {
+        let password: String
+        
+        // Track if each requirement is met
+        private var lengthMet: Bool {
+            return password.count >= 8
+        }
+        
+        private var numberMet: Bool {
+            return password.rangeOfCharacter(from: .decimalDigits) != nil
+        }
+        
+        private var upperCaseMet: Bool {
+            return password.rangeOfCharacter(from: .uppercaseLetters) != nil
+        }
+        
+        private var specialCharMet: Bool {
+            return password.rangeOfCharacter(from: CharacterSet(charactersIn: "!@#$%^&*()")) != nil
+        }
+        
+        // Number of requirements met
+        private var requirementsMet: Int {
+            return [lengthMet, numberMet, upperCaseMet, specialCharMet].filter { $0 }.count
+        }
+        
+        var body: some View {
+            HStack(spacing: 6) {
+                if lengthMet {
+                    RequirementBadge(label: "8+ characters", isVisible: lengthMet)
+                }
+                
+                if numberMet {
+                    RequirementBadge(label: "Numbers", isVisible: numberMet)
+                }
+                
+                if upperCaseMet {
+                    RequirementBadge(label: "Uppercase", isVisible: upperCaseMet)
+                }
+                
+                if specialCharMet {
+                    RequirementBadge(label: "Special chars", isVisible: specialCharMet)
+                }
+                
+                Spacer()
+                
+                // Password strength text
+                Text(strengthLabel)
+                    .font(.caption)
+                    .foregroundColor(strengthColor)
+                    .fontWeight(.medium)
+                    .padding(.trailing, 4)
+            }
+            .padding(.top, 8)
+            .padding(.leading, 4)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: lengthMet)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: numberMet)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: upperCaseMet)
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: specialCharMet)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Password strength: \(strengthLabel)")
+        }
+        
+        private var strengthLabel: String {
+            switch requirementsMet {
+            case 0:
+                return "Weak"
+            case 1:
+                return "Fair"
+            case 2:
+                return "Good"
+            case 3:
+                return "Strong"
+            case 4:
+                return "Very Strong"
+            default:
+                return ""
+            }
+        }
+        
+        private var strengthColor: Color {
+            switch requirementsMet {
+            case 0, 1:
+                return Color.red
+            case 2:
+                return Color.orange
+            case 3, 4:
+                return Color.green
+            default:
+                return Color.gray
+            }
+        }
+    }
+    
+    struct RequirementBadge: View {
+        let label: String
+        let isVisible: Bool
+        
+        var body: some View {
+            Text(label)
+                .font(.system(size: 10))
+                .fontWeight(.medium)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Color.green.opacity(0.15))
+                .foregroundColor(.green)
+                .cornerRadius(4)
+                .transition(.asymmetric(
+                    insertion: .scale(scale: 0.8).combined(with: .opacity).combined(with: .offset(x: -20, y: 0)),
+                    removal: .scale(scale: 0.8).combined(with: .opacity)
+                ))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(label) requirement met")
         }
     }
 }
