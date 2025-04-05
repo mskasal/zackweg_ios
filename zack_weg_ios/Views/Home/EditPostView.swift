@@ -66,6 +66,7 @@ struct EditPostView: View {
     @State private var showSuccess = false
     @State private var isFormValid = false
     @State private var selectedParentCategoryId: String? = nil
+    @State private var isProcessingImages = false
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
@@ -135,6 +136,10 @@ struct EditPostView: View {
         .onChange(of: viewModel.status) { _ in validateForm() }
         .task {
             await loadPostData()
+        }
+        .onDisappear {
+            // Cleanup resources
+            viewModel.cleanup()
         }
         .alert("common.error".localized, isPresented: .constant(error != nil)) {
             Button("common.ok".localized) {
@@ -240,9 +245,59 @@ struct EditPostView: View {
                 // Image picker button
                 imagePickerButton
                 
-                if !hasImages {
+                // Image processing indicator
+                if isProcessingImages {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        
+                        Text("Processing images...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 12)
+                }
+                
+                // Retry button for failed uploads
+                if !viewModel.failedUploads.isEmpty {
+                    Button(action: {
+                        Task {
+                            await retryFailedUploads()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.subheadline)
+                            Text("Retry Failed Uploads (\(viewModel.failedUploads.count))")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.orange.opacity(0.2))
+                        .foregroundColor(.orange)
+                        .cornerRadius(8)
+                    }
+                }
+                
+                // Upload progress indicator
+                if viewModel.isUploading {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Uploading images (\(viewModel.currentUploadIndex)/\(viewModel.totalUploads))...")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                        
+                        ProgressView(value: viewModel.uploadProgress, total: 1.0)
+                            .progressViewStyle(LinearProgressViewStyle())
+                            .frame(height: 8)
+                    }
+                    .padding(.vertical, 8)
+                }
+                
+                if !hasImages && !isProcessingImages {
                     noImagesView
-                } else {
+                } else if !isProcessingImages {
                     // Image count display
                     let totalImagesCount = viewModel.imageUrls.count + imagePreviews.count
                     Text(String(format: "posts.images_count".localized, totalImagesCount))
@@ -258,6 +313,14 @@ struct EditPostView: View {
                     // Display new images if available
                     if !imagePreviews.isEmpty {
                         newImagesView
+                    }
+                    
+                    // Reordering explanation when multiple images exist
+                    if (imagePreviews.count + viewModel.imageUrls.count) > 1 {
+                        Text("Drag and drop to reorder images. The first image will be shown as the main image.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
                     }
                 }
             }
@@ -316,6 +379,13 @@ struct EditPostView: View {
                         ExistingImageView(url: url, index: index, onDelete: { 
                             viewModel.removeImage(at: index)
                         })
+                        .onDrag {
+                            NSItemProvider(object: "\(index)" as NSString)
+                        }
+                        .onDrop(of: [.text], delegate: ExistingImageDropDelegate(
+                            items: $viewModel.imageUrls,
+                            draggedItem: index
+                        ))
                     }
                 }
                 .padding(.vertical, 8)
@@ -332,19 +402,351 @@ struct EditPostView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(0..<imagePreviews.count, id: \.self) { index in
+                    ForEach(Array(imagePreviews.indices), id: \.self) { index in
                         let imageData = imagePreviews[index]
                         ImagePreviewView(
                             imageData: imageData,
                             index: index,
-                            onDelete: { index in
-                                selectedImages.remove(at: index)
-                                imagePreviews.remove(at: index)
+                            onDelete: { deletionIndex in
+                                // Safely delete by checking indices first
+                                safelyDeleteImage(at: deletionIndex)
                             }
                         )
+                        .onDrag {
+                            // Store the index for reordering
+                            NSItemProvider(object: "\(index)" as NSString)
+                        }
+                        .onDrop(of: [.text], delegate: ImageDropDelegate(
+                            items: $imagePreviews,
+                            draggedItem: index,
+                            selectedItems: $selectedImages
+                        ))
                     }
                 }
                 .padding(.vertical, 8)
+            }
+        }
+    }
+
+    private func safelyDeleteImage(at index: Int) {
+        // First ensure index is valid
+        guard index >= 0 else { return }
+        
+        // Create local copy of arrays to manipulate
+        var previewsCopy = imagePreviews
+        var selectedCopy = selectedImages
+        
+        // Check bounds for imagePreviews
+        if index < previewsCopy.count {
+            previewsCopy.remove(at: index)
+        }
+        
+        // Check bounds for selectedImages - ensure it has at least as many items
+        if index < selectedCopy.count {
+            selectedCopy.remove(at: index)
+        } else {
+            // If arrays got out of sync, just update previews
+            imagePreviews = previewsCopy
+            return
+        }
+        
+        // Update both arrays at once to maintain sync
+        imagePreviews = previewsCopy
+        selectedImages = selectedCopy
+    }
+
+    private func handleImageSelection(_ items: [PhotosPickerItem]) {
+        Task {
+            // Show image processing indicator
+            isProcessingImages = true
+            
+            // Keep track of the current count to handle sequential updates
+            let initialPreviewCount = imagePreviews.count
+            var successCount = 0
+            var failedCount = 0
+            
+            // Create a temporary array for successful items to maintain synchronization
+            var validItems: [PhotosPickerItem] = []
+            var validPreviews: [Data] = []
+            
+            // Process new images with validation and feedback
+            for (index, item) in items.enumerated() {
+                do {
+                    if let data = try await item.loadTransferable(type: Data.self) {
+                        if let uiImage = UIImage(data: data) {
+                            // Basic image validation
+                            if uiImage.size.width > 0 && uiImage.size.height > 0 {
+                                validPreviews.append(data)
+                                validItems.append(item)
+                                successCount += 1
+                            } else {
+                                failedCount += 1
+                                print("⚠️ Invalid image dimensions for item \(index)")
+                            }
+                        } else {
+                            failedCount += 1
+                            print("⚠️ Could not create UIImage from data for item \(index)")
+                        }
+                    }
+                } catch {
+                    failedCount += 1
+                    print("⚠️ Failed to load image \(index): \(error.localizedDescription)")
+                }
+            }
+            
+            // Update the arrays together to maintain synchronization
+            if !validItems.isEmpty {
+                // Replace the picker selection with only valid items
+                selectedImages = validItems
+                imagePreviews = validPreviews
+            }
+            
+            // Provide feedback if any images failed to load
+            if failedCount > 0 {
+                error = "Failed to load \(failedCount) image(s). Please try different images."
+            }
+            
+            // Hide image processing indicator
+            isProcessingImages = false
+        }
+    }
+
+    private func loadPostData() async {
+        // Load the post data
+        await viewModel.loadPost(postId: postId)
+        
+        // Populate form fields when post is loaded
+        if let post = viewModel.post {
+            populateFormFields(with: post)
+        }
+    }
+
+    private func populateFormFields(with post: Post) {
+        title = post.title
+        description = post.description
+        selectedCategory = post.categoryId
+        
+        // Find the parent category
+        if let category = categoryViewModel.getCategory(byId: post.categoryId) {
+            selectedCategory = category.id
+            
+            // If this is a subcategory, find its parent
+            if let parentCategory = categoryViewModel.getParentCategory(for: category.id) {
+                selectedParentCategoryId = parentCategory.id
+            } else {
+                // This is a top-level category
+                selectedParentCategoryId = category.id
+            }
+        }
+        
+        // Set offering enum from string
+        if let offeringEnum = PostOffering(rawValue: post.offering) {
+            offering = offeringEnum
+        }
+        
+        // Set price if available
+        if let postPrice = post.price {
+            price = String(format: "%.2f", postPrice)
+        }
+        
+        // Validate the form with the loaded data
+        validateForm()
+    }
+
+    private func updateExistingPost() async {
+        do {
+            // Synchronize image arrays to ensure consistency
+            viewModel.synchronizeImageArrays()
+            
+            // Prepare new image data for upload with validation
+            for imageData in imagePreviews {
+                let success = viewModel.addImage(imageData)
+                if !success {
+                    // If image validation fails, stop and show error
+                    error = viewModel.error
+                    return
+                }
+            }
+            
+            try await viewModel.updatePost(
+                title: title,
+                description: description,
+                categoryId: selectedCategory,
+                offering: offering.rawValue,
+                price: offering == .soldAtPrice ? price : "0",
+                status: viewModel.status
+            )
+            shouldRefresh = true
+            showSuccess = true
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func retryFailedUploads() async {
+        do {
+            await viewModel.retryFailedUploads()
+            validateForm()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    // MARK: - Helper Views
+
+    struct ExistingImageView: View {
+        let url: String
+        let index: Int
+        let onDelete: () -> Void
+        
+        var body: some View {
+            AsyncImage(url: URL(string: url)) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(width: 100, height: 100)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            Button(action: onDelete) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.white)
+                                    .background(Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+                            }
+                            .padding(4),
+                            alignment: .topTrailing
+                        )
+                case .failure:
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(width: 100, height: 100)
+                        .overlay(
+                            Image(systemName: "photo.fill")
+                                .foregroundColor(.gray)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                @unknown default:
+                    EmptyView()
+                }
+            }
+        }
+    }
+
+    struct ImagePreviewView: View {
+        let imageData: Data
+        let index: Int
+        let onDelete: (Int) -> Void
+        @State private var isDeleting = false
+        
+        var body: some View {
+            if let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .overlay(
+                        Button(action: {
+                            withAnimation {
+                                isDeleting = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                    // Pass the current index - not capturing the closure index
+                                    onDelete(index)
+                                }
+                            }
+                        }) {
+                            Image(systemName: isDeleting ? "hourglass" : "xmark.circle.fill")
+                                .foregroundColor(.white)
+                                .background(Color.black.opacity(0.5))
+                                .clipShape(Circle())
+                        }
+                        .padding(4)
+                        .disabled(isDeleting),
+                        alignment: .topTrailing
+                    )
+                    .opacity(isDeleting ? 0.5 : 1.0)
+            } else {
+                // Invalid image placeholder
+                Rectangle()
+                    .fill(Color.red.opacity(0.3))
+                    .frame(width: 100, height: 100)
+                    .overlay(
+                        VStack {
+                            Image(systemName: "exclamationmark.triangle")
+                                .foregroundColor(.orange)
+                            Text("Invalid")
+                                .font(.caption2)
+                                .foregroundColor(.orange)
+                        }
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+        }
+    }
+
+    struct ImageDropDelegate: DropDelegate {
+        @Binding var items: [Data]
+        let draggedItem: Int
+        @Binding var selectedItems: [PhotosPickerItem]
+        
+        func performDrop(info: DropInfo) -> Bool {
+            return true
+        }
+        
+        func dropEntered(info: DropInfo) {
+            guard let fromIndex = Int(info.itemProviders(for: [.text]).first?.registeredTypeIdentifiers.first ?? "") else {
+                return
+            }
+            
+            // Exit if trying to drop onto itself
+            if draggedItem == fromIndex {
+                return
+            }
+            
+            // Safely move the item in both arrays
+            if items.indices.contains(fromIndex) && items.indices.contains(draggedItem) {
+                let itemToMove = items[fromIndex]
+                items.remove(at: fromIndex)
+                items.insert(itemToMove, at: draggedItem)
+                
+                // Do the same for the PhotosPickerItems
+                if selectedItems.indices.contains(fromIndex) && selectedItems.indices.contains(draggedItem) {
+                    let selectionToMove = selectedItems[fromIndex]
+                    selectedItems.remove(at: fromIndex)
+                    selectedItems.insert(selectionToMove, at: draggedItem)
+                }
+            }
+        }
+    }
+
+    struct ExistingImageDropDelegate: DropDelegate {
+        @Binding var items: [String]
+        let draggedItem: Int
+        
+        func performDrop(info: DropInfo) -> Bool {
+            return true
+        }
+        
+        func dropEntered(info: DropInfo) {
+            guard let fromIndex = Int(info.itemProviders(for: [.text]).first?.registeredTypeIdentifiers.first ?? "") else {
+                return
+            }
+            
+            // Exit if trying to drop onto itself
+            if draggedItem == fromIndex {
+                return
+            }
+            
+            // Safely move the item
+            if items.indices.contains(fromIndex) && items.indices.contains(draggedItem) {
+                let itemToMove = items[fromIndex]
+                items.remove(at: fromIndex)
+                items.insert(itemToMove, at: draggedItem)
             }
         }
     }
@@ -407,126 +809,6 @@ struct EditPostView: View {
                               !viewModel.status.isEmpty
         
         isFormValid = hasChanges && hasRequiredFields
-    }
-
-    private func handleImageSelection(_ items: [PhotosPickerItem]) {
-        Task {
-            // Process new images
-            for item in items {
-                if let data = try? await item.loadTransferable(type: Data.self) {
-                    imagePreviews.append(data)
-                }
-            }
-        }
-    }
-
-    private func loadPostData() async {
-        // Load the post data
-        await viewModel.loadPost(postId: postId)
-        
-        // Populate form fields when post is loaded
-        if let post = viewModel.post {
-            populateFormFields(with: post)
-        }
-    }
-
-    private func populateFormFields(with post: Post) {
-        title = post.title
-        description = post.description
-        selectedCategory = post.categoryId
-        
-        // Find the parent category
-        if let category = categoryViewModel.getCategory(byId: post.categoryId) {
-            selectedCategory = category.id
-            
-            // If this is a subcategory, find its parent
-            if let parentCategory = categoryViewModel.getParentCategory(for: category.id) {
-                selectedParentCategoryId = parentCategory.id
-            } else {
-                // This is a top-level category
-                selectedParentCategoryId = category.id
-            }
-        }
-        
-        // Set offering enum from string
-        if let offeringEnum = PostOffering(rawValue: post.offering) {
-            offering = offeringEnum
-        }
-        
-        // Set price if available
-        if let postPrice = post.price {
-            price = String(format: "%.2f", postPrice)
-        }
-        
-        // Validate the form with the loaded data
-        validateForm()
-    }
-
-    private func updateExistingPost() async {
-        do {
-            // Prepare new image data for upload
-            for imageData in imagePreviews {
-                viewModel.addImage(imageData)
-            }
-            
-            try await viewModel.updatePost(
-                title: title,
-                description: description,
-                categoryId: selectedCategory,
-                offering: offering.rawValue,
-                price: offering == .soldAtPrice ? price : "0",
-                status: viewModel.status
-            )
-            shouldRefresh = true
-            showSuccess = true
-        } catch {
-            self.error = error.localizedDescription
-        }
-    }
-
-    // MARK: - Helper Views
-
-    struct ExistingImageView: View {
-        let url: String
-        let index: Int
-        let onDelete: () -> Void
-        
-        var body: some View {
-            AsyncImage(url: URL(string: url)) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .frame(width: 100, height: 100)
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            Button(action: onDelete) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.white)
-                                    .background(Color.black.opacity(0.5))
-                                    .clipShape(Circle())
-                            }
-                            .padding(4),
-                            alignment: .topTrailing
-                        )
-                case .failure:
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            Image(systemName: "photo.fill")
-                                .foregroundColor(.gray)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                @unknown default:
-                    EmptyView()
-                }
-            }
-        }
     }
 }
 
