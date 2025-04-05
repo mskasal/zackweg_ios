@@ -115,7 +115,7 @@ struct PostCard: View {
                 
                 // Location and Date info
                 HStack {
-                    // Show "Your Post" indicator when user is the owner
+                    // Show "Your Post" indicator when user is the owner, otherwise show poster's nickname
                     if viewModel.isOwner {
                         HStack(spacing: 4) {
                             Image(systemName: "person.fill.checkmark")
@@ -130,6 +130,21 @@ struct PostCard: View {
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.green.opacity(0.08))
+                        .cornerRadius(12)
+                    } else {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                
+                            Text(post.user.nickName)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.gray.opacity(0.08))
                         .cornerRadius(12)
                     }
                     

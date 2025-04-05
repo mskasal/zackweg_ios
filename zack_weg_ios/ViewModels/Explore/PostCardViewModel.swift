@@ -15,6 +15,6 @@ class PostCardViewModel: ObservableObject {
     }
     
     var isOwner: Bool {
-        UserDefaults.standard.string(forKey: "userId") == post.userId
+        UserDefaults.standard.string(forKey: "userId") == post.user.id
     }
 } 
