@@ -258,9 +258,9 @@ struct PostDetailView: View {
                         HStack(spacing: 8) {
                             // Location with map pin
                             HStack(spacing: 6) {
-                                Image(systemName: "mappin.circle.fill")
+                                Image(systemName: "location.fill")
                                     .font(.subheadline)
-                                    .foregroundColor(.red)
+                                    .foregroundColor(.secondary)
                                 Text(post.location.postalCode)
                                     .font(.subheadline)
                                     .foregroundColor(.primary)
