@@ -198,7 +198,7 @@ class APIService {
         }
     }
     
-    func createPost(title: String, description: String, categoryId: String, offering: String, imageUrls: [String], price: Double? = nil) async throws {
+    func createPost(title: String, description: String, categoryId: String, offering: String, imageUrls: [String], price: Double? = nil) async throws -> Post {
         let url = URL(string: "\(baseURL)/posts")!
         print("🔑 Create Post Request URL: \(url.absoluteString)")
         
@@ -232,6 +232,22 @@ class APIService {
         guard httpResponse.statusCode == 201 else {
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
             throw APIError.serverError(errorResponse.message)
+        }
+        
+        // Decode the created post from the response
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        do {
+            return try decoder.decode(Post.self, from: data)
+        } catch {
+            print("❌ Error decoding post: \(error)")
+            // If the API doesn't return the created post, fetch it using the post ID if available
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let postId = json["id"] as? String {
+                return try await getPostById(postId)
+            }
+            throw APIError.decodingError(error)
         }
     }
     

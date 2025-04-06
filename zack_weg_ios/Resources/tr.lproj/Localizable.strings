@@ -261,7 +261,7 @@
 "explore.no_posts" = "İlan bulunamadı";
 "explore.filter_location" = "Konum";
 "explore.postal_code" = "Posta Kodu";
-"explore.country_code" = "Ülke Kodu";
+"explore.country" = "Ülke";
 "explore.filter_radius" = "Yarıçap";
 "explore.filter_distance_km" = "%d km";
 "explore.filter_categories" = "Kategoriler";

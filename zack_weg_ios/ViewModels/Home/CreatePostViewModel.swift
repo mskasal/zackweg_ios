@@ -5,6 +5,8 @@ import SwiftUI
 class CreatePostViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var error: String?
+    @Published var createdPost: Post?
+    @Published var createdPostId: String?
     
     private let apiService: APIService
     
@@ -37,7 +39,7 @@ class CreatePostViewModel: ObservableObject {
             }
             
             // Create the post with the uploaded image URLs
-            try await apiService.createPost(
+            let post = try await apiService.createPost(
                 title: title,
                 description: description,
                 categoryId: category,
@@ -45,8 +47,15 @@ class CreatePostViewModel: ObservableObject {
                 imageUrls: imageUrls,
                 price: priceDouble
             )
+            
+            // Store the created post and its ID
+            self.createdPost = post
+            self.createdPostId = post.id
+            
+            print("✅ Post created successfully: ID \(post.id)")
         } catch {
             self.error = error.localizedDescription
+            print("❌ Failed to create post: \(error.localizedDescription)")
             throw error
         }
     }

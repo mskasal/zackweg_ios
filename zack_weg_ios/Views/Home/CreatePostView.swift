@@ -506,6 +506,7 @@ struct CreatePostView: View {
     @State private var showSuccess = false
     @State private var isFormValid = false
     @State private var selectedParentCategoryId: String? = nil
+    @State private var navigateToPostDetail = false
 
     init() {
         _viewModel = StateObject(wrappedValue: CreatePostViewModel())
@@ -560,9 +561,22 @@ struct CreatePostView: View {
                                     images: imagePreviews,
                                     price: offering == .soldAtPrice ? price : nil
                                 )
-                                showSuccess = true
-                                // Reset form
-                                resetForm()
+                                
+                                print("Post creation successful - postId exists: \(viewModel.createdPostId != nil)")
+                                
+                                // Only show success alert if we couldn't get the post ID
+                                if viewModel.createdPostId == nil {
+                                    print("No post ID - showing success alert")
+                                    showSuccess = true
+                                    resetForm()
+                                } else {
+                                    print("Post ID available - navigating to detail view")
+                                    // Navigate to post detail if we have the post ID
+                                    // Add a small delay to ensure state updates properly
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        navigateToPostDetail = true
+                                    }
+                                }
                             } catch {
                                 self.error = error.localizedDescription
                             }
@@ -589,7 +603,32 @@ struct CreatePostView: View {
         .onChange(of: selectedCategory) { _ in validateForm() }
         .onChange(of: price) { _ in validateForm() }
         .onChange(of: offering) { _ in validateForm() }
+        .onChange(of: navigateToPostDetail) { isActive in
+            // When navigation completes (becomes inactive), reset the form
+            if !isActive {
+                print("Navigation completed, resetting form")
+                resetForm()
+                // Also reset the created post data
+                viewModel.createdPost = nil
+                viewModel.createdPostId = nil
+            }
+        }
         .applyAlerts(error: $error, showSuccess: $showSuccess, onDismissSuccess: { dismiss() })
+        
+        // Always include NavigationLink in view hierarchy
+        .background(
+            NavigationLink(destination: EmptyView()) {
+                EmptyView()
+            }
+            .hidden()
+        )
+        .background(
+            NavigationLink(
+                destination: PostDetailView(postId: viewModel.createdPostId ?? ""),
+                isActive: $navigateToPostDetail,
+                label: { EmptyView() }
+            )
+        )
     }
     
     private func validateForm() {

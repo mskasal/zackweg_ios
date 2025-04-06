@@ -261,7 +261,7 @@
 "explore.no_posts" = "Keine Beiträge gefunden";
 "explore.filter_location" = "Standort";
 "explore.postal_code" = "Postleitzahl";
-"explore.country_code" = "Ländercode";
+"explore.country" = "Land";
 "explore.filter_radius" = "Radius";
 "explore.filter_distance_km" = "%d km";
 "explore.filter_categories" = "Kategorien";

@@ -70,7 +70,7 @@ struct SignInView: View {
                 VStack(spacing: 12) {
                     // Email field
                     VStack(alignment: .leading, spacing: 4) {
-                        TextField("auth.signup.email.placeholder".localized, text: $email)
+                        TextField("auth.email".localized, text: $email)
                             .padding()
                             .background(Color(UIColor.secondarySystemBackground))
                             .cornerRadius(10)
@@ -97,12 +97,12 @@ struct SignInView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         ZStack(alignment: .trailing) {
                             if showPassword {
-                                TextField("auth.signup.password.placeholder".localized, text: $password)
+                                TextField("auth.password".localized, text: $password)
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
                             } else {
-                                SecureField("auth.signup.password.placeholder".localized, text: $password)
+                                SecureField("auth.password".localized, text: $password)
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
