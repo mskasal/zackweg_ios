@@ -31,12 +31,14 @@ struct ForgotPasswordView: View {
                             .foregroundColor(.blue)
                             .frame(width: 80, height: 80)
                     )
+                    .accessibilityIdentifier("forgotPasswordLogo")
                 
                 // Title section
                 Text("auth.reset_password".localized)
                     .font(.title)
                     .fontWeight(.bold)
                     .padding(.bottom, 4)
+                    .accessibilityIdentifier("forgotPasswordTitleText")
                 
                 Text("auth.reset_instructions".localized)
                     .font(.subheadline)
@@ -44,6 +46,7 @@ struct ForgotPasswordView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 25)
                     .padding(.bottom, 20)
+                    .accessibilityIdentifier("forgotPasswordInstructionText")
                 
                 // Form section
                 VStack(spacing: 12) {
@@ -60,6 +63,7 @@ struct ForgotPasswordView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(isEmailValid || email.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                             )
+                            .accessibilityIdentifier("forgotPasswordEmailTextField")
                         
                         // Error message
                         if !isEmailValid && !email.isEmpty {
@@ -69,6 +73,7 @@ struct ForgotPasswordView: View {
                                 .multilineTextAlignment(.leading)
                                 .transition(.opacity)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("forgotPasswordEmailValidationError")
                         }
                     }
                     
@@ -109,6 +114,7 @@ struct ForgotPasswordView: View {
                     }
                     .disabled(authViewModel.isLoading)
                     .padding(.top, 10)
+                    .accessibilityIdentifier("resetPasswordButton")
                     
                     // Back to sign in button
                     Button(action: {
@@ -120,6 +126,7 @@ struct ForgotPasswordView: View {
                             .foregroundColor(.blue)
                     }
                     .padding(.top, 16)
+                    .accessibilityIdentifier("backToSignInButton")
                 }
                 .padding(.horizontal, 25)
                 
@@ -127,6 +134,7 @@ struct ForgotPasswordView: View {
             }
             .padding(.bottom, 30)
         }
+        .accessibilityIdentifier("forgotPasswordScreenView")
         .alert(isPresented: $showError) {
             Alert(
                 title: Text("common.error".localized),
