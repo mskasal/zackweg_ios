@@ -46,6 +46,7 @@ struct SignInView: View {
                         .frame(width: 200, height: 200)
                         .padding(.top, 60)
                         .padding(.bottom, 20)
+                        .accessibilityIdentifier("appLogo")
                 } else {
                     Image("Logo-no-bg-reverse-blue")
                         .resizable()
@@ -53,6 +54,7 @@ struct SignInView: View {
                         .frame(width: 200, height: 200)
                         .padding(.top, 60)
                         .padding(.bottom, 20)
+                        .accessibilityIdentifier("appLogo")
                 }
                 
                 // Title section
@@ -60,11 +62,13 @@ struct SignInView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .padding(.bottom, 4)
+                    .accessibilityIdentifier("welcomeBackText")
                 
                 Text("auth.sign_in_to_account".localized)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .padding(.bottom, 20)
+                    .accessibilityIdentifier("signInToAccountText")
                 
                 // Form section
                 VStack(spacing: 12) {
@@ -81,6 +85,7 @@ struct SignInView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(isEmailValid || email.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                             )
+                            .accessibilityIdentifier("emailTextField")
                         
                         // Error message
                         if !isEmailValid && !email.isEmpty {
@@ -90,6 +95,7 @@ struct SignInView: View {
                                 .multilineTextAlignment(.leading)
                                 .transition(.opacity)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("emailValidationError")
                         }
                     }
                     
@@ -101,11 +107,13 @@ struct SignInView: View {
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .accessibilityIdentifier("passwordTextField")
                             } else {
                                 SecureField("auth.password".localized, text: $password)
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .accessibilityIdentifier("passwordTextField")
                             }
                             
                             Button(action: {
@@ -117,6 +125,7 @@ struct SignInView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .accessibilityLabel("auth.signup.password.toggle".localized)
+                            .accessibilityIdentifier("togglePasswordButton")
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -131,6 +140,7 @@ struct SignInView: View {
                                 .multilineTextAlignment(.leading)
                                 .transition(.opacity)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("passwordValidationError")
                         }
                     }
                     
@@ -142,6 +152,7 @@ struct SignInView: View {
                                 .font(.caption)
                                 .foregroundColor(.blue)
                         }
+                        .accessibilityIdentifier("forgotPasswordButton")
                     }
                     .padding(.top, 2)
                     .padding(.bottom, 6)
@@ -170,6 +181,7 @@ struct SignInView: View {
                                 .background(Color.blue.opacity(0.8))
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
+                                .accessibilityIdentifier("signInProgressView")
                         } else {
                             Text("auth.sign_in".localized)
                                 .fontWeight(.semibold)
@@ -180,6 +192,7 @@ struct SignInView: View {
                                 .cornerRadius(10)
                         }
                     }
+                    .accessibilityIdentifier("signInButton")
                     .disabled(authViewModel.isLoading)
                     
                     // Sign Up link
@@ -187,6 +200,7 @@ struct SignInView: View {
                         Text("auth.no_account".localized)
                             .font(.callout)
                             .foregroundColor(.secondary)
+                            .accessibilityIdentifier("noAccountText")
                         
                         Button(action: { showSignUp = true }) {
                             Text("auth.sign_up".localized)
@@ -194,6 +208,7 @@ struct SignInView: View {
                                 .fontWeight(.semibold)
                                 .foregroundColor(.blue)
                         }
+                        .accessibilityIdentifier("createAccountButton")
                     }
                     .padding(.top, 16)
                 }
@@ -216,6 +231,7 @@ struct SignInView: View {
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordView(authViewModel: authViewModel)
         }
+        .accessibilityIdentifier("signInScreenView")
     }
 }
 
