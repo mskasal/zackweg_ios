@@ -19,7 +19,9 @@ struct LanguageSwitcherView: View {
                             Image(systemName: "checkmark")
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                }).padding()
+                })
+                .padding()
+                .accessibilityIdentifier("languageOption_\(language.rawValue)")
             }
         } label: {
             HStack(spacing: 8) {
@@ -29,6 +31,7 @@ struct LanguageSwitcherView: View {
                     .foregroundColor(.primary);
             }
         }
+        .accessibilityIdentifier("languageSwitcherButton")
     }
     
     private func getFlagEmoji(for language: LanguageManager.Language) -> String {
