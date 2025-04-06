@@ -314,4 +314,105 @@ class UserJourneyTests: XCTestCase {
         let result = XCTWaiter.wait(for: [expectation], timeout: timeout)
         return result == .completed
     }
+    
+    func testSignUpViewValidation() {
+        // Wait for sign in screen to appear first
+        sleep(3) // Wait for splash screen to complete
+        
+        // Find and tap the create account button to navigate to sign-up
+        let createAccountButton = app.buttons["createAccountButton"]
+        XCTAssertTrue(waitForElement(createAccountButton, timeout: 5), "Create account button should exist")
+        createAccountButton.tap()
+        
+        // Wait for sign-up screen to appear
+        sleep(1) // Allow for screen transition
+        
+        // 1. Check if sign up screen exists
+        let signUpScreen = app.otherElements["signUpScreenView"]
+        let signUpExists = waitForElement(signUpScreen, timeout: 5)
+        
+        // Try to locate by other means if needed
+        if !signUpExists {
+            print("UI Hierarchy: \(app.debugDescription)")
+            
+            // Try to find key sign-up elements as fallback
+            let nameField = app.textFields["signUpNameTextField"]
+            let emailField = app.textFields["signUpEmailTextField"]
+            let passwordField = app.secureTextFields["signUpPasswordTextField"]
+            let signUpButton = app.buttons["signUpButton"]
+            
+            let signUpElementsAppeared = nameField.exists || emailField.exists || passwordField.exists || signUpButton.exists
+            XCTAssertTrue(signUpElementsAppeared, "At least one sign up element should exist")
+            
+            if !signUpElementsAppeared {
+                XCTFail("Sign up screen not found, aborting test")
+                return
+            }
+        }
+        
+        // 2. Locate and verify UI elements
+        let createAccountText = app.staticTexts["signUpCreateAccountText"]
+        let nameField = app.textFields["signUpNameTextField"]
+        let emailField = app.textFields["signUpEmailTextField"]
+        let passwordField = app.secureTextFields["signUpPasswordTextField"]
+        let togglePasswordButton = app.buttons["signUpTogglePasswordButton"]
+        let signUpButton = app.buttons["signUpButton"]
+        
+        // Verify core elements exist
+        if !nameField.exists { XCTFail("Name field missing") }
+        if !emailField.exists { XCTFail("Email field missing") }
+        if !passwordField.exists { XCTFail("Password field missing") }
+        if !signUpButton.exists { XCTFail("Sign up button missing") }
+        
+        // 3. Validate form interactions and error messages
+        
+        // Test empty name validation
+        nameField.tap()
+        nameField.typeText("")
+        app.tap() // Tap elsewhere to trigger validation
+        
+        let nameError = app.staticTexts["signUpNameValidationError"]
+        if nameError.exists {
+            print("Name validation error detected: \(nameError.label)")
+        }
+        
+        // Test invalid email validation
+        emailField.tap()
+        emailField.typeText("invalid-email")
+        app.tap() // Tap elsewhere
+        
+        let emailError = app.staticTexts["signUpEmailValidationError"]
+        XCTAssertTrue(waitForElement(emailError, timeout: 2), "Email validation error should appear")
+        
+        // Test password validation (too short)
+        passwordField.tap()
+        passwordField.typeText("short")
+        app.tap()
+        
+        let passwordError = app.staticTexts["signUpPasswordValidationError"]
+        XCTAssertTrue(waitForElement(passwordError, timeout: 2), "Password validation error should appear")
+        
+        // Test password visibility toggle
+        if togglePasswordButton.exists {
+            togglePasswordButton.tap()
+            
+            // Password should be visible now
+            let visiblePasswordField = app.textFields["signUpPasswordTextField"]
+            XCTAssertTrue(waitForElement(visiblePasswordField, timeout: 2), "Password should be visible after toggle")
+            
+            // Toggle back
+            togglePasswordButton.tap()
+        }
+        
+        // Test form submission with errors
+        signUpButton.tap()
+        
+        // Check for error alert
+        let errorAlert = app.alerts.firstMatch
+        let alertAppeared = errorAlert.waitForExistence(timeout: 2)
+        if alertAppeared {
+            // Dismiss alert
+            errorAlert.buttons.firstMatch.tap()
+        }
+    }
 } 

@@ -101,6 +101,7 @@ struct SignUpView: View {
                             .frame(width: 80, height: 80)
                             .accessibilityHidden(true)
                     )
+                    .accessibilityIdentifier("signUpLogo")
                 
                 // Title section
                 Text("auth.create_account".localized)
@@ -108,6 +109,7 @@ struct SignUpView: View {
                     .fontWeight(.bold)
                     .padding(.bottom, 4)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityIdentifier("signUpCreateAccountText")
                 
                 Text("auth.create_account_subtitle".localized)
                     .font(.subheadline)
@@ -115,6 +117,7 @@ struct SignUpView: View {
                     .padding(.bottom, 20)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 25)
+                    .accessibilityIdentifier("signUpCreateAccountSubtitleText")
                 
                 // Form Fields
                 VStack(spacing: 16) {
@@ -129,12 +132,14 @@ struct SignUpView: View {
                                     .stroke(isNickNameValid || nickName.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                             )
                             .accessibilityLabel("auth.nickname".localized)
+                            .accessibilityIdentifier("signUpNameTextField")
                         
                         if !isNickNameValid && !nickName.isEmpty {
                             Text("auth.nickname_required".localized)
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("signUpNameValidationError")
                         }
                     }
                     
@@ -152,12 +157,14 @@ struct SignUpView: View {
                                     .stroke(isEmailValid || email.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                             )
                             .accessibilityLabel("auth.email".localized)
+                            .accessibilityIdentifier("signUpEmailTextField")
                         
                         if !isEmailValid && !email.isEmpty {
                             Text("auth.invalid_email".localized)
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("signUpEmailValidationError")
                         }
                     }
                     
@@ -175,6 +182,7 @@ struct SignUpView: View {
                             .background(Color(UIColor.secondarySystemBackground))
                             .cornerRadius(10)
                             .accessibilityLabel("Country: Germany")
+                            .accessibilityIdentifier("signUpCountrySelector")
                             
                             // Postal Code
                             TextField("auth.signup.postal_code.placeholder".localized, text: $postalCode)
@@ -187,6 +195,7 @@ struct SignUpView: View {
                                         .stroke(isPostalCodeValid || postalCode.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                                 )
                                 .accessibilityLabel("auth.postal_code".localized)
+                                .accessibilityIdentifier("signUpPostalCodeTextField")
                         }
                         
                         if !isPostalCodeValid && !postalCode.isEmpty {
@@ -194,6 +203,7 @@ struct SignUpView: View {
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("signUpPostalCodeValidationError")
                         }
                     }
                     
@@ -206,6 +216,7 @@ struct SignUpView: View {
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
                                     .accessibilityLabel("auth.password".localized)
+                                    .accessibilityIdentifier("signUpPasswordTextField")
                                     .onChange(of: password) { _ in
                                         withAnimation(.easeOut(duration: 0.2)) {
                                             // Trigger animation of strength indicator
@@ -217,6 +228,7 @@ struct SignUpView: View {
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
                                     .accessibilityLabel("auth.password".localized)
+                                    .accessibilityIdentifier("signUpPasswordTextField")
                                     .onChange(of: password) { _ in
                                         withAnimation(.easeOut(duration: 0.2)) {
                                             // Trigger animation of strength indicator
@@ -233,6 +245,7 @@ struct SignUpView: View {
                             }
                             .buttonStyle(PlainButtonStyle())
                             .accessibilityLabel("auth.signup.password.toggle".localized)
+                            .accessibilityIdentifier("signUpTogglePasswordButton")
                         }
                         .overlay(
                             RoundedRectangle(cornerRadius: 10)
@@ -249,6 +262,7 @@ struct SignUpView: View {
                                     .fontWeight(.medium)
                                     .padding(.top, 6)
                                     .padding(.leading, 4)
+                                    .accessibilityIdentifier("signUpPasswordStrengthText")
                                 
                                 Spacer()
                             }
@@ -260,6 +274,7 @@ struct SignUpView: View {
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.leading, 4)
+                                .accessibilityIdentifier("signUpPasswordValidationError")
                         }
                     }
                     
@@ -269,6 +284,7 @@ struct SignUpView: View {
                     }
                     .padding(.top, 8)
                     .padding(.horizontal, 16)
+                    .accessibilityIdentifier("signUpTermsAgreementSection")
                     
                     // Register button
                     Button(action: {
@@ -293,12 +309,14 @@ struct SignUpView: View {
                     }
                     .disabled(authViewModel.isLoading || !isFormValid)
                     .accessibilityLabel("auth.sign_up".localized)
+                    .accessibilityIdentifier("signUpButton")
                     .padding(.top, 16)
                 }
                 .padding(.horizontal, 25)
             }
             .padding(.bottom, 30)
         }
+        .accessibilityIdentifier("signUpScreenView")
         .alert(isPresented: $showError) {
             Alert(
                 title: Text("common.error".localized),
