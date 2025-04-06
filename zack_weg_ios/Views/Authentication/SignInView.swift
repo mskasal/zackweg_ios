@@ -1,6 +1,11 @@
 import SwiftUI
 import UIKit
 
+// Field focus enum to track which field is currently focused
+enum SignInField: Hashable {
+    case email, password
+}
+
 struct SignInView: View {
     @ObservedObject var authViewModel: AuthViewModel
     @State private var email = ""
@@ -12,6 +17,9 @@ struct SignInView: View {
     @State private var showPassword = false
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var languageManager: LanguageManager
+    
+    // Focus state to manage keyboard navigation
+    @FocusState private var focusedField: SignInField?
     
     // Form validation
     private var isEmailValid: Bool {
@@ -25,6 +33,19 @@ struct SignInView: View {
     
     private var isFormValid: Bool {
         return isEmailValid && isPasswordValid
+    }
+    
+    // Move to next field
+    private func moveToNextField() {
+        switch focusedField {
+        case .email:
+            focusedField = .password
+        case .password:
+            focusedField = nil // Done with form
+            // Could also trigger sign in here
+        case nil:
+            break
+        }
     }
     
     var body: some View {
@@ -79,8 +100,12 @@ struct SignInView: View {
                             .background(Color(UIColor.secondarySystemBackground))
                             .cornerRadius(10)
                             .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
+                            .textInputAutocapitalization(.never)
                             .disableAutocorrection(true)
+                            .textContentType(.emailAddress)
+                            .focused($focusedField, equals: .email)
+                            .submitLabel(.next)
+                            .onSubmit(moveToNextField)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(isEmailValid || email.isEmpty ? Color.clear : Color.red, lineWidth: 1)
@@ -107,12 +132,24 @@ struct SignInView: View {
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .textContentType(.password)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.go)
+                                    .onSubmit {
+                                        handleSignIn()
+                                    }
                                     .accessibilityIdentifier("passwordTextField")
                             } else {
                                 SecureField("auth.password".localized, text: $password)
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .textContentType(.password)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.go)
+                                    .onSubmit {
+                                        handleSignIn()
+                                    }
                                     .accessibilityIdentifier("passwordTextField")
                             }
                             
@@ -158,22 +195,7 @@ struct SignInView: View {
                     .padding(.bottom, 6)
                     
                     // Sign In Button
-                    Button(action: {
-                        Task {
-                            if !isFormValid {
-                                errorMessage = "auth.fix_form_errors".localized
-                                showError = true
-                                return
-                            }
-                            
-                            do {
-                                try await authViewModel.signIn(email: email, password: password)
-                            } catch {
-                                errorMessage = error.localizedDescription
-                                showError = true
-                            }
-                        }
-                    }) {
+                    Button(action: handleSignIn) {
                         if authViewModel.isLoading {
                             ProgressView()
                                 .frame(maxWidth: .infinity)
@@ -218,6 +240,32 @@ struct SignInView: View {
             }
             .padding(.bottom, 30)
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                // Add keyboard navigation buttons
+                Button(action: {
+                    focusedField = nil
+                }) {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                }
+                
+                Spacer()
+                
+                if focusedField == .email {
+                    Button(action: {
+                        moveToNextField()
+                    }) {
+                        Text("Next")
+                    }
+                } else if focusedField == .password {
+                    Button(action: {
+                        handleSignIn()
+                    }) {
+                        Text("Sign In")
+                    }
+                }
+            }
+        }
         .alert(isPresented: $showError) {
             Alert(
                 title: Text("common.error".localized),
@@ -232,6 +280,23 @@ struct SignInView: View {
             ForgotPasswordView(authViewModel: authViewModel)
         }
         .accessibilityIdentifier("signInScreenView")
+    }
+    
+    private func handleSignIn() {
+        Task {
+            if !isFormValid {
+                errorMessage = "auth.fix_form_errors".localized
+                showError = true
+                return
+            }
+            
+            do {
+                try await authViewModel.signIn(email: email, password: password)
+            } catch {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
     }
 }
 
