@@ -1,6 +1,12 @@
 import Foundation
 import XCTest
-@testable import zackWeg
+
+struct TestUser {
+    let email: String
+    let password: String
+    let username: String
+    let fullName: String
+}
 
 /// TestConfig provides configuration values for tests.
 /// This allows tests to be run against different environments.
@@ -10,42 +16,38 @@ class TestConfig {
     
     // Testing environment
     enum Environment: String {
-        case mock = "Mock"
         case dev = "Development"
         case staging = "Staging"
+        case prod = "Production"
         
         var baseURL: String {
             switch self {
-            case .mock:
-                return "http://localhost:8080"
             case .dev:
                 return "https://dev.zackweg.com"
             case .staging:
                 return "https://staging.zackweg.com"
+            case .prod:
+                return "https://zackweg.com"
             }
         }
     }
     
     // Default environment for tests
-    var environment: Environment = .mock
+    var environment: Environment = .dev
     
-    // Test credentials - these should be loaded from environment variables or a secure source in CI
-    struct TestCredentials {
-        let email: String
-        let password: String
-        let postalCode: String
-        let countryCode: String
-        let nickName: String
-    }
+    // Test user for E2E testing
+    let testUser: TestUser
     
-    // Test user credentials for authentication tests
-    var testUser: TestCredentials {
-        return TestCredentials(
+    // Wait time for async operations
+    var defaultTimeout: TimeInterval = 5.0
+    
+    private init() {
+        // Configure test user for UI testing
+        testUser = TestUser(
             email: "test@example.com",
-            password: "Password123!",
-            postalCode: "10115",
-            countryCode: "DEU",
-            nickName: "TestUser"
+            password: "Test123!",
+            username: "testuser",
+            fullName: "Test User"
         )
     }
     
@@ -59,10 +61,7 @@ class TestConfig {
             }
         }
         
-        // Default to mock environment
-        return .mock
+        // Default to dev environment
+        return .dev
     }
-    
-    // Wait time for async operations
-    var defaultTimeout: TimeInterval = 5.0
 } 
