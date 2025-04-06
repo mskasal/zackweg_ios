@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "0D4831A2-5C57-4C7E-B05A-1545EEAC4E0B",
+      "name" : "Configuration 1",
+      "options" : {
+        "environmentVariableEntries" : [
+          {
+            "key" : "TEST_ENVIRONMENT",
+            "value" : "Development"
+          }
+        ]
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "commandLineArgumentEntries" : [
+      {
+        "argument" : "--uitesting"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:zackWeg.xcodeproj",
+      "identifier" : "10832D292D934B0F0086754D",
+      "name" : "zackWeg"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:zackWeg.xcodeproj",
+        "identifier" : "1075A95B2DA25B80001F85C2",
+        "name" : "ZackWegUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

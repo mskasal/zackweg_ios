@@ -10,6 +10,16 @@
 		106305C22D99AA560067BBDD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 106305BE2D99A8140067BBDD /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1075A9622DA25B80001F85C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 10832D222D934B0F0086754D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 10832D292D934B0F0086754D;
+			remoteInfo = zackWeg;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1030519E2D9983F000DD0BDD /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		1030519F2D9983F900DD0BDD /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
@@ -17,11 +27,17 @@
 		106305BA2D99982F0067BBDD /* zackWeg-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "zackWeg-Info.plist"; sourceTree = "<group>"; };
 		106305BB2D99A6580067BBDD /* zackWeg.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = zackWeg.entitlements; sourceTree = "<group>"; };
 		106305BE2D99A8140067BBDD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		1063082A2D9E52E20067BBDD /* Dev.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Dev.xctestplan; sourceTree = "<group>"; };
+		1075A95C2DA25B80001F85C2 /* ZackWegUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ZackWegUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1075AA242DA25FE6001F85C2 /* DevelopmentTestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = DevelopmentTestPlan.xctestplan; path = zackWegUITests/DevelopmentTestPlan.xctestplan; sourceTree = "<group>"; };
 		108513042D998CE30097F77C /* zackWeg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = zackWeg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		1075A95D2DA25B80001F85C2 /* ZackWegUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ZackWegUITests;
+			sourceTree = "<group>";
+		};
 		10832D2C2D934B0F0086754D /* zack_weg_ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = zack_weg_ios;
@@ -30,6 +46,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1075A9592DA25B80001F85C2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		10832D272D934B0F0086754D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -43,7 +66,7 @@
 		10832D212D934B0F0086754D = {
 			isa = PBXGroup;
 			children = (
-				1063082A2D9E52E20067BBDD /* Dev.xctestplan */,
+				1075AA242DA25FE6001F85C2 /* DevelopmentTestPlan.xctestplan */,
 				106305BB2D99A6580067BBDD /* zackWeg.entitlements */,
 				106305BA2D99982F0067BBDD /* zackWeg-Info.plist */,
 				10832D2C2D934B0F0086754D /* zack_weg_ios */,
@@ -52,12 +75,37 @@
 				103051A22D99840A00DD0BDD /* Staging.xcconfig */,
 				108513042D998CE30097F77C /* zackWeg.app */,
 				106305BE2D99A8140067BBDD /* Assets.xcassets */,
+				1075A95C2DA25B80001F85C2 /* ZackWegUITests.xctest */,
+				1075A95D2DA25B80001F85C2 /* ZackWegUITests */,
 			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1075A95B2DA25B80001F85C2 /* ZackWegUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1075A9642DA25B80001F85C2 /* Build configuration list for PBXNativeTarget "ZackWegUITests" */;
+			buildPhases = (
+				1075A9582DA25B80001F85C2 /* Sources */,
+				1075A9592DA25B80001F85C2 /* Frameworks */,
+				1075A95A2DA25B80001F85C2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1075A9632DA25B80001F85C2 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1075A95D2DA25B80001F85C2 /* ZackWegUITests */,
+			);
+			name = ZackWegUITests;
+			packageProductDependencies = (
+			);
+			productName = ZackWegUITests;
+			productReference = 1075A95C2DA25B80001F85C2 /* ZackWegUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		10832D292D934B0F0086754D /* zackWeg */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 10832D3A2D934B100086754D /* Build configuration list for PBXNativeTarget "zackWeg" */;
@@ -87,9 +135,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1620;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					1075A95B2DA25B80001F85C2 = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = 10832D292D934B0F0086754D;
+					};
 					10832D292D934B0F0086754D = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -112,6 +164,7 @@
 			projectRoot = "";
 			targets = (
 				10832D292D934B0F0086754D /* zackWeg */,
+				1075A95B2DA25B80001F85C2 /* ZackWegUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -125,9 +178,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1075A95A2DA25B80001F85C2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		1075A9582DA25B80001F85C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		10832D262D934B0F0086754D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -136,6 +203,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1075A9632DA25B80001F85C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 10832D292D934B0F0086754D /* zackWeg */;
+			targetProxy = 1075A9622DA25B80001F85C2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		103051A02D9983FE00DD0BDD /* Staging */ = {
@@ -241,6 +316,75 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Staging;
+		};
+		1075A9652DA25B80001F85C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
+				DEVELOPMENT_TEAM = NMG97657P3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mask.ZackWegUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = zackWeg;
+			};
+			name = Debug;
+		};
+		1075A9662DA25B80001F85C2 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
+				DEVELOPMENT_TEAM = NMG97657P3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mask.ZackWegUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = zackWeg;
+			};
+			name = Staging;
+		};
+		1075A9672DA25B80001F85C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"zack_weg_ios/Preview Content\"";
+				DEVELOPMENT_TEAM = NMG97657P3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mask.ZackWegUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = zackWeg;
+			};
+			name = Release;
 		};
 		10832D382D934B100086754D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -448,6 +592,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1075A9642DA25B80001F85C2 /* Build configuration list for PBXNativeTarget "ZackWegUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1075A9652DA25B80001F85C2 /* Debug */,
+				1075A9662DA25B80001F85C2 /* Staging */,
+				1075A9672DA25B80001F85C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		10832D252D934B0F0086754D /* Build configuration list for PBXProject "zackWeg" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
