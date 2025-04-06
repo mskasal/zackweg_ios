@@ -1,6 +1,11 @@
 import SwiftUI
 import UIKit
 
+// Field focus enum to track which field is currently focused
+enum SignUpField: Hashable {
+    case nickname, email, postalCode, password
+}
+
 struct SignUpView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var authViewModel: AuthViewModel
@@ -13,6 +18,9 @@ struct SignUpView: View {
     @State private var errorMessage = ""
     @State private var showPassword = false
     @State private var shakeFieldIndex: Int? = nil
+    
+    // Focus state to manage keyboard navigation
+    @FocusState private var focusedField: SignUpField?
     
     private let countries = [
         ("DEU", "Germany")
@@ -84,6 +92,22 @@ struct SignUpView: View {
         }
     }
     
+    // Move to next field
+    private func moveToNextField() {
+        switch focusedField {
+        case .nickname:
+            focusedField = .email
+        case .email:
+            focusedField = .postalCode
+        case .postalCode:
+            focusedField = .password
+        case .password:
+            focusedField = nil // Done with form
+        case nil:
+            break
+        }
+    }
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -131,6 +155,10 @@ struct SignUpView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(isNickNameValid || nickName.isEmpty ? Color.clear : Color.red, lineWidth: 1)
                             )
+                            .focused($focusedField, equals: .nickname)
+                            .submitLabel(.next)
+                            .onSubmit(moveToNextField)
+                            .textContentType(.name)
                             .accessibilityLabel("auth.nickname".localized)
                             .accessibilityIdentifier("signUpNameTextField")
                         
@@ -152,6 +180,10 @@ struct SignUpView: View {
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
                             .disableAutocorrection(true)
+                            .textContentType(.emailAddress)
+                            .focused($focusedField, equals: .email)
+                            .submitLabel(.next)
+                            .onSubmit(moveToNextField)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(isEmailValid || email.isEmpty ? Color.clear : Color.red, lineWidth: 1)
@@ -190,6 +222,10 @@ struct SignUpView: View {
                                 .background(Color(UIColor.secondarySystemBackground))
                                 .cornerRadius(10)
                                 .keyboardType(.numberPad)
+                                .focused($focusedField, equals: .postalCode)
+                                .submitLabel(.next)
+                                .onSubmit(moveToNextField)
+                                .textContentType(.postalCode)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(isPostalCodeValid || postalCode.isEmpty ? Color.clear : Color.red, lineWidth: 1)
@@ -215,6 +251,10 @@ struct SignUpView: View {
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.done)
+                                    .onSubmit(moveToNextField)
+                                    .textContentType(.newPassword)
                                     .accessibilityLabel("auth.password".localized)
                                     .accessibilityIdentifier("signUpPasswordTextField")
                                     .onChange(of: password) { _ in
@@ -227,6 +267,10 @@ struct SignUpView: View {
                                     .padding()
                                     .background(Color(UIColor.secondarySystemBackground))
                                     .cornerRadius(10)
+                                    .focused($focusedField, equals: .password)
+                                    .submitLabel(.done)
+                                    .onSubmit(moveToNextField)
+                                    .textContentType(.newPassword)
                                     .accessibilityLabel("auth.password".localized)
                                     .accessibilityIdentifier("signUpPasswordTextField")
                                     .onChange(of: password) { _ in
@@ -315,6 +359,30 @@ struct SignUpView: View {
                 .padding(.horizontal, 25)
             }
             .padding(.bottom, 30)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                // Add keyboard navigation buttons
+                Button(action: {
+                    focusedField = nil
+                }) {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    moveToNextField()
+                }) {
+                    Text("Next")
+                }
+            }
+        }
+        .onAppear {
+            // Auto-focus on the nickname field when the view appears
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                focusedField = .nickname
+            }
         }
         .accessibilityIdentifier("signUpScreenView")
         .alert(isPresented: $showError) {
