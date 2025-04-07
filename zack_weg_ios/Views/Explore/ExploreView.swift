@@ -52,6 +52,7 @@ struct ExploreView: View {
                 TextField("explore.search_placeholder".localized, text: $viewModel.searchFilters.keyword)
                     .textFieldStyle(PlainTextFieldStyle())
                     .textInputAutocapitalization(.never)
+                    .accessibilityLabel("exploreSearchField")
                     .onChange(of: viewModel.searchFilters.keyword) { _ in
                         // Cancel any existing search task
                         searchTask?.cancel()

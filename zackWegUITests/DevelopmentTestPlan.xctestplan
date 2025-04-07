@@ -8,6 +8,10 @@
           {
             "key" : "TEST_ENVIRONMENT",
             "value" : "Development"
+          },
+          {
+            "key" : "UI_TEST_MODE",
+            "value" : "1"
           }
         ]
       }
@@ -17,6 +21,12 @@
     "commandLineArgumentEntries" : [
       {
         "argument" : "--uitesting"
+      },
+      {
+        "argument" : "--use-mock-data"
+      },
+      {
+        "argument" : "--reset-state"
       }
     ],
     "targetForVariableExpansion" : {
@@ -31,7 +41,9 @@
         "containerPath" : "container:zackWeg.xcodeproj",
         "identifier" : "1075A95B2DA25B80001F85C2",
         "name" : "ZackWegUITests"
-      }
+      },
+      "enabled" : true,
+      "skippedTests" : []
     }
   ],
   "version" : 1

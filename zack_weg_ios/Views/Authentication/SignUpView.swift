@@ -257,11 +257,6 @@ struct SignUpView: View {
                                     .textContentType(.newPassword)
                                     .accessibilityLabel("auth.password".localized)
                                     .accessibilityIdentifier("signUpPasswordTextField")
-                                    .onChange(of: password) { _ in
-                                        withAnimation(.easeOut(duration: 0.2)) {
-                                            // Trigger animation of strength indicator
-                                        }
-                                    }
                             } else {
                                 SecureField("auth.signup.password.placeholder".localized, text: $password)
                                     .padding()
@@ -273,11 +268,6 @@ struct SignUpView: View {
                                     .textContentType(.newPassword)
                                     .accessibilityLabel("auth.password".localized)
                                     .accessibilityIdentifier("signUpPasswordTextField")
-                                    .onChange(of: password) { _ in
-                                        withAnimation(.easeOut(duration: 0.2)) {
-                                            // Trigger animation of strength indicator
-                                        }
-                                    }
                             }
                             
                             Button(action: {
@@ -353,7 +343,7 @@ struct SignUpView: View {
                     }
                     .disabled(authViewModel.isLoading || !isFormValid)
                     .accessibilityLabel("auth.sign_up".localized)
-                    .accessibilityIdentifier("signUpButton")
+                    .accessibilityIdentifier("signUpConfirmButton")
                     .padding(.top, 16)
                 }
                 .padding(.horizontal, 25)
