@@ -114,18 +114,18 @@ struct PostDetailView: View {
                                     .background(Color.blue.opacity(0.1))
                                     .cornerRadius(12)
                             } else if post.offering == "GIVING_AWAY" {
-                                HStack(spacing: 6) {
+                                HStack(spacing: 4) {
                                     Image(systemName: "gift.fill")
-                                        .font(.subheadline)
+                                        .font(.caption)
                                     Text("common.free".localized)
-                                        .font(.subheadline)
-                                        .fontWeight(.bold)
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
                                 }
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
                                 .background(Color.green)
-                                .cornerRadius(12)
+                                .cornerRadius(8)
                             }
                         }
                         

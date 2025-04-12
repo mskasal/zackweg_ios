@@ -75,16 +75,16 @@ struct PostCard: View {
                     } else if post.offering == "GIVING_AWAY" {
                         HStack(spacing: 4) {
                             Image(systemName: "gift.fill")
-                                .font(.subheadline)
+                                .font(.caption)
                             Text("common.free".localized)
-                                .font(.headline)
-                                .fontWeight(.bold)
+                                .font(.caption)
+                                .fontWeight(.semibold)
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
                         .background(Color.green)
-                        .cornerRadius(8)
+                        .cornerRadius(6)
                     }
                 }
                 

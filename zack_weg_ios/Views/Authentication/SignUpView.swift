@@ -9,6 +9,7 @@ enum SignUpField: Hashable {
 struct SignUpView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var authViewModel: AuthViewModel
+    @EnvironmentObject private var languageManager: LanguageManager
     @State private var email = ""
     @State private var password = ""
     @State private var nickName = ""
@@ -347,6 +348,13 @@ struct SignUpView: View {
                     .padding(.top, 16)
                 }
                 .padding(.horizontal, 25)
+                
+                // Copyright text
+                Text("© 2025 ZackWeg. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 20)
+                    .accessibilityIdentifier("signUpCopyrightText")
             }
             .padding(.bottom, 30)
         }
@@ -461,6 +469,8 @@ struct SignUpView: View {
 
 /// A separate component to handle the terms agreement text and links
 private struct TermsAgreementText: View {
+    @EnvironmentObject private var languageManager: LanguageManager
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("auth.signup.agree_prefix".localized)
@@ -469,7 +479,7 @@ private struct TermsAgreementText: View {
             
             HStack(spacing: 2) {
                 Button {
-                    if let url = URL(string: "https://zackweg.com/terms") {
+                    if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/terms") {
                         UIApplication.shared.open(url)
                     }
                 } label: {
@@ -484,7 +494,7 @@ private struct TermsAgreementText: View {
                     .foregroundColor(.secondary)
                 
                 Button {
-                    if let url = URL(string: "https://zackweg.com/privacy") {
+                    if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/privacy") {
                         UIApplication.shared.open(url)
                     }
                 } label: {
@@ -501,4 +511,5 @@ private struct TermsAgreementText: View {
 
 #Preview {
     SignUpView(authViewModel: AuthViewModel())
+        .environmentObject(LanguageManager.shared)
 }

@@ -43,7 +43,7 @@ struct CategoryPill: View {
                 .fontWeight(isSelected ? .semibold : .regular)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.blue : Color(.systemBackground))
+                .background(isSelected ? Color.blue : Color(.systemGray6))
                 .foregroundColor(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
@@ -97,25 +97,24 @@ struct PriceInputView: View {
     @Binding var price: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("posts.price_currency".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            HStack {
-                Image(systemName: "eurosign.circle")
-                    .foregroundColor(.blue)
-                TextField("posts.price_placeholder".localized, text: $price)
-                    .keyboardType(.decimalPad)
-                    .padding(.vertical, 8)
-                    .onChange(of: price) { newValue in
-                        // Ensure only valid decimal characters are entered
-                        let filtered = newValue.filter { "0123456789.,".contains($0) }
-                        if filtered != newValue {
-                            price = filtered
-                        }
+        HStack {
+            Image(systemName: "eurosign.circle")
+                .foregroundColor(.blue)
+            TextField("posts.price_placeholder".localized, text: $price)
+                .keyboardType(.decimalPad)
+                .padding(.vertical, 10)
+                .onChange(of: price) { newValue in
+                    // Ensure only valid decimal characters are entered
+                    let filtered = newValue.filter { "0123456789.,".contains($0) }
+                    if filtered != newValue {
+                        price = filtered
                     }
-            }
+                }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(Color(.systemGray6).opacity(0.5))
+        .cornerRadius(8)
     }
 }
 
@@ -126,11 +125,7 @@ struct CategorySelectionView: View {
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("posts.category".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
+        VStack(alignment: .leading, spacing: 12) {
             if categories.isEmpty {
                 Text("posts.loading_categories".localized)
                     .font(.caption)
@@ -139,7 +134,7 @@ struct CategorySelectionView: View {
             } else {
                 // Parent Categories
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
+                    HStack(spacing: 10) {
                         ForEach(categories, id: \.id) { category in
                             let isSelected: Bool = selectedParentCategoryId == category.id
                             CategoryPill(
@@ -148,13 +143,8 @@ struct CategorySelectionView: View {
                             ) {
                                 selectedParentCategoryId = category.id
                                 
-                                // If category has no children, set it directly as the selected category
-                                if !categoryViewModel.hasChildren(for: category.id) {
-                                    selectedCategory = category.id
-                                } else {
-                                    // Clear selection when parent category changes
-                                    selectedCategory = ""
-                                }
+                                // Always set selectedCategory to parent category initially
+                                selectedCategory = category.id
                             }
                         }
                     }
@@ -169,12 +159,13 @@ struct CategorySelectionView: View {
                     
                     Text("explore.filter_subcategories".localized)
                         .font(.caption)
+                        .fontWeight(.medium)
                         .foregroundColor(.secondary)
-                        .padding(.top, 4)
+                        .padding(.top, 10)
                     
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            // Add option to select the parent category itself
+                        HStack(spacing: 10) {
+                            // Add option to select the parent category itself (now redundant but kept for UX clarity)
                             if let parentCategory = categoryViewModel.getCategory(byId: parentCategoryId) {
                                 Button(action: {
                                     selectedCategory = parentCategory.id
@@ -215,13 +206,12 @@ struct TitleInputView: View {
     @Binding var title: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("posts.title_field".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            TextField("posts.enter_title".localized, text: $title)
-                .padding(.vertical, 8)
-        }
+        TextField("posts.title_field".localized, text: $title)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
+            .background(Color(.systemGray6).opacity(0.5))
+            .cornerRadius(8)
+            .padding(.vertical, 6)
     }
 }
 
@@ -229,16 +219,27 @@ struct DescriptionInputView: View {
     @Binding var description: String
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("posts.description".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
+        ZStack(alignment: .topLeading) {
             TextEditor(text: $description)
                 .frame(minHeight: 120)
-                .padding(4)
+                .padding(8)
                 .background(Color(.systemGray6).opacity(0.5))
                 .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+            
+            if description.isEmpty {
+                Text("posts.description".localized)
+                    .font(.body)
+                    .foregroundColor(.secondary.opacity(0.8))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 12)
+                    .allowsHitTesting(false)
+            }
         }
+        .padding(.vertical, 6)
     }
 }
 
@@ -246,11 +247,7 @@ struct OfferingSelectionView: View {
     @Binding var offering: PostOffering
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("posts.offering_question".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
+        VStack(alignment: .leading, spacing: 16) {
             OfferingTypeCardView(
                 isSelected: offering == .givingAway,
                 title: "posts.give_away".localized,
@@ -286,23 +283,54 @@ struct PostDetailsSection: View {
     
     var body: some View {
         Section {
-            TitleInputView(title: $title)
-            DescriptionInputView(description: $description)
-            CategorySelectionView(
-                selectedCategory: $selectedCategory,
-                selectedParentCategoryId: $selectedParentCategoryId,
-                categories: categories
-            )
-            OfferingSelectionView(offering: $offering)
-
-            if offering == .soldAtPrice {
-                PriceInputView(price: $price)
+            VStack(spacing: 16) {
+                TitleInputView(title: $title)
+                
+                DescriptionInputView(description: $description)
+                
+                Divider()
+                    .padding(.vertical, 4)
+                
+                Text("posts.category".localized)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                CategorySelectionView(
+                    selectedCategory: $selectedCategory,
+                    selectedParentCategoryId: $selectedParentCategoryId,
+                    categories: categories
+                )
+                
+                Divider()
+                    .padding(.vertical, 4)
+                
+                Text("posts.offering_question".localized)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                OfferingSelectionView(offering: $offering)
+                
+                if offering == .soldAtPrice {
+                    PriceInputView(price: $price)
+                        .padding(.top, 8)
+                }
             }
+            .padding(.vertical, 10)
         } header: {
             Text("posts.details".localized)
                 .font(.footnote)
                 .fontWeight(.semibold)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+        } footer: {
+            Spacer()
+                .frame(height: 12)
         }
+        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
     }
 }
 
@@ -312,7 +340,7 @@ struct ImagesSection: View {
     
     var body: some View {
         Section {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 PhotosPicker(
                     selection: $selectedImages, maxSelectionCount: 5, matching: .images
                 ) {
@@ -323,10 +351,10 @@ struct ImagesSection: View {
                             .font(.headline)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                     .background(Color.blue.opacity(0.1))
                     .foregroundColor(.blue)
-                    .cornerRadius(8)
+                    .cornerRadius(10)
                 }
                 
                 if imagePreviews.isEmpty {
@@ -341,7 +369,7 @@ struct ImagesSection: View {
                         .padding(.top, 4)
                         
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: 14) {
                             ForEach(0..<imagePreviews.count, id: \.self) { index in
                                 let imageData = imagePreviews[index]
                                 ImagePreviewView(
@@ -354,19 +382,28 @@ struct ImagesSection: View {
                                 )
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 10)
                     }
                 }
             }
+            .padding(.vertical, 10)
         } header: {
             Text("posts.photos".localized)
                 .font(.footnote)
                 .fontWeight(.semibold)
+                .padding(.top, 16)
+                .padding(.bottom, 4)
         } footer: {
-            Text("posts.images_footer".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(height: 12)
+                Text("posts.images_footer".localized)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 8)
+            }
         }
+        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
     }
 }
 
@@ -393,47 +430,62 @@ struct LocationSection: View {
     
     var body: some View {
         Section {
-            if hasValidLocation {
-                HStack {
-                    Image(systemName: "location.circle.fill")
-                        .foregroundColor(.blue)
-                    VStack(alignment: .leading) {
-                        Text("posts.posting_location".localized)
-                            .font(.subheadline)
-                        // Prepare formatted location string separately
-                        let locationText = "\(postalCode), \(localizedCountry)"
-                        Text(locationText)
+            VStack {
+                if hasValidLocation {
+                    HStack {
+                        Image(systemName: "location.circle.fill")
+                            .foregroundColor(.blue)
+                            .font(.title3)
+                            .padding(.trailing, 4)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("posts.posting_location".localized)
+                                .font(.subheadline)
+                            // Prepare formatted location string separately
+                            let locationText = "\(postalCode), \(localizedCountry)"
+                            Text(locationText)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text("posts.from_profile".localized)
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.blue)
                     }
-                    Spacer()
-                    Text("posts.from_profile".localized)
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                }
-            } else {
-                HStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.orange)
-                    VStack(alignment: .leading) {
-                        Text("posts.location_unavailable".localized)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        Text("posts.update_location".localized)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                } else {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.orange)
+                            .font(.title3)
+                            .padding(.trailing, 4)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("posts.location_unavailable".localized)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Text("posts.update_location".localized)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
+            .padding(.vertical, 12)
         } header: {
             Text("posts.location".localized)
                 .font(.footnote)
                 .fontWeight(.semibold)
+                .padding(.top, 16)
+                .padding(.bottom, 4)
         } footer: {
-            Text("posts.location_footer".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
+            VStack(spacing: 0) {
+                Spacer()
+                    .frame(height: 12)
+                Text("posts.location_footer".localized)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.bottom, 8)
+            }
         }
+        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
     }
 }
 
@@ -468,14 +520,16 @@ struct CreatePostButtonSection: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 4)
             }
         }
+        .padding(.vertical, 10)
     }
 }
 
 struct FormHeaderView: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("posts.create_new".localized)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -484,8 +538,9 @@ struct FormHeaderView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
+        .padding(.vertical, 16)
         .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
+        .listRowInsets(EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20))
     }
 }
 
@@ -585,6 +640,7 @@ struct CreatePostView: View {
                 )
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
         }
         .navigationTitle("posts.create".localized)
         .navigationBarTitleDisplayMode(.inline)

@@ -237,6 +237,13 @@ struct SignInView: View {
                 }
                 .padding(.horizontal, 25)
                 
+                // Copyright text
+                Text("© 2025 ZackWeg. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 20)
+                    .accessibilityIdentifier("signInCopyrightText")
+                
                 Spacer()
             }
             .padding(.bottom, 30)

@@ -200,6 +200,18 @@ struct SettingsView: View {
                         .accessibilityIdentifier("appVersionValue")
                 }
                 .accessibilityIdentifier("appVersionRow")
+                
+                Button(action: {
+                    openAboutURL()
+                }) {
+                    HStack {
+                        Text("© 2025 ZackWeg. All rights reserved.")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                }
+                .accessibilityIdentifier("copyrightButton")
             }
         }
         .accessibilityIdentifier("settingsScreenList")
@@ -238,21 +250,28 @@ struct SettingsView: View {
     
     // Open Help & Support in browser
     private func openHelpSupportURL() {
-        if let url = URL(string: "https://zackweg.com/support") {
+        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/contact") {
             UIApplication.shared.open(url)
         }
     }
     
     // Open Terms of Service in browser
     private func openTermsURL() {
-        if let url = URL(string: "https://zackweg.com/terms") {
+        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/terms") {
             UIApplication.shared.open(url)
         }
     }
     
     // Open Privacy Policy in browser
     private func openPrivacyURL() {
-        if let url = URL(string: "https://zackweg.com/privacy") {
+        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/privacy") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    // Open About page in browser
+    private func openAboutURL() {
+        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/about") {
             UIApplication.shared.open(url)
         }
     }

@@ -215,7 +215,7 @@ struct PostRowView: View {
                             .foregroundColor(.blue)
                     } else {
                         Text("common.free".localized)
-                            .font(.subheadline)
+                            .font(.caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.green)
                     }

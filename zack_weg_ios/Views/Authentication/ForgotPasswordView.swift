@@ -130,6 +130,13 @@ struct ForgotPasswordView: View {
                 }
                 .padding(.horizontal, 25)
                 
+                // Copyright text
+                Text("© 2025 ZackWeg. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 20)
+                    .accessibilityIdentifier("forgotPasswordCopyrightText")
+                
                 Spacer()
             }
             .padding(.bottom, 30)
