@@ -54,6 +54,7 @@ struct SignInView: View {
                 // Language switcher
                 HStack {
                     LanguageSwitcherView()
+                        .accessibilityIdentifier("languageSwitcherButton")
                     Spacer()
                 }
                 .padding(.horizontal, 25)

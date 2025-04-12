@@ -174,6 +174,7 @@ struct SettingsView: View {
                     }
                 }
                 .foregroundColor(.red)
+                .accessibilityIdentifier("signOutButton")
             }
             
             // App info section
