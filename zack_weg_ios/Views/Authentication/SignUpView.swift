@@ -115,7 +115,7 @@ struct SignUpView: View {
                 Rectangle()
                     .fill(Color.clear)
                     .frame(width: 120, height: 120)
-                    .padding(.top, 20)
+                    .padding(.top, 40)
                     .padding(.bottom, 10)
                     .overlay(
                         Image(systemName: "person.badge.plus")
@@ -462,49 +462,40 @@ struct SignUpView: View {
 /// A separate component to handle the terms agreement text and links
 private struct TermsAgreementText: View {
     var body: some View {
-        HStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("auth.signup.agree_prefix".localized)
                 .font(.caption)
                 .foregroundColor(.secondary)
-                .fixedSize()
             
-            Button {
-                openTerms()
-            } label: {
-                Text(" \("auth.signup.terms".localized) ")
+            HStack(spacing: 2) {
+                Button {
+                    if let url = URL(string: "https://zackweg.com/terms") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("\("auth.signup.terms".localized)")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                        .underline()
+                }
+                
+                Text(" \("auth.signup.and".localized) ")
                     .font(.caption)
-                    .foregroundColor(.blue)
-                    .underline()
-            }.fixedSize()
-            
-            Text("auth.signup.and".localized)
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            Button {
-                openPrivacy()
-            } label: {
-                Text(" \("auth.signup.privacy".localized)")
-                    .font(.caption)
-                    .foregroundColor(.blue)
-                    .underline()
-            }.fixedSize()
+                    .foregroundColor(.secondary)
+                
+                Button {
+                    if let url = URL(string: "https://zackweg.com/privacy") {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("\("auth.signup.privacy".localized)")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                        .underline()
+                }
+            }
         }
-        .multilineTextAlignment(.leading)
-    }
-    
-    // Open Terms of Service in browser
-    private func openTerms() {
-        if let url = URL(string: "https://zackweg.com/terms") {
-            UIApplication.shared.open(url)
-        }
-    }
-    
-    // Open Privacy Policy in browser
-    private func openPrivacy() {
-        if let url = URL(string: "https://zackweg.com/privacy") {
-            UIApplication.shared.open(url)
-        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 
