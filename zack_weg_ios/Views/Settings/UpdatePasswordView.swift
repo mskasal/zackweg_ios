@@ -63,16 +63,19 @@ struct UpdatePasswordView: View {
                         SecureField("auth.current_password".localized, text: $currentPassword)
                             .textContentType(.password)
                             .autocorrectionDisabled()
+                            .accessibilityIdentifier("currentPasswordField")
                         
                         SecureField("auth.new_password".localized, text: $newPassword)
                             .textContentType(.newPassword)
                             .autocorrectionDisabled()
+                            .accessibilityIdentifier("newPasswordField")
                         
                         // Password strength indicator
                         HStack {
                             Text(passwordStrength.text)
                                 .font(.caption)
                                 .foregroundColor(passwordStrength.color)
+                                .accessibilityIdentifier("passwordStrengthLabel")
                             
                             Spacer()
                             
@@ -84,56 +87,70 @@ struct UpdatePasswordView: View {
                                         .cornerRadius(2)
                                 }
                             }
+                            .accessibilityIdentifier("strengthBars")
                         }
                         .padding(.top, 4)
+                        .accessibilityIdentifier("passwordStrengthIndicator")
                         
                         SecureField("auth.confirm_password".localized, text: $confirmPassword)
                             .textContentType(.newPassword)
                             .autocorrectionDisabled()
+                            .accessibilityIdentifier("confirmPasswordField")
                         
                         if !confirmPassword.isEmpty && confirmPassword != newPassword {
                             Text("auth.password_mismatch".localized)
                                 .font(.caption)
                                 .foregroundColor(.red)
                                 .padding(.top, 4)
+                                .accessibilityIdentifier("passwordMismatchError")
                         }
                     }
+                    .accessibilityIdentifier("passwordChangeSection")
                     
                     Section(header: Text("settings.requirements".localized), footer: Text("settings.password_requirements".localized)) {
                         PasswordRequirementRow(
                             text: "settings.req_min_chars".localized, 
                             isMet: newPassword.count >= 6
                         )
+                        .accessibilityIdentifier("minCharsRequirement")
                         
                         PasswordRequirementRow(
                             text: "settings.req_uppercase".localized, 
                             isMet: newPassword.rangeOfCharacter(from: .uppercaseLetters) != nil
                         )
+                        .accessibilityIdentifier("uppercaseRequirement")
                         
                         PasswordRequirementRow(
                             text: "settings.req_lowercase".localized, 
                             isMet: newPassword.rangeOfCharacter(from: .lowercaseLetters) != nil
                         )
+                        .accessibilityIdentifier("lowercaseRequirement")
                         
                         PasswordRequirementRow(
                             text: "settings.req_number".localized, 
                             isMet: newPassword.rangeOfCharacter(from: .decimalDigits) != nil
                         )
+                        .accessibilityIdentifier("numberRequirement")
                         
                         PasswordRequirementRow(
                             text: "settings.req_special".localized, 
                             isMet: newPassword.rangeOfCharacter(from: .punctuationCharacters) != nil
                         )
+                        .accessibilityIdentifier("specialCharRequirement")
                     }
+                    .accessibilityIdentifier("passwordRequirementsSection")
                     
                     if let error = error {
                         Section {
                             Text(error)
                                 .foregroundColor(.red)
                                 .font(.caption)
+                                .accessibilityIdentifier("passwordUpdateErrorText")
                         }
+                        .accessibilityIdentifier("passwordUpdateErrorSection")
                     }
                 }
+                .accessibilityIdentifier("updatePasswordForm")
                 
                 if isLoading {
                     Color.black.opacity(0.2)
@@ -142,8 +159,10 @@ struct UpdatePasswordView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 .scaleEffect(1.5)
+                                .accessibilityIdentifier("passwordUpdateProgressView")
                         )
                         .zIndex(2)
+                        .accessibilityIdentifier("passwordUpdateLoadingOverlay")
                 }
             }
             .navigationTitle("settings.update_password".localized)
@@ -154,6 +173,7 @@ struct UpdatePasswordView: View {
                         dismiss()
                     }
                     .disabled(isLoading)
+                    .accessibilityIdentifier("cancelPasswordUpdateButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -164,6 +184,7 @@ struct UpdatePasswordView: View {
                     }
                     .disabled(!isValid || isLoading)
                     .opacity(isValid ? 1.0 : 0.5)
+                    .accessibilityIdentifier("savePasswordButton")
                 }
             }
             .onChange(of: newPassword) { _ in
@@ -183,6 +204,7 @@ struct UpdatePasswordView: View {
             } message: {
                 Text("settings.password_update_success".localized)
             }
+            .accessibilityIdentifier("updatePasswordScreen")
         }
     }
     
@@ -248,7 +270,6 @@ struct PasswordRequirementRow: View {
             Text(text)
                 .font(.caption)
                 .foregroundColor(isMet ? .primary : .secondary)
-            Spacer()
         }
     }
 }

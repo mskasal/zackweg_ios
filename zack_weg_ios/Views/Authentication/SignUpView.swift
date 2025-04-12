@@ -110,7 +110,7 @@ struct SignUpView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
+            VStack(spacing: 0) {
                 // Space for brand image
                 Rectangle()
                     .fill(Color.clear)
@@ -144,7 +144,7 @@ struct SignUpView: View {
                     .accessibilityIdentifier("signUpCreateAccountSubtitleText")
                 
                 // Form Fields
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     // Nickname
                     VStack(alignment: .leading, spacing: 4) {
                         TextField("auth.signup.nickname.placeholder".localized, text: $nickName)

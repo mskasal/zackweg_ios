@@ -43,8 +43,11 @@ struct UpdateProfileView: View {
                                 .keyboardType(.emailAddress)
                                 .textInputAutocapitalization(.never)
                                 .autocapitalization(.none)
+                                .accessibilityIdentifier("profileEmailField")
                         }
+                        .accessibilityIdentifier("profileEmailRow")
                     }
+                    .accessibilityIdentifier("personalInfoSection")
                     
                     Section(header: Text("settings.location".localized)) {
                         HStack {
@@ -55,14 +58,19 @@ struct UpdateProfileView: View {
                                 .multilineTextAlignment(.trailing)
                                 .autocorrectionDisabled()
                                 .keyboardType(.numberPad)
+                                .accessibilityIdentifier("profilePostalCodeField")
                         }
+                        .accessibilityIdentifier("profilePostalCodeRow")
                         
                         Picker("profile.country".localized, selection: $countryCode) {
                             ForEach(countries, id: \.0) { code, name in
                                 Text(name).tag(code)
+                                    .accessibilityIdentifier("countryOption_\(code)")
                             }
                         }
+                        .accessibilityIdentifier("profileCountryPicker")
                     }
+                    .accessibilityIdentifier("locationSection")
                     
                     // Validation error messages
                     Group {
@@ -71,7 +79,9 @@ struct UpdateProfileView: View {
                                 Text("settings.invalid_email".localized)
                                     .foregroundColor(.red)
                                     .font(.caption)
+                                    .accessibilityIdentifier("invalidEmailError")
                             }
+                            .accessibilityIdentifier("invalidEmailSection")
                         }
                         
                         if postalCode.isEmpty {
@@ -79,7 +89,9 @@ struct UpdateProfileView: View {
                                 Text("settings.postal_code_empty".localized)
                                     .foregroundColor(.orange)
                                     .font(.caption)
+                                    .accessibilityIdentifier("emptyPostalCodeWarning")
                             }
+                            .accessibilityIdentifier("emptyPostalCodeSection")
                         }
                     }
                     
@@ -94,9 +106,12 @@ struct UpdateProfileView: View {
                                     .foregroundColor(.red)
                             }
                             .padding(.vertical, 4)
+                            .accessibilityIdentifier("profileUpdateErrorText")
                         }
+                        .accessibilityIdentifier("profileUpdateErrorSection")
                     }
                 }
+                .accessibilityIdentifier("updateProfileForm")
                 
                 if viewModel.isLoading {
                     Color.black.opacity(0.2)
@@ -105,8 +120,10 @@ struct UpdateProfileView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                 .scaleEffect(1.5)
+                                .accessibilityIdentifier("profileUpdateProgressView")
                         )
                         .zIndex(2)
+                        .accessibilityIdentifier("profileUpdateLoadingOverlay")
                 }
             }
             .navigationTitle("settings.update_profile".localized)
@@ -117,6 +134,7 @@ struct UpdateProfileView: View {
                         dismiss()
                     }
                     .disabled(viewModel.isLoading)
+                    .accessibilityIdentifier("cancelProfileUpdateButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -127,6 +145,7 @@ struct UpdateProfileView: View {
                     }
                     .disabled(!isValid || viewModel.isLoading)
                     .opacity(isValid ? 1.0 : 0.5)
+                    .accessibilityIdentifier("saveProfileButton")
                 }
             }
             .onChange(of: email) { _ in
@@ -151,6 +170,7 @@ struct UpdateProfileView: View {
             } message: {
                 Text("settings.profile_update_success".localized)
             }
+            .accessibilityIdentifier("updateProfileScreen")
         }
     }
     

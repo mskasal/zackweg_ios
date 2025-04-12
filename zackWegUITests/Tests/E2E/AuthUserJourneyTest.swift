@@ -16,8 +16,24 @@ class AuthUserJourneyTest: XCTestCase {
         testHelper = UITestHelper(app: app)
         
         // Enable UI testing mode
-        app.launchArguments = ["--uitesting", "--reset-state"]
-        app.launchEnvironment = ["UI_TEST_MODE": "1"]
+        app.launchArguments = [
+            "--uitesting", 
+            "--reset-state",
+            // Disable password autofill features
+            "-AppleIDAppleIDPasswordEnabled", "NO",
+            "-AppleKeyboardAutomaticPasswordEnabled", "NO",
+            "-AppleIDKeychainPasswordEnabled", "NO",
+            "-AppleICloudKeychainItemSuggestionsEnabled", "NO",
+            "-AppleKeychainItemSuggestionsEnabled", "NO",
+            "-ApplePasswordManagerUIEnabled", "NO",
+            "-ApplePasswordManagerProtectedUIEnabled", "NO",
+            "-ApplePasswordSheetEnabled", "NO",
+        ]
+        app.launchEnvironment = [
+            "UI_TEST_MODE": "1",
+            "DISABLE_AUTOFILL": "1",
+            "DISABLE_PASSWORD_MANAGER": "1"
+        ]
         app.launch()
     }
     

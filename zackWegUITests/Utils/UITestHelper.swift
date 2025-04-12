@@ -106,8 +106,8 @@ class UITestHelper {
         enterText(fullName, in: fullNameField)
         enterText(email, in: emailField)
         enterText(username, in: usernameField)
-        enterText(password, in: passwordField)
-        enterText(password, in: confirmPasswordField)
+        forceClearAndEnterPassword(field: passwordField, text: password)
+        forceClearAndEnterPassword(field: confirmPasswordField, text: password)
         
         registerButton.tap()
         
@@ -151,7 +151,7 @@ class UITestHelper {
         }
         
         enterText(email, in: emailField)
-        enterText(password, in: passwordField)
+        forceClearAndEnterPassword(field: passwordField, text: password)
         signInButton.tap()
         
         // Handle any alert that might appear
@@ -163,39 +163,48 @@ class UITestHelper {
     
     // MARK: - Element Finder
     
-    /// Finds an element using multiple strategies
+    /// Finds an element by trying multiple approaches
     /// - Parameters:
-    ///   - types: Element types to search (button, textField, etc.)
-    ///   - identifiers: Accessibility identifiers to try
-    ///   - predicates: Additional predicates to use if identifiers fail
-    /// - Returns: The found XCUIElement (may or may not exist)
-    func findElement(types: [XCUIElement.ElementType], identifiers: [String], predicates: [NSPredicate]? = nil) -> XCUIElement {
-        // First try to find by accessibility identifier
+    ///   - types: The element types to look for (buttons, text fields, etc.)
+    ///   - identifiers: Accessibility identifiers to match
+    ///   - predicates: Predicates to match
+    /// - Returns: The first matching element, or the first element of the first type if no matches
+    func findElement(types: [XCUIElement.ElementType], identifiers: [String] = [], predicates: [NSPredicate] = []) -> XCUIElement {
+        // First try direct access by identifier (most efficient)
         for identifier in identifiers {
-            for type in types {
-                let query = app.descendants(matching: type)
-                let element = query[identifier]
-                if element.exists {
-                    return element
-                }
+            let element = app.descendants(matching: .any)["**/\(identifier)"]
+            if element.exists {
+                return element
+            }
+            
+            // Also try direct access without regex pattern
+            let directElement = app.descendants(matching: .any)[identifier]
+            if directElement.exists {
+                return directElement
             }
         }
         
-        // If not found, try predicates
-        if let predicates = predicates {
+        // Try each element type
+        for type in types {
+            // Try accessibility identifiers
+            for identifier in identifiers {
+                let matchingElements = app.descendants(matching: type).matching(identifier: identifier)
+                if matchingElements.count > 0 {
+                    return matchingElements.element(boundBy: 0)
+                }
+            }
+            
+            // Try predicates
             for predicate in predicates {
-                for type in types {
-                    let query = app.descendants(matching: type)
-                    let matchingElements = query.matching(predicate)
-                    if matchingElements.count > 0 {
-                        return matchingElements.element(boundBy: 0)
-                    }
+                let query = app.descendants(matching: type)
+                let matchingElements = query.matching(predicate)
+                if matchingElements.count > 0 {
+                    return matchingElements.element(boundBy: 0)
                 }
             }
         }
         
-        // If no match, return the first element of the first type
-        // (this will likely fail gracefully when trying to interact with it)
+        // Fallback to first element of first type if nothing found
         return app.descendants(matching: types.first!).element(boundBy: 0)
     }
     
@@ -236,6 +245,110 @@ class UITestHelper {
     func enterText(_ text: String, in textField: XCUIElement) {
         textField.tap()
         textField.typeText(text)
+    }
+    
+    /// Force clears any auto-filled password and enters the desired text
+    func forceClearAndEnterPassword(field: XCUIElement, text: String) {
+        // First tap the field to focus it
+        field.tap()
+        
+        // Pause to allow any suggestion UI to appear
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        // Check for and dismiss "Use Strong Password" button
+        let useStrongPasswordButton = app.buttons["Use Strong Password"]
+        if useStrongPasswordButton.waitForExistence(timeout: 0.5) {
+            let chooseMyOwnButton = app.buttons["Choose My Own Password"]
+            if chooseMyOwnButton.waitForExistence(timeout: 0.5) {
+                chooseMyOwnButton.tap()
+            } else {
+                // Tap away from the keyboard
+                let topOfScreen = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+                topOfScreen.tap()
+                
+                // Tap field again
+                field.tap()
+            }
+        }
+        
+        // Check for keyboard and make sure it's visible
+        if !app.keyboards.firstMatch.exists {
+            field.tap()
+            Thread.sleep(forTimeInterval: 0.5)
+        }
+        
+        // Select all text using multiple methods
+        field.press(forDuration: 1.5)
+        
+        // Try the "Select All" button if it appears
+        let selectAllButton = app.menuItems["Select All"]
+        if selectAllButton.waitForExistence(timeout: 1) {
+            selectAllButton.tap()
+        } else {
+            // Alternative: Double-tap often selects all in password fields
+            field.doubleTap()
+        }
+        
+        // Delete any existing text
+        field.typeText(XCUIKeyboardKey.delete.rawValue)
+        
+        // Insert a small delay to ensure deletion completed
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        // Enter our password text character by character with small delays
+        for char in text {
+            field.typeText(String(char))
+            Thread.sleep(forTimeInterval: 0.1)
+        }
+        
+        // Dismiss any suggestion UI that might have appeared
+        dismissPasswordSuggestionUI()
+    }
+    
+    /// Dismisses any password suggestion UI that appears
+    func dismissPasswordSuggestionUI() {
+        // Check for iOS 18 password AutoFill toolbar
+        let autoFillButton = app.buttons["AutoFill Password"]
+        if autoFillButton.waitForExistence(timeout: 0.5) {
+            // Tap on "Not Now" if available
+            let notNowButton = app.buttons["Not Now"]
+            if notNowButton.waitForExistence(timeout: 0.5) {
+                notNowButton.tap()
+            } else {
+                // Tap away from the keyboard/toolbar
+                let topOfScreen = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+                topOfScreen.tap()
+            }
+        }
+        
+        // Attempt to dismiss strong password suggestion dialog
+        let useStrongPasswordButton = app.buttons["Use Strong Password"]
+        if useStrongPasswordButton.waitForExistence(timeout: 0.5) {
+            // Look for "Choose My Own Password" option instead
+            let chooseMyOwnButton = app.buttons["Choose My Own Password"]
+            if chooseMyOwnButton.waitForExistence(timeout: 0.5) {
+                chooseMyOwnButton.tap()
+            } else {
+                // Tap elsewhere to dismiss
+                let topOfScreen = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+                topOfScreen.tap()
+            }
+        }
+        
+        // Handle "Save Password" dialog
+        let savePasswordAlert = app.alerts["Save Password"]
+        if savePasswordAlert.waitForExistence(timeout: 0.5) {
+            let notNowButton = savePasswordAlert.buttons["Not Now"]
+            if notNowButton.waitForExistence(timeout: 0.5) {
+                notNowButton.tap()
+            } else {
+                // Try to tap the Cancel button if "Not Now" doesn't exist
+                let cancelButton = savePasswordAlert.buttons["Cancel"]
+                if cancelButton.waitForExistence(timeout: 0.5) {
+                    cancelButton.tap()
+                }
+            }
+        }
     }
     
     /// Clears text from a text field

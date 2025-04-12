@@ -58,9 +58,12 @@ class AuthViewModel: ObservableObject {
                 nickName: nickName
             )
             KeychainManager.shared.saveAuthToken(token)
+            // Get user profile to store user ID
+            let user = try await apiService.getMyProfile()
+            UserDefaults.standard.set(user.id, forKey: "userId")
+            
             self.authToken = token
             self.isAuthenticated = true
-            await fetchUserProfile()
         } catch {
             self.isAuthenticated = false
             self.authToken = nil

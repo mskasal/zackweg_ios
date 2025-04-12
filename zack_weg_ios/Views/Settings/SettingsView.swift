@@ -24,19 +24,23 @@ struct SettingsView: View {
                             .font(.system(size: 22, weight: .medium))
                             .foregroundColor(.blue)
                     }
+                    .accessibilityIdentifier("userAvatarView")
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(UserDefaults.standard.string(forKey: "userNickName") ?? "User")
                             .font(.headline)
+                            .accessibilityIdentifier("userNicknameText")
                         
                         Text(UserDefaults.standard.string(forKey: "userEmail") ?? "")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
+                            .accessibilityIdentifier("userEmailText")
                     }
                     
                     Spacer()
                 }
                 .padding(.vertical, 8)
+                .accessibilityIdentifier("userProfileHeader")
             }
             
             // Account settings
@@ -51,6 +55,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("updateProfileButton")
                 
                 Button(action: { showingUpdatePassword = true }) {
                     HStack {
@@ -62,6 +67,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("updatePasswordButton")
             }
             
             // App settings (placeholder for future expansion)
@@ -82,6 +88,7 @@ struct SettingsView: View {
                                 }
                             }
                         }
+                        .accessibilityIdentifier("themeOption_\(theme.rawValue)")
                     }
                 } label: {
                     HStack {
@@ -94,6 +101,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("themeSelector")
                 
                 Menu {
                     ForEach(LanguageManager.Language.allCases) { language in
@@ -107,6 +115,7 @@ struct SettingsView: View {
                                 }
                             }
                         }
+                        .accessibilityIdentifier("languageOption_\(language.rawValue)")
                     }
                 } label: {
                     HStack {
@@ -119,6 +128,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("languageSelector")
             }
             
             // Support section
@@ -135,6 +145,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("helpSupportButton")
                 
                 Button(action: {
                     openTermsURL()
@@ -148,6 +159,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("termsButton")
                 
                 Button(action: {
                     openPrivacyURL()
@@ -161,6 +173,7 @@ struct SettingsView: View {
                             .foregroundColor(.gray)
                     }
                 }
+                .accessibilityIdentifier("privacyButton")
             }
             
             // Sign out button
@@ -184,9 +197,12 @@ struct SettingsView: View {
                     Spacer()
                     Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0")
                         .foregroundColor(.secondary)
+                        .accessibilityIdentifier("appVersionValue")
                 }
+                .accessibilityIdentifier("appVersionRow")
             }
         }
+        .accessibilityIdentifier("settingsScreenList")
         .navigationTitle("settings.title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingUpdateProfile) {
