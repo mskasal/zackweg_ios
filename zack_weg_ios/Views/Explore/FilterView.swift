@@ -7,6 +7,10 @@ struct FilterView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedParentCategoryId: String? = nil
     @State private var selectedCountry: Country? = Country.germany
+    @FocusState private var isSearchFocused: Bool
+    
+    // Props to focus on search when opening
+    var focusOnSearch: Bool = false
     
     // Add these offering constants
     private let allOfferings = ["GIVING_AWAY", "SOLD_AT_PRICE"]
@@ -15,6 +19,32 @@ struct FilterView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Search Field at the top
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.gray)
+                        TextField("explore.search_placeholder".localized, text: $viewModel.searchFilters.keyword)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .autocapitalization(.none)
+                            .disableAutocorrection(true)
+                            .focused($isSearchFocused)
+                            .accessibilityLabel("exploreFilterSearchField")
+                            .submitLabel(.search)
+                            .onSubmit {
+                                Task {
+                                    await viewModel.searchPosts()
+                                    dismiss()
+                                }
+                            }
+                    }
+                    .padding()
+                    .background(Color(UIColor.secondarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    
+                    Divider()
+                        .padding(.horizontal)
+                    
                     // Location Section
                     VStack(alignment: .leading, spacing: 16) {
                         Text("explore.filter_location".localized)
@@ -61,7 +91,7 @@ struct FilterView: View {
                             Spacer()
                             Button("common.clear".localized) {
                                 selectedParentCategoryId = nil
-                                viewModel.searchFilters.categoryId = ""
+                                viewModel.searchFilters.categoryIds = []
                             }
                             .font(.subheadline)
                             .foregroundColor(.blue)
@@ -99,7 +129,7 @@ struct FilterView: View {
                                         isSelected: selectedParentCategoryId == nil
                                     ) {
                                         selectedParentCategoryId = nil
-                                        viewModel.searchFilters.categoryId = ""
+                                        viewModel.searchFilters.categoryIds = []
                                     }
                                     
                                     // Top level categories
@@ -143,11 +173,11 @@ struct FilterView: View {
                                                 .padding(.horizontal, 16)
                                                 .padding(.vertical, 8)
                                                 .background(
-                                                    viewModel.searchFilters.categoryId == parentCategory.id ? 
+                                                    viewModel.searchFilters.categoryIds.contains(parentCategory.id) ? 
                                                         Color.blue : 
                                                         Color(UIColor.secondarySystemBackground)
                                                 )
-                                                .foregroundColor(viewModel.searchFilters.categoryId == parentCategory.id ? .white : .primary)
+                                                .foregroundColor(viewModel.searchFilters.categoryIds.contains(parentCategory.id) ? .white : .primary)
                                                 .cornerRadius(20)
                                         }
                                         
@@ -160,11 +190,11 @@ struct FilterView: View {
                                                     .padding(.horizontal, 16)
                                                     .padding(.vertical, 8)
                                                     .background(
-                                                        viewModel.searchFilters.categoryId == subcategory.id ? 
+                                                        viewModel.searchFilters.categoryIds.contains(subcategory.id) ? 
                                                             Color.blue : 
                                                             Color(UIColor.secondarySystemBackground)
                                                     )
-                                                    .foregroundColor(viewModel.searchFilters.categoryId == subcategory.id ? .white : .primary)
+                                                    .foregroundColor(viewModel.searchFilters.categoryIds.contains(subcategory.id) ? .white : .primary)
                                                     .cornerRadius(20)
                                             }
                                         }
@@ -197,6 +227,14 @@ struct FilterView: View {
             }
             .navigationTitle("explore.filters".localized)
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                // Focus on search if specified - using task is more reliable than onAppear
+                if focusOnSearch {
+                    // Short delay to ensure view is ready
+                    try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+                    isSearchFocused = true
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("common.cancel".localized) {

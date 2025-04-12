@@ -7,5 +7,5 @@ struct SearchFilters {
     var radiusKm: Double = 20.0
     var limit: Int = 10
     var offset: Int = 0
-    var categoryId: String = ""
+    var categoryIds: [String] = []
 } 

@@ -388,7 +388,7 @@ class APIService {
         radius_km: Double? = 1.0,
         limit: Int? = 10,
         offset: Int? = 0,
-        category_id: String? = nil,
+        category_ids: String? = nil,
         offering: String? = nil
     ) async throws -> [Post] {
         var components = URLComponents(string: "\(baseURL)/posts/search")!
@@ -428,8 +428,8 @@ class APIService {
         queryItems.append(URLQueryItem(name: "radius_km", value: String(radius_km ?? 1.0)))
         queryItems.append(URLQueryItem(name: "limit", value: String(limit ?? 10)))
         queryItems.append(URLQueryItem(name: "offset", value: String(offset ?? 0)))
-        if let category_id = category_id {
-            queryItems.append(URLQueryItem(name: "category_id", value: category_id))
+        if let category_ids = category_ids {
+            queryItems.append(URLQueryItem(name: "category_ids", value: category_ids))
         }
         if let offering = offering {
             queryItems.append(URLQueryItem(name: "offering", value: offering))
@@ -441,8 +441,8 @@ class APIService {
         print("🔍 Search Posts Request URL: \(components.url!.absoluteString)")
         print("🔍 Search Parameters - Keyword: \(keyword ?? "None"), Postal Code: \(finalPostalCode), Country: \(finalCountryCode), Radius: \(radius_km ?? 1.0)km")
         print("🔍 Search Pagination - Limit: \(limit ?? 10), Offset: \(offset ?? 0)")
-        if let category_id = category_id {
-            print("🔍 Search Category: \(category_id)")
+        if let category_ids = category_ids {
+            print("🔍 Search Category IDs: \(category_ids)")
         }
         if let offering = offering {
             print("🔍 Search Offering Type: \(offering)")

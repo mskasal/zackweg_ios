@@ -12,7 +12,8 @@ class EditPostViewModel: ObservableObject {
     @Published var imageUrls: [String] = []
     @Published var removedImageUrls: [String] = []
     @Published var newImages: [Data] = []
-    @Published var status: String = "ACTIVE" // Default status
+    @Published var status: String = "ACTIVE" // Current status
+    @Published var originalStatus: String = "ACTIVE" // Original post status
     @Published var uploadProgress: Double = 0
     @Published var currentUploadIndex: Int = 0
     @Published var totalUploads: Int = 0
@@ -41,9 +42,10 @@ class EditPostViewModel: ObservableObject {
             // Store the image URLs separately for tracking
             imageUrls = post?.imageUrls ?? []
             
-            // Set current status
+            // Set current status and save original status
             if let postStatus = post?.status {
                 status = postStatus
+                originalStatus = postStatus // Store original status for change detection
             }
             
             print("✅ Successfully loaded post with ID: \(postId) for editing")

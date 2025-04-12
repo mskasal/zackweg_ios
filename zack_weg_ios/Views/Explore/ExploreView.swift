@@ -49,21 +49,25 @@ struct ExploreView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
-                TextField("explore.search_placeholder".localized, text: $viewModel.searchFilters.keyword)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .textInputAutocapitalization(.never)
-                    .accessibilityLabel("exploreSearchField")
-                    .onChange(of: viewModel.searchFilters.keyword) { _ in
-                        // Cancel any existing search task
-                        searchTask?.cancel()
-                        // Create a new search task with debounce
-                        searchTask = Task {
-                            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-                            if !Task.isCancelled {
-                                await viewModel.searchPosts(resetOffset: true)
-                            }
-                        }
+                
+                // Make the TextField open the filter view when tapped
+                ZStack(alignment: .leading) {
+                    if viewModel.searchFilters.keyword.isEmpty {
+                        Text("explore.search_placeholder".localized)
+                            .foregroundColor(.gray)
                     }
+                    
+                    // Invisible button over the text field to capture taps
+                    Button(action: {
+                        showFilters = true
+                    }) {
+                        Rectangle()
+                            .fill(Color.clear)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(height: 20)
+                .accessibilityLabel("exploreSearchField")
                 
                 Button(action: { showMap.toggle() }) {
                     Image(systemName: "map")
@@ -87,11 +91,12 @@ struct ExploreView: View {
                     .frame(width: 30, height: 30)
                 }
             }
-            .padding()
+            .padding(.vertical, 10)
+            .padding(.horizontal, 12)
             .background(Color(uiColor: .systemGray6))
             .cornerRadius(10)
             .padding(.horizontal)
-            .padding(.top)
+            .padding(.top, 8)
             
             // Filter indicator chips
             ScrollView(.horizontal, showsIndicators: false) {
@@ -164,15 +169,19 @@ struct ExploreView: View {
                     }
                     
                     // Display active category filter
-                    if !viewModel.searchFilters.categoryId.isEmpty {
-                        let categoryName = categoryViewModel.getCategory(byId: viewModel.searchFilters.categoryId)?.title ?? "Category"
+                    if !viewModel.searchFilters.categoryIds.isEmpty {
+                        // Since we can have multiple categories, we'll show the first one as an example
+                        // or join them together if there are multiple
+                        let categoryId = viewModel.searchFilters.categoryIds.first!
+                        let categoryName = categoryViewModel.getCategory(byId: categoryId)?.title ?? "Category"
+                        let suffix = viewModel.searchFilters.categoryIds.count > 1 ? " + \(viewModel.searchFilters.categoryIds.count - 1) more" : ""
                         
                         HStack {
-                            Text(categoryName)
+                            Text(categoryName + suffix)
                                 .font(.caption)
                             
                             Button(action: {
-                                viewModel.searchFilters.categoryId = ""
+                                viewModel.searchFilters.categoryIds = []
                                 Task {
                                     await viewModel.searchPosts(resetOffset: true)
                                 }
@@ -225,7 +234,7 @@ struct ExploreView: View {
                             PostCard(post: post)
                                 .id(post.id) // Make sure each PostCard has an ID
                                 .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
                                 .onAppear {
                                     // Check if we need to load more posts
                                     Task {
@@ -260,7 +269,7 @@ struct ExploreView: View {
         .navigationTitle("explore.title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showFilters) {
-            FilterView(viewModel: viewModel)
+            FilterView(viewModel: viewModel, focusOnSearch: true)
                 .environmentObject(categoryViewModel)
         }
         .sheet(isPresented: $showMap) {

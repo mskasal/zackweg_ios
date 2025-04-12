@@ -37,7 +37,14 @@ class ExploreViewModel: ObservableObject {
     
     // Add method to select a category
     func selectCategory(_ categoryId: String) {
-        searchFilters.categoryId = categoryId
+        // If the category is already selected, remove it
+        if searchFilters.categoryIds.contains(categoryId) {
+            searchFilters.categoryIds.removeAll { $0 == categoryId }
+        } else {
+            // Otherwise add it
+            searchFilters.categoryIds.append(categoryId)
+        }
+        
         Task {
             await searchPosts(resetOffset: true)
         }
@@ -70,7 +77,7 @@ class ExploreViewModel: ObservableObject {
             if searchFilters.keyword.isEmpty && 
                searchFilters.postalCode.isEmpty && 
                searchFilters.countryCode.isEmpty && 
-               searchFilters.categoryId.isEmpty && 
+               searchFilters.categoryIds.isEmpty && 
                resetOffset {
                 searchResults = posts
                 return
@@ -84,7 +91,7 @@ class ExploreViewModel: ObservableObject {
                 radius_km: searchFilters.radiusKm,
                 limit: pageSize,
                 offset: currentOffset,
-                category_id: searchFilters.categoryId.isEmpty ? nil : searchFilters.categoryId
+                category_ids: searchFilters.categoryIds.isEmpty ? nil : searchFilters.categoryIds.joined(separator: ",")
             )
             
             // Update hasMoreResults based on the number of results returned
@@ -158,7 +165,7 @@ class ExploreViewModel: ObservableObject {
         if !searchFilters.keyword.isEmpty { count += 1 }
         if !searchFilters.postalCode.isEmpty { count += 1 }
         if searchFilters.radiusKm != 20.0 { count += 1 }
-        if !searchFilters.categoryId.isEmpty { count += 1 }
+        if !searchFilters.categoryIds.isEmpty { count += 1 }
         
         return count
     }
