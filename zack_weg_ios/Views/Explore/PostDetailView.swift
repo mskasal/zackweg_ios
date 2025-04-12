@@ -1,62 +1,152 @@
 import SwiftUI
+import UIKit
 
 struct PostDetailView: View {
-    let post: Post?
-    let postId: String
+    // Store the initial post passed in, but use a state variable for display
+    private let initialPost: Post
     let fromUserPostsView: Bool
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @StateObject private var viewModel: PostDetailViewModel
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
     @State private var showingDeleteConfirmation = false
-    @State private var shouldRefreshPost = false
+    @State private var currentPost: Post?
     @Environment(\.dismiss) private var dismiss
     
     init(post: Post, fromUserPostsView: Bool = false) {
-        self.post = post
-        self.postId = post.id
+        self.initialPost = post
         self.fromUserPostsView = fromUserPostsView
+        _currentPost = State(initialValue: post)
         _viewModel = StateObject(wrappedValue: PostDetailViewModel(post: post))
     }
     
-    init(postId: String, fromUserPostsView: Bool = false) {
-        self.post = nil
-        self.postId = postId
-        self.fromUserPostsView = fromUserPostsView
-        _viewModel = StateObject(wrappedValue: PostDetailViewModel(postId: postId))
-    }
-    
     private var category: Category? {
-        if let post = post {
-            return categoryViewModel.getCategory(byId: post.categoryId)
-        } else if let post = viewModel.loadedPost {
-            return categoryViewModel.getCategory(byId: post.categoryId)
-        }
-        return nil
+        return categoryViewModel.getCategory(byId: currentPost?.categoryId ?? "")
     }
     
     var body: some View {
         Group {
-            if let displayPost = post ?? viewModel.loadedPost {
+            if let displayPost = currentPost {
                 postContent(displayPost)
             } else {
                 loadingView
             }
         }
-        .onAppear {
-            // Always refresh post data when the view appears
-            Task {
-                await viewModel.loadPostDetails()
+        .onChange(of: viewModel.postDeleted) { deleted in
+            if deleted {
+                dismiss()
             }
         }
-        .onChange(of: shouldRefreshPost) { newValue in
-            if newValue {
-                Task {
-                    await viewModel.loadPostDetails()
-                    shouldRefreshPost = false
+        .sheet(isPresented: $showingMessageSheet) {
+            NavigationStack {
+                VStack(spacing: 16) {
+                    // Seller Profile Section - Simplified
+                    VStack(spacing: 12) {
+                        // Seller Avatar and Name
+                        HStack(spacing: 14) {
+                            // Profile Image
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue.opacity(0.1))
+                                    .frame(width: 60, height: 60)
+                                
+                                Text(viewModel.getInitials(for: currentPost?.user.nickName ?? ""))
+                                    .font(.system(size: 24, weight: .medium))
+                                    .foregroundColor(.blue)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(currentPost?.user.nickName ?? "")
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                            }
+                            
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                    .background(Color(.systemGray6).opacity(0.5))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+                    
+                    Text("post_detail.new_message".localized)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                    
+                    Text(String(format: "post_detail.send_message_to".localized, currentPost?.user.nickName ?? ""))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                    
+                    TextEditor(text: $viewModel.messageText)
+                        .frame(minHeight: 150)
+                        .padding(12)
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+        
+                    
+                    if let error = viewModel.error {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 20)
+                    }
+                    
+                    HStack(spacing: 16) {
+                        Button("common.cancel".localized) {
+                            showingMessageSheet = false
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.gray.opacity(0.1))
+                        .foregroundColor(.primary)
+                        .cornerRadius(12)
+                        
+                        Button("common.send".localized) {
+                            Task {
+                                await viewModel.sendMessage()
+                                showingMessageSheet = false
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(viewModel.messageText.isEmpty ? Color.blue.opacity(0.5) : Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .disabled(viewModel.messageText.isEmpty)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 30)
                 }
+                .padding(.bottom, 20)
+            }
+            .presentationDetents([.height(480)]) // Slightly reduced height since we removed product info
+            .task {
+                // No need to load seller info anymore
             }
         }
+        .sheet(isPresented: $showingReportSheet) {
+            if let post = currentPost {
+                ReportView(postId: post.id)
+            }
+        }
+        .sheet(item: $viewModel.conversation) { conversation in
+            if let post = currentPost {
+                ConversationDetailView(conversation: conversation, post: post)
+            } else {
+                ConversationDetailView(conversation: conversation)
+            }
+        }
+        .onAppear {
+            // No need to load seller info anymore
+        }
+        .environmentObject(categoryViewModel)
     }
     
     private var loadingView: some View {
@@ -279,7 +369,13 @@ struct PostDetailView: View {
                             NavigationLink(
                                 destination: EditPostView(
                                     postId: post.id,
-                                    shouldRefresh: $shouldRefreshPost
+                                    updatedPost: Binding(
+                                        get: { nil },
+                                        set: { if let newPost = $0 { 
+                                            self.currentPost = newPost
+                                            viewModel.loadedPost = newPost 
+                                        }}
+                                    )
                                 )
                             ) {
                                 HStack {
@@ -357,115 +453,6 @@ struct PostDetailView: View {
         } message: {
             Text("posts.delete_confirmation".localized)
         }
-        .onChange(of: viewModel.postDeleted) { deleted in
-            if deleted {
-                dismiss()
-            }
-        }
-        .sheet(isPresented: $showingMessageSheet) {
-            NavigationStack {
-                VStack(spacing: 16) {
-                    // Seller Profile Section - Simplified
-                    VStack(spacing: 12) {
-                        // Seller Avatar and Name
-                        HStack(spacing: 14) {
-                            // Profile Image
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                
-                                Text(viewModel.getInitials(for: post.user.nickName))
-                                    .font(.system(size: 24, weight: .medium))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(post.user.nickName)
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(Color(.systemGray6).opacity(0.5))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    
-                    Text("post_detail.new_message".localized)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                    
-                    Text(String(format: "post_detail.send_message_to".localized, post.user.nickName))
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 40)
-                    
-                    TextEditor(text: $viewModel.messageText)
-                        .frame(minHeight: 150)
-                        .padding(12)
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal, 20)
-                        .padding(.top, 10)
-        
-                    
-                    if let error = viewModel.error {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 20)
-                    }
-                    
-                    HStack(spacing: 16) {
-                        Button("common.cancel".localized) {
-                            showingMessageSheet = false
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.gray.opacity(0.1))
-                        .foregroundColor(.primary)
-                        .cornerRadius(12)
-                        
-                        Button("common.send".localized) {
-                            Task {
-                                await viewModel.sendMessage()
-                                showingMessageSheet = false
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(viewModel.messageText.isEmpty ? Color.blue.opacity(0.5) : Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .disabled(viewModel.messageText.isEmpty)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
-                }
-                .padding(.bottom, 20)
-            }
-            .presentationDetents([.height(480)]) // Slightly reduced height since we removed product info
-            .task {
-                // No need to load seller info anymore
-            }
-        }
-        .sheet(isPresented: $showingReportSheet) {
-            ReportView(postId: post.id)
-        }
-        .sheet(item: $viewModel.conversation) { conversation in
-            ConversationDetailView(conversation: conversation, post: post)
-        }
-        .onAppear {
-            // No need to load seller info anymore
-        }
-        .environmentObject(categoryViewModel)
     }
 }
 

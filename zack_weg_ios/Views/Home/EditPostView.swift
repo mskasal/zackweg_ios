@@ -48,7 +48,7 @@ struct StatusCardView: View {
 
 struct EditPostView: View {
     let postId: String
-    @Binding var shouldRefresh: Bool
+    @Binding var updatedPost: Post?
     
     @StateObject private var viewModel = EditPostViewModel()
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
@@ -563,12 +563,12 @@ struct EditPostView: View {
                 let success = viewModel.addImage(imageData)
                 if !success {
                     // If image validation fails, stop and show error
-                    error = viewModel.error
+                    error = error
                     return
                 }
             }
             
-            try await viewModel.updatePost(
+            let updatedPost = try await viewModel.updatePost(
                 title: title,
                 description: description,
                 categoryId: selectedCategory,
@@ -576,7 +576,11 @@ struct EditPostView: View {
                 price: offering == .soldAtPrice ? price : "0",
                 status: viewModel.status
             )
-            shouldRefresh = true
+            
+            // Pass the updated post back through binding
+            self.updatedPost = updatedPost
+            
+            // Simply show success and dismiss
             showSuccess = true
         } catch {
             self.error = error.localizedDescription

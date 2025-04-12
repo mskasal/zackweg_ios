@@ -168,7 +168,7 @@ class EditPostViewModel: ObservableObject {
         offering: String,
         price: String?,
         status: String
-    ) async throws {
+    ) async throws -> Post {
         guard let post = post else {
             throw NSError(domain: "EditPostViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "No post loaded for editing"])
         }
@@ -238,12 +238,15 @@ class EditPostViewModel: ObservableObject {
             print("✅ Successfully updated post with ID: \(post.id)")
             
             // Refresh the post data to get the updated version
-            self.post = try await apiService.getPostById(post.id)
-            self.status = self.post?.status ?? "ACTIVE"
+            let updatedPost = try await apiService.getPostById(post.id)
+            self.post = updatedPost
+            self.status = updatedPost.status
             isSaving = false
             
             // Clean up temporary data
             newImages = []
+            
+            return updatedPost
             
         } catch {
             self.error = error.localizedDescription

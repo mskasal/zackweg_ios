@@ -141,7 +141,7 @@ struct UserPostsView: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.posts) { post in
-                    NavigationLink(destination: PostDetailView(postId: post.id, fromUserPostsView: true)) {
+                    NavigationLink(destination: PostDetailView(post: post, fromUserPostsView: true)) {
                         PostRowView(post: post)
                     }
                     .buttonStyle(PlainButtonStyle())

@@ -175,7 +175,7 @@ struct ConversationHeaderView: View {
                     if isPostAvailable {
                         // Post image section
                         if let post = postDetails, !post.imageUrls.isEmpty, let imageUrl = post.imageUrls.first, let url = URL(string: imageUrl) {
-                            NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
+                            NavigationLink(destination: PostDetailView(post: post, fromUserPostsView: false)) {
                                 AsyncImage(url: url) { image in
                                     image
                                         .resizable()
@@ -199,9 +199,9 @@ struct ConversationHeaderView: View {
                         }
                         
                         // Post info section
-                        NavigationLink(destination: PostDetailView(postId: conversation.postId, fromUserPostsView: false)) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                if let post = postDetails {
+                        if let post = postDetails {
+                            NavigationLink(destination: PostDetailView(post: post, fromUserPostsView: false)) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(post.title)
                                         .font(.subheadline)
                                         .fontWeight(.medium)
@@ -212,6 +212,14 @@ struct ConversationHeaderView: View {
                                         .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
+                            }
+                        } else {
+                            // Placeholder when post details not loaded yet
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("common.loading".localized)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
                             }
                         }
                         

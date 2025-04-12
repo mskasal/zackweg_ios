@@ -679,11 +679,23 @@ struct CreatePostView: View {
             .hidden()
         )
         .background(
-            NavigationLink(
-                destination: PostDetailView(postId: viewModel.createdPostId ?? ""),
-                isActive: $navigateToPostDetail,
-                label: { EmptyView() }
-            )
+            Group {
+                if let post = viewModel.createdPost {
+                    // Navigate using the post object when available
+                    NavigationLink(
+                        destination: PostDetailView(post: post, fromUserPostsView: false),
+                        isActive: $navigateToPostDetail,
+                        label: { EmptyView() }
+                    )
+                } else if let postId = viewModel.createdPostId, !postId.isEmpty {
+                    // Fallback to using postId if no post object but ID exists
+                    Text("Navigating by ID - should not see this")
+                        .hidden()
+                } else {
+                    // No post data available
+                    EmptyView()
+                }
+            }
         )
     }
     
