@@ -19,6 +19,18 @@
 "common.giving_away" = "Giving Away";
 "common.country_germany" = "Germany";
 
+// MARK: - Home
+"home.title" = "Home";
+"home.discover_items" = "Discover Items";
+"home.find_nearby" = "Find what you need nearby";
+"home.my_posts" = "My Posts";
+"home.near_you" = "Near You";
+"home.see_all" = "See All";
+"home.no_posts" = "You haven't created any posts yet";
+"home.no_nearby" = "No items found nearby";
+"posts.free" = "Free";
+"tab.home" = "Home";
+
 // MARK: - Authentication
 "auth.sign_in" = "Sign In";
 "auth.sign_up" = "Sign Up";

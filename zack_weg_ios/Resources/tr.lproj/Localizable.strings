@@ -296,4 +296,17 @@
 "report.reason" = "NEDEN";
 "report.additional_details" = "EK DETAYLAR";
 "report.more_info_placeholder" = "Daha fazla bilgi ver (isteğe bağlı)";
-"report.submit" = "Bildirimi Gönder"; 
+"report.submit" = "Bildirimi Gönder";
+
+// Add Home section with Turkish translations
+// MARK: - Home
+"home.title" = "Ana Sayfa";
+"home.discover_items" = "Ürünleri Keşfet";
+"home.find_nearby" = "İhtiyacın olanı yakınında bul";
+"home.my_posts" = "İlanlarım";
+"home.near_you" = "Yakınındakiler";
+"home.see_all" = "Tümünü Gör";
+"home.no_posts" = "Henüz ilan oluşturmadınız";
+"home.no_nearby" = "Yakında ürün bulunamadı";
+"posts.free" = "Ücretsiz";
+"tab.home" = "Ana Sayfa"; 

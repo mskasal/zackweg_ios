@@ -26,7 +26,7 @@ struct ContentView: View {
                                 HomeView()
                             }
                             .tabItem {
-                                Label("Home".localized, systemImage: "house.fill")
+                                Label("tab.home".localized, systemImage: "house.fill")
                             }
                             .tag(0)
                             NavigationStack {

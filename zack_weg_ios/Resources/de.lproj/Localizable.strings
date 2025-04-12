@@ -296,4 +296,17 @@
 "report.reason" = "GRUND";
 "report.additional_details" = "ZUSÄTZLICHE DETAILS";
 "report.more_info_placeholder" = "Weitere Informationen angeben (optional)";
-"report.submit" = "Meldung senden"; 
+"report.submit" = "Meldung senden";
+
+// Add Home section with German translations
+// MARK: - Home
+"home.title" = "Startseite";
+"home.discover_items" = "Artikel entdecken";
+"home.find_nearby" = "Finde was du brauchst in deiner Nähe";
+"home.my_posts" = "Meine Anzeigen";
+"home.near_you" = "In deiner Nähe";
+"home.see_all" = "Alle anzeigen";
+"home.no_posts" = "Du hast noch keine Anzeigen erstellt";
+"home.no_nearby" = "Keine Artikel in der Nähe gefunden";
+"posts.free" = "Kostenlos";
+"tab.home" = "Startseite"; 
