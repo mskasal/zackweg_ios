@@ -23,20 +23,27 @@ struct ContentView: View {
                     if authViewModel.isAuthenticated {
                         TabView(selection: $authViewModel.selectedTab) {
                             NavigationStack {
+                                HomeView()
+                            }
+                            .tabItem {
+                                Label("Home".localized, systemImage: "house.fill")
+                            }
+                            .tag(0)
+                            NavigationStack {
                                 ExploreView()
                             }
                             .tabItem {
-                                Label("explore.title".localized, systemImage: "safari.fill")
+                                Label("explore.title".localized, systemImage: "magnifyingglass")
                             }
-                            .tag(0)
+                            .tag(1)
                             
                             NavigationStack {
-                                HomeView(authViewModel: authViewModel)
+                                CreatePostView()
                             }
                             .tabItem {
                                 Label("posts.create".localized, systemImage: "plus.circle.fill")
                             }
-                            .tag(1)
+                            .tag(2)
                             
                             NavigationStack {
                                 MessagesView()
@@ -45,7 +52,7 @@ struct ContentView: View {
                                 Label("messages.title".localized, systemImage: "message.fill")
                             }
                             .badge(unreadMessagesViewModel.unreadCount)
-                            .tag(2)
+                            .tag(3)
                             
                             NavigationStack {
                                 SettingsView()
@@ -53,7 +60,7 @@ struct ContentView: View {
                             .tabItem {
                                 Label("settings.title".localized, systemImage: "person.fill")
                             }
-                            .tag(3)
+                            .tag(4)
                             .environmentObject(authViewModel)
                         }
                         .environmentObject(unreadMessagesViewModel)
