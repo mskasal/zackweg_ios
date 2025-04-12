@@ -214,8 +214,15 @@ struct FilterView: View {
                     }
                     
                     Button(action: {
+                        // Create new empty filters
                         tempFilters = SearchFilters()
                         selectedParentCategoryId = nil
+                        
+                        // Apply the cleared filters to the viewModel and search
+                        viewModel.searchFilters = tempFilters
+                        Task {
+                            await viewModel.searchPosts()
+                        }
                         dismiss()
                     }) {
                         Text("explore.clear_filters".localized)
