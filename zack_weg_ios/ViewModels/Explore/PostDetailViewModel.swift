@@ -123,9 +123,27 @@ class PostDetailViewModel: ObservableObject {
     }
     
     func timeAgo(from date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        return formatter.localizedString(for: date, relativeTo: Date())
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.minute, .hour, .day, .weekOfYear], from: date, to: now)
+        
+        if let week = components.weekOfYear, week > 0 {
+            return week == 1 ? "time.week_ago".localized : String(format: "time.weeks_ago".localized, week)
+        }
+        
+        if let day = components.day, day > 0 {
+            return day == 1 ? "time.yesterday".localized : String(format: "time.days_ago".localized, day)
+        }
+        
+        if let hour = components.hour, hour > 0 {
+            return hour == 1 ? "time.hour_ago".localized : String(format: "time.hours_ago".localized, hour)
+        }
+        
+        if let minute = components.minute, minute > 0 {
+            return minute == 1 ? "time.minute_ago".localized : String(format: "time.minutes_ago".localized, minute)
+        }
+        
+        return "time.just_now".localized
     }
     
     func getInitials(for name: String) -> String {
