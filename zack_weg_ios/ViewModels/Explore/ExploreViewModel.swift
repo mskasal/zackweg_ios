@@ -45,9 +45,10 @@ class ExploreViewModel: ObservableObject {
             searchFilters.categoryIds.append(categoryId)
         }
         
-        Task {
-            await searchPosts(resetOffset: true)
-        }
+        // We no longer trigger searchPosts automatically here
+        // Task {
+        //     await searchPosts(resetOffset: true)
+        // }
     }
     
     func reportPost(_ postId: String, reason: String) async throws {
@@ -91,7 +92,7 @@ class ExploreViewModel: ObservableObject {
                 radius_km: searchFilters.radiusKm,
                 limit: pageSize,
                 offset: currentOffset,
-                category_ids: searchFilters.categoryIds.isEmpty ? nil : searchFilters.categoryIds.joined(separator: ",")
+                category_ids: searchFilters.categoryIds.isEmpty ? nil : searchFilters.categoryIds
             )
             
             // Update hasMoreResults based on the number of results returned

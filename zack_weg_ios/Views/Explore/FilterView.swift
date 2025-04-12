@@ -9,11 +9,25 @@ struct FilterView: View {
     @State private var selectedCountry: Country? = Country.germany
     @FocusState private var isSearchFocused: Bool
     
+    // Local copy of filters that we'll apply only when user taps "Apply"
+    @State private var tempFilters: SearchFilters = SearchFilters()
+    
     // Props to focus on search when opening
     var focusOnSearch: Bool = false
     
     // Add these offering constants
     private let allOfferings = ["GIVING_AWAY", "SOLD_AT_PRICE"]
+    
+    // Local method to select/deselect a category
+    private func selectCategory(_ categoryId: String) {
+        // If the category is already selected, remove it
+        if tempFilters.categoryIds.contains(categoryId) {
+            tempFilters.categoryIds.removeAll { $0 == categoryId }
+        } else {
+            // Otherwise add it
+            tempFilters.categoryIds.append(categoryId)
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -23,7 +37,7 @@ struct FilterView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.gray)
-                        TextField("explore.search_placeholder".localized, text: $viewModel.searchFilters.keyword)
+                        TextField("explore.search_placeholder".localized, text: $tempFilters.keyword)
                             .textFieldStyle(PlainTextFieldStyle())
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
@@ -31,6 +45,8 @@ struct FilterView: View {
                             .accessibilityLabel("exploreFilterSearchField")
                             .submitLabel(.search)
                             .onSubmit {
+                                // Apply filters then dismiss
+                                viewModel.searchFilters = tempFilters
                                 Task {
                                     await viewModel.searchPosts()
                                     dismiss()
@@ -52,7 +68,7 @@ struct FilterView: View {
                             .padding(.horizontal)
                         
                         VStack(spacing: 12) {
-                            TextField("explore.postal_code".localized, text: $viewModel.searchFilters.postalCode)
+                            TextField("explore.postal_code".localized, text: $tempFilters.postalCode)
                                 .keyboardType(.numberPad)
                                 .padding()
                                 .background(Color(UIColor.secondarySystemBackground))
@@ -63,17 +79,17 @@ struct FilterView: View {
                                 label: "explore.country".localized
                             )
                             .onChange(of: selectedCountry) { newCountry in
-                                viewModel.searchFilters.countryCode = newCountry?.code ?? "DEU"
+                                tempFilters.countryCode = newCountry?.code ?? "DEU"
                             }
                             
                             VStack(spacing: 8) {
                                 HStack {
                                     Text("explore.filter_radius".localized)
                                     Spacer()
-                                    Text(String(format: "explore.filter_distance_km".localized, Int(viewModel.searchFilters.radiusKm)))
+                                    Text(String(format: "explore.filter_distance_km".localized, Int(tempFilters.radiusKm)))
                                 }
                                 
-                                Slider(value: $viewModel.searchFilters.radiusKm, in: 1...100, step: 1)
+                                Slider(value: $tempFilters.radiusKm, in: 1...100, step: 1)
                             }
                             .padding(.horizontal, 4)
                         }
@@ -91,7 +107,7 @@ struct FilterView: View {
                             Spacer()
                             Button("common.clear".localized) {
                                 selectedParentCategoryId = nil
-                                viewModel.searchFilters.categoryIds = []
+                                tempFilters.categoryIds = []
                             }
                             .font(.subheadline)
                             .foregroundColor(.blue)
@@ -129,20 +145,28 @@ struct FilterView: View {
                                         isSelected: selectedParentCategoryId == nil
                                     ) {
                                         selectedParentCategoryId = nil
-                                        viewModel.searchFilters.categoryIds = []
+                                        tempFilters.categoryIds = []
                                     }
                                     
                                     // Top level categories
                                     ForEach(categoryViewModel.topLevelCategories) { category in
-                                        CategoryButton(
+                                        ParentCategoryButton(
                                             category: category,
-                                            isSelected: selectedParentCategoryId == category.id
+                                            isSelected: selectedParentCategoryId == category.id || tempFilters.categoryIds.contains(category.id),
+                                            hasChildren: categoryViewModel.hasChildren(for: category.id)
                                         ) {
-                                            selectedParentCategoryId = category.id
-                                            
-                                            // If category has no children, set it directly as the filter
-                                            if !categoryViewModel.hasChildren(for: category.id) {
-                                                viewModel.selectCategory(category.id)
+                                            // If category has children, just highlight it to show subcategories
+                                            if categoryViewModel.hasChildren(for: category.id) {
+                                                if selectedParentCategoryId == category.id {
+                                                    // If already selected, toggle it off
+                                                    selectedParentCategoryId = nil
+                                                } else {
+                                                    // Otherwise select it to show subcategories
+                                                    selectedParentCategoryId = category.id
+                                                }
+                                            } else {
+                                                // If category has no children, toggle its selection in the filter
+                                                selectCategory(category.id)
                                             }
                                         }
                                     }
@@ -165,36 +189,20 @@ struct FilterView: View {
                                 
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 12) {
-                                        // "All in [Parent]" option
-                                        Button(action: {
-                                            viewModel.selectCategory(parentCategory.id)
-                                        }) {
-                                            Text(String(format: "explore.filter_all_in".localized, parentCategory.title))
-                                                .padding(.horizontal, 16)
-                                                .padding(.vertical, 8)
-                                                .background(
-                                                    viewModel.searchFilters.categoryIds.contains(parentCategory.id) ? 
-                                                        Color.blue : 
-                                                        Color(UIColor.secondarySystemBackground)
-                                                )
-                                                .foregroundColor(viewModel.searchFilters.categoryIds.contains(parentCategory.id) ? .white : .primary)
-                                                .cornerRadius(20)
-                                        }
-                                        
                                         // Subcategories
                                         ForEach(subcategories) { subcategory in
                                             Button(action: {
-                                                viewModel.selectCategory(subcategory.id)
+                                                selectCategory(subcategory.id)
                                             }) {
                                                 Text(subcategory.title)
                                                     .padding(.horizontal, 16)
                                                     .padding(.vertical, 8)
                                                     .background(
-                                                        viewModel.searchFilters.categoryIds.contains(subcategory.id) ? 
+                                                        tempFilters.categoryIds.contains(subcategory.id) ? 
                                                             Color.blue : 
                                                             Color(UIColor.secondarySystemBackground)
                                                     )
-                                                    .foregroundColor(viewModel.searchFilters.categoryIds.contains(subcategory.id) ? .white : .primary)
+                                                    .foregroundColor(tempFilters.categoryIds.contains(subcategory.id) ? .white : .primary)
                                                     .cornerRadius(20)
                                             }
                                         }
@@ -206,11 +214,8 @@ struct FilterView: View {
                     }
                     
                     Button(action: {
-                        viewModel.searchFilters = SearchFilters()
+                        tempFilters = SearchFilters()
                         selectedParentCategoryId = nil
-                        Task {
-                            await viewModel.searchPosts()
-                        }
                         dismiss()
                     }) {
                         Text("explore.clear_filters".localized)
@@ -228,6 +233,9 @@ struct FilterView: View {
             .navigationTitle("explore.filters".localized)
             .navigationBarTitleDisplayMode(.inline)
             .task {
+                // Copy the existing filters when opening the view
+                tempFilters = viewModel.searchFilters
+                
                 // Focus on search if specified - using task is more reliable than onAppear
                 if focusOnSearch {
                     // Short delay to ensure view is ready
@@ -244,6 +252,8 @@ struct FilterView: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("common.apply".localized) {
+                        // Apply the temporary filters to the viewModel
+                        viewModel.searchFilters = tempFilters
                         Task {
                             await viewModel.searchPosts()
                         }
@@ -264,6 +274,31 @@ struct FilterView: View {
             return "explore.filter_selling".localized
         default:
             return offering.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+}
+
+// Add this after the existing CategoryButton struct
+struct ParentCategoryButton: View {
+    var category: Category
+    let isSelected: Bool
+    let hasChildren: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                Text(category.title)
+                if hasChildren {
+                    Image(systemName: isSelected ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.blue : Color(UIColor.systemGray6))
+            .foregroundColor(isSelected ? .white : .primary)
+            .cornerRadius(20)
         }
     }
 } 
