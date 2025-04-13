@@ -22,8 +22,6 @@ struct HomeView: View {
         .refreshable {
             await viewModel.refreshAll()
         }
-        .navigationTitle("home.title".localized)
-        .navigationBarTitleDisplayMode(.large)
         .task {
             await viewModel.refreshAll()
         }
