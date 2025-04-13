@@ -123,6 +123,7 @@ struct EditPostView: View {
                 errorSection
             }
         }
+        .scrollDismissesKeyboard(.immediately)
         .navigationTitle("posts.edit".localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -731,6 +731,7 @@ struct CreatePostView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
         }
+        .scrollDismissesKeyboard(.immediately)
         .navigationTitle("posts.create".localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -820,23 +821,6 @@ struct CreatePostView: View {
         price = ""
         selectedImages = []
         imagePreviews = []
-    }
-    
-    private func moveToNextField() {
-        switch focusedField {
-        case .title:
-            focusedField = .description
-        case .description:
-            if offering == .soldAtPrice {
-                focusedField = .price
-            } else {
-                focusedField = nil
-            }
-        case .price:
-            focusedField = nil
-        case nil:
-            break
-        }
     }
 }
 
