@@ -92,9 +92,7 @@ struct HomeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(viewModel.myPosts) { post in
-                            NavigationLink(destination: PostDetailView(post: post, fromUserPostsView: true)) {
-                                PostCardCompact(post: post)
-                            }
+                            PostCardCompact(post: post)
                         }
                     }
                     .padding(.vertical, 4)
@@ -135,9 +133,7 @@ struct HomeView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(viewModel.nearbyPosts) { post in
-                            NavigationLink(destination: PostDetailView(post: post)) {
-                                PostCardCompact(post: post)
-                            }
+                            PostCardCompact(post: post)
                         }
                     }
                     .padding(.vertical, 4)
@@ -151,50 +147,70 @@ struct HomeView: View {
 // Compact post card for horizontal scrolling
 struct PostCardCompact: View {
     let post: Post
+    @State private var isActive = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Image with fixed dimensions
-            ZStack {
-                if !post.imageUrls.isEmpty {
-                    OptimizedAsyncImageView(
-                        imageUrl: post.imageUrls[0],
-                        height: 120
-                    )
-                    .frame(width: 160, height: 120)
-                } else {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.2))
+        ZStack {
+            // Content
+            VStack(alignment: .leading, spacing: 8) {
+                // Image with fixed dimensions
+                ZStack {
+                    if !post.imageUrls.isEmpty {
+                        OptimizedAsyncImageView(
+                            imageUrl: post.imageUrls[0],
+                            height: 120
+                        )
                         .frame(width: 160, height: 120)
-                        .overlay {
-                            Image(systemName: "photo")
-                                .foregroundColor(.gray)
-                        }
+                    } else {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 160, height: 120)
+                            .overlay {
+                                Image(systemName: "photo")
+                                    .foregroundColor(.gray)
+                            }
+                    }
+                }
+                .frame(width: 160, height: 120)
+                .cornerRadius(8)
+                
+                // Title - updated to use primary color instead of blue
+                Text(post.title)
+                    .fontWeight(.medium)
+                    .lineLimit(1)
+                    .foregroundColor(.primary)
+                
+                // Price or Free
+                if post.offering == "GIVING_AWAY" {
+                    Text("posts.free".localized)
+                        .foregroundColor(.green)
+                        .font(.subheadline)
+                } else if let price = post.price {
+                    Text("€\(String(format: "%.2f", price))")
+                        .foregroundColor(.blue)
+                        .font(.subheadline)
                 }
             }
-            .frame(width: 160, height: 120)
-            .cornerRadius(8)
+            .frame(width: 160)
+            .padding(10)
+            .background(Color.gray.opacity(0.1))
+            .cornerRadius(12)
             
-            // Title
-            Text(post.title)
-                .fontWeight(.medium)
-                .lineLimit(1)
-            
-            // Price or Free
-            if post.offering == "GIVING_AWAY" {
-                Text("posts.free".localized)
-                    .foregroundColor(.green)
-                    .font(.subheadline)
-            } else if let price = post.price {
-                Text("€\(String(format: "%.2f", price))")
-                    .foregroundColor(.blue)
-                    .font(.subheadline)
+            // Transparent overlay that handles navigation
+            NavigationLink(
+                destination: PostDetailView(post: post),
+                isActive: $isActive
+            ) {
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+                    .frame(width: 160, height: 180)
             }
+            .buttonStyle(PlainButtonStyle())
         }
-        .frame(width: 160)
-        .padding(10)
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(12)
+        .onTapGesture {
+            isActive = true
+        }
     }
 }
 
