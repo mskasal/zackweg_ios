@@ -2,6 +2,11 @@ import PhotosUI
 import SwiftUI
 import UIKit
 
+// Define Field enum at top level
+enum FormField {
+    case title, description, price
+}
+
 struct ImagePreviewView: View {
     let imageData: Data
     let index: Int
@@ -95,26 +100,30 @@ struct OfferingTypeCardView: View {
 
 struct PriceInputView: View {
     @Binding var price: String
+    @Binding var isFocused: Bool
+    @FocusState.Binding var focusState: Bool
     
     var body: some View {
-        HStack {
-            Image(systemName: "eurosign.circle")
-                .foregroundColor(.blue)
-            TextField("posts.price_placeholder".localized, text: $price)
-                .keyboardType(.decimalPad)
-                .padding(.vertical, 10)
-                .onChange(of: price) { newValue in
-                    // Ensure only valid decimal characters are entered
-                    let filtered = newValue.filter { "0123456789.,".contains($0) }
-                    if filtered != newValue {
-                        price = filtered
-                    }
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            Text("posts.price".localized)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            HStack {
+                Image(systemName: "eurosign")
+                    .foregroundColor(.secondary)
+                    .font(.headline)
+                
+                TextField("0.00", text: $price)
+                    .focused($focusState)
+                    .keyboardType(.decimalPad)
+                    .submitLabel(.done)
+            }
+            .padding()
+            .background(Color(.systemGray6).opacity(0.5))
+            .cornerRadius(8)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6).opacity(0.5))
-        .cornerRadius(8)
     }
 }
 
@@ -204,23 +213,35 @@ struct CategorySelectionView: View {
 
 struct TitleInputView: View {
     @Binding var title: String
+    @Binding var isFocused: Bool
+    @FocusState.Binding var focusState: Bool
+    var nextFieldAction: (() -> Void)?
     
     var body: some View {
         TextField("posts.title_field".localized, text: $title)
+            .focused($focusState)
             .padding(.vertical, 10)
             .padding(.horizontal, 12)
             .background(Color(.systemGray6).opacity(0.5))
             .cornerRadius(8)
             .padding(.vertical, 6)
+            .submitLabel(.next)
+            .onSubmit {
+                nextFieldAction?()
+            }
     }
 }
 
 struct DescriptionInputView: View {
     @Binding var description: String
+    @Binding var isFocused: Bool
+    @FocusState.Binding var focusState: Bool
+    var nextFieldAction: (() -> Void)?
     
     var body: some View {
         ZStack(alignment: .topLeading) {
             TextEditor(text: $description)
+                .focused($focusState)
                 .frame(minHeight: 120)
                 .padding(8)
                 .background(Color(.systemGray6).opacity(0.5))
@@ -280,13 +301,54 @@ struct PostDetailsSection: View {
     @Binding var price: String
     let categories: [Category]
     @Environment(\.colorScheme) private var colorScheme
+    @FocusState.Binding var focusedField: FormField?
+    
+    // Create FocusState for each field
+    @FocusState private var titleFocus: Bool
+    @FocusState private var descriptionFocus: Bool
+    @FocusState private var priceFocus: Bool
     
     var body: some View {
         Section {
             VStack(spacing: 16) {
-                TitleInputView(title: $title)
+                // Use TitleInputView with direct FocusState
+                TextField("posts.title_field".localized, text: $title)
+                    .focused($titleFocus)
+                    .focused($focusedField, equals: .title)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 12)
+                    .background(Color(.systemGray6).opacity(0.5))
+                    .cornerRadius(8)
+                    .padding(.vertical, 6)
+                    .submitLabel(.next)
+                    .onSubmit {
+                        focusedField = .description
+                    }
                 
-                DescriptionInputView(description: $description)
+                // Use direct TextEditor for description
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $description)
+                        .focused($descriptionFocus)
+                        .focused($focusedField, equals: .description)
+                        .frame(minHeight: 120)
+                        .padding(8)
+                        .background(Color(.systemGray6).opacity(0.5))
+                        .cornerRadius(8)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                    
+                    if description.isEmpty {
+                        Text("posts.description".localized)
+                            .font(.body)
+                            .foregroundColor(.secondary.opacity(0.8))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 12)
+                            .allowsHitTesting(false)
+                    }
+                }
+                .padding(.vertical, 6)
                 
                 Divider()
                     .padding(.vertical, 4)
@@ -315,8 +377,29 @@ struct PostDetailsSection: View {
                 OfferingSelectionView(offering: $offering)
                 
                 if offering == .soldAtPrice {
-                    PriceInputView(price: $price)
-                        .padding(.top, 8)
+                    // Direct price input
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("posts.price".localized)
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                        
+                        HStack {
+                            Image(systemName: "eurosign")
+                                .foregroundColor(.secondary)
+                                .font(.headline)
+                            
+                            TextField("0.00", text: $price)
+                                .focused($priceFocus)
+                                .focused($focusedField, equals: .price)
+                                .keyboardType(.decimalPad)
+                                .submitLabel(.done)
+                        }
+                        .padding()
+                        .background(Color(.systemGray6).opacity(0.5))
+                        .cornerRadius(8)
+                    }
+                    .padding(.top, 8)
                 }
             }
             .padding(.vertical, 10)
@@ -324,7 +407,7 @@ struct PostDetailsSection: View {
             Text("posts.details".localized)
                 .font(.footnote)
                 .fontWeight(.semibold)
-                .padding(.top, 8)
+                .padding(.top, 4)
                 .padding(.bottom, 4)
         } footer: {
             Spacer()
@@ -533,21 +616,27 @@ struct FormHeaderView: View {
             Text("posts.create_new".localized)
                 .font(.title2)
                 .fontWeight(.bold)
+                .padding(.bottom, 4)
+                .foregroundColor(.primary)
                 
             Text("posts.share_with_community".localized)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.vertical, 16)
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 16, leading: 20, bottom: 16, trailing: 20))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8)
+        .padding(.bottom, 0)
+        .listRowInsets(EdgeInsets())
+        .background(Color.clear)
     }
 }
 
 struct CreatePostView: View {
-    @StateObject private var viewModel: CreatePostViewModel
+    @StateObject private var viewModel = CreatePostViewModel()
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageManager: LanguageManager
     
     // Form state properties
     @State private var title = ""
@@ -562,10 +651,7 @@ struct CreatePostView: View {
     @State private var isFormValid = false
     @State private var selectedParentCategoryId: String? = nil
     @State private var navigateToPostDetail = false
-
-    init() {
-        _viewModel = StateObject(wrappedValue: CreatePostViewModel())
-    }
+    @FocusState private var focusedField: FormField?
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
@@ -583,6 +669,8 @@ struct CreatePostView: View {
     var body: some View {
         Form {
             FormHeaderView()
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
             
             PostDetailsSection(
                 title: $title,
@@ -591,7 +679,8 @@ struct CreatePostView: View {
                 selectedParentCategoryId: $selectedParentCategoryId,
                 offering: $offering,
                 price: $price,
-                categories: categoryViewModel.topLevelCategories
+                categories: categoryViewModel.topLevelCategories,
+                focusedField: $focusedField
             )
             
             ImagesSection(
@@ -644,6 +733,23 @@ struct CreatePostView: View {
         }
         .navigationTitle("posts.create".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Button(action: {
+                    focusedField = nil
+                }) {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    focusedField = nil
+                }) {
+                    Text("common.done".localized)
+                }
+            }
+        }
         .onChange(of: selectedImages) { items in
             Task {
                 imagePreviews = []
@@ -697,6 +803,8 @@ struct CreatePostView: View {
                 }
             }
         )
+        .id(languageManager.currentLanguage.rawValue)
+        .onChange(of: title) { _ in validateForm() }
     }
     
     private func validateForm() {
@@ -712,6 +820,23 @@ struct CreatePostView: View {
         price = ""
         selectedImages = []
         imagePreviews = []
+    }
+    
+    private func moveToNextField() {
+        switch focusedField {
+        case .title:
+            focusedField = .description
+        case .description:
+            if offering == .soldAtPrice {
+                focusedField = .price
+            } else {
+                focusedField = nil
+            }
+        case .price:
+            focusedField = nil
+        case nil:
+            break
+        }
     }
 }
 
@@ -737,6 +862,10 @@ extension View {
 }
 
 #Preview {
-    CreatePostView()
-        .environmentObject(CategoryViewModel.shared)
+    NavigationStack {
+        CreatePostView()
+            .environmentObject(LanguageManager.shared)
+            .environmentObject(CategoryViewModel.shared)
+    }
 }
+

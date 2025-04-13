@@ -67,6 +67,7 @@ struct EditPostView: View {
     @State private var isFormValid = false
     @State private var selectedParentCategoryId: String? = nil
     @State private var isProcessingImages = false
+    @FocusState private var focusedField: FormField?
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
@@ -104,7 +105,8 @@ struct EditPostView: View {
                     selectedParentCategoryId: $selectedParentCategoryId,
                     offering: $offering,
                     price: $price,
-                    categories: categoryViewModel.topLevelCategories
+                    categories: categoryViewModel.topLevelCategories,
+                    focusedField: $focusedField
                 )
                 
                 // Status selection section - highlighted for visibility
@@ -123,6 +125,23 @@ struct EditPostView: View {
         }
         .navigationTitle("posts.edit".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Button(action: {
+                    focusedField = nil
+                }) {
+                    Image(systemName: "keyboard.chevron.compact.down")
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    moveToNextField()
+                }) {
+                    Text("Next")
+                }
+            }
+        }
         .onChange(of: selectedImages) { items in
             handleImageSelection(items)
         }
@@ -775,12 +794,36 @@ struct EditPostView: View {
     // MARK: - Helper Functions
 
     private func validateForm() {
-        // Only check if required fields are filled, no longer checking for changes
-        isFormValid = hasTitleAndDescription && 
-                      hasCategorySelected && 
-                      hasPriceIfNeeded && 
-                      hasImages &&
-                      !viewModel.status.isEmpty
+        // Break down the complex expression into multiple lines with simpler expressions
+        let hasRequiredTitle = hasTitleAndDescription
+        let hasRequiredCategory = hasCategorySelected
+        let hasCorrectPricing = hasPriceIfNeeded
+        let hasRequiredImages = hasImages
+        let hasValidStatus = !viewModel.status.isEmpty
+        
+        // Combine the validation results
+        isFormValid = hasRequiredTitle && 
+                      hasRequiredCategory && 
+                      hasCorrectPricing && 
+                      hasRequiredImages &&
+                      hasValidStatus
+    }
+
+    private func moveToNextField() {
+        switch focusedField {
+        case .title:
+            focusedField = .description
+        case .description:
+            if offering == .soldAtPrice {
+                focusedField = .price
+            } else {
+                focusedField = nil
+            }
+        case .price:
+            focusedField = nil
+        case nil:
+            break
+        }
     }
 }
 
