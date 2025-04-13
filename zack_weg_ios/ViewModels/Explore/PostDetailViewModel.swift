@@ -11,6 +11,7 @@ class PostDetailViewModel: ObservableObject {
     @Published var conversation: Conversation?
     @Published var isDeleting = false
     @Published var postDeleted = false
+    @Published var showingImagePreview = false
     
     init(post: Post) {
         self.post = post

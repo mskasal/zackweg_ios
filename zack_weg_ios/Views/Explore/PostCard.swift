@@ -6,7 +6,7 @@ struct PostCard: View {
     let post: Post
     @StateObject private var viewModel: PostCardViewModel
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
-    var userLocation: Location? = nil // Optional user location
+    var userLocation: Location? = nil // Optional user location, will be removed in future
     @State private var showingImagePreview = false
     @State private var loadedImages = false
     @Environment(\.colorScheme) private var colorScheme
@@ -156,17 +156,10 @@ struct PostCard: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                             
-                            // Show postal code with distance if user location is available
-                            if let userLocation = userLocation {
-                                let distance = calculateDistance(from: userLocation, to: post.location)
-                                Text("\(post.location.postalCode) • \(formatDistance(distance))")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text(post.location.postalCode)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
+                            // Only show postal code
+                            Text(post.location.postalCode)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                         
                         // Time ago with icon
@@ -187,48 +180,9 @@ struct PostCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .shadow(color: colorScheme == .dark ? Color.white.opacity(0.05) : Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
         .fullScreenCover(isPresented: $showingImagePreview) {
-            PostCardImagePreviewView(imageUrls: post.imageUrls)
+            PostImagePreviewView(imageUrls: post.imageUrls)
         }
         .environmentObject(categoryViewModel)
-    }
-    
-    // Calculate distance between two locations
-    private func calculateDistance(from location1: Location, to location2: Location) -> Double {
-        let lat1 = location1.latitude
-        let lon1 = location1.longitude
-        let lat2 = location2.latitude
-        let lon2 = location2.longitude
-        
-        // Haversine formula for calculating distance between two coordinates
-        let theta = lon1 - lon2
-        var dist = sin(deg2rad(lat1)) * sin(deg2rad(lat2)) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * cos(deg2rad(theta))
-        dist = acos(dist)
-        dist = rad2deg(dist)
-        dist = dist * 60 * 1.1515 // Distance in miles
-        
-        // Convert to kilometers
-        return dist * 1.609344
-    }
-    
-    // Convert degrees to radians
-    private func deg2rad(_ deg: Double) -> Double {
-        return deg * .pi / 180.0
-    }
-    
-    // Convert radians to degrees
-    private func rad2deg(_ rad: Double) -> Double {
-        return rad * 180.0 / .pi
-    }
-    
-    // Format distance to be user-friendly
-    private func formatDistance(_ distance: Double) -> String {
-        if distance < 1 {
-            return "\(Int(distance * 1000))m"
-        } else if distance < 10 {
-            return String(format: "%.1fkm", distance)
-        } else {
-            return "\(Int(distance))km"
-        }
     }
     
     // Human-readable time ago display
@@ -251,47 +205,4 @@ struct PostCard: View {
     }
 }
 
-struct PostCardImagePreviewView: View {
-    let imageUrls: [String]
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationStack {
-            TabView {
-                ForEach(imageUrls, id: \.self) { imageUrl in
-                    AsyncImage(url: URL(string: imageUrl), 
-                               transaction: Transaction(animation: .easeInOut)) { phase in
-                        switch phase {
-                        case .empty:
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .scaleEffect(1.5)
-                        case .success(let image):
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .transition(.opacity)
-                        case .failure:
-                            Image(systemName: "exclamationmark.triangle")
-                                .font(.largeTitle)
-                                .foregroundColor(.red)
-                        @unknown default:
-                            EmptyView()
-                        }
-                    }
-                }
-            }
-            #if os(iOS)
-            .tabViewStyle(PageTabViewStyle())
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("common.done".localized) {
-                        dismiss()
-                    }
-                }
-            }
-            #endif
-        }
-    }
-} 
+// No need for PostCardImagePreviewView as it's been moved to common components 

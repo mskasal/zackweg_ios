@@ -10,6 +10,8 @@ struct PostDetailView: View {
     @State private var showingMessageSheet = false
     @State private var showingReportSheet = false
     @State private var showingDeleteConfirmation = false
+    @State private var showingAlert = false
+    @State private var alert: Alert?
     @State private var currentPost: Post?
     @Environment(\.dismiss) private var dismiss
     
@@ -147,6 +149,37 @@ struct PostDetailView: View {
             // No need to load seller info anymore
         }
         .environmentObject(categoryViewModel)
+        .refreshable {
+            await viewModel.loadPostDetails()
+        }
+        .alert(isPresented: $showingAlert) {
+            alert ?? Alert(title: Text("Error"), message: Text("Unknown error"))
+        }
+        .fullScreenCover(isPresented: $viewModel.showingImagePreview) {
+            if let post = viewModel.loadedPost {
+                PostImagePreviewView(imageUrls: post.imageUrls)
+            }
+        }
+        .disabled(viewModel.isDeleting)
+        .overlay {
+            if viewModel.isDeleting {
+                ZStack {
+                    Color.black.opacity(0.4)
+                    HStack(spacing: 16) {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(.white)
+                        Text("post_detail.deleting".localized)
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+                    .padding(20)
+                    .background(Color.black.opacity(0.8))
+                    .cornerRadius(12)
+                }
+                .ignoresSafeArea()
+            }
+        }
     }
     
     private var loadingView: some View {
@@ -172,7 +205,8 @@ struct PostDetailView: View {
                             ForEach(post.imageUrls, id: \.self) { imageUrl in
                                 OptimizedAsyncImageView(
                                     imageUrl: imageUrl,
-                                    height: 350
+                                    height: 350,
+                                    onTapAction: { viewModel.showingImagePreview = true }
                                 )
                             }
                         }
