@@ -1104,6 +1104,93 @@ class APIService {
             throw APIError.serverError(errorResponse.message)
         }
     }
+    
+    // MARK: - User Blocking
+    
+    func blockUser(userId: String) async throws {
+        let url = URL(string: "\(baseURL)/users/block/\(userId)")!
+        print("🚫 Block User Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Block User Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Block User Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
+            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse.message)
+        }
+        
+        print("✅ Successfully blocked user with ID: \(userId)")
+    }
+    
+    func unblockUser(userId: String) async throws {
+        let url = URL(string: "\(baseURL)/users/block/\(userId)")!
+        print("🔓 Unblock User Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Unblock User Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Unblock User Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
+            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse.message)
+        }
+        
+        print("✅ Successfully unblocked user with ID: \(userId)")
+    }
+    
+    func getBlockedUsers() async throws -> [PublicUser] {
+        let url = URL(string: "\(baseURL)/users/blocked")!
+        print("📋 Get Blocked Users Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get Blocked Users Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get Blocked Users Response Body: \(responseString)")
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
+            throw APIError.serverError(errorResponse.message)
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        print("✅ Successfully retrieved blocked users list")
+        return try decoder.decode([PublicUser].self, from: data)
+    }
 }
 
 // Response Models

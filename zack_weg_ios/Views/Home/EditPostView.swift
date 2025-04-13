@@ -68,6 +68,8 @@ struct EditPostView: View {
     @State private var selectedParentCategoryId: String? = nil
     @State private var isProcessingImages = false
     @FocusState private var focusedField: FormField?
+    @State private var showCamera = false
+    @State private var cameraImage: UIImage?
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
@@ -358,25 +360,57 @@ struct EditPostView: View {
     private var imagePickerButton: some View {
         // Create a fixed property for maxSelectionCount
         let maxCount = remainingImageSlots
+        let isDisabled = maxCount <= 0
         
-        return PhotosPicker(
-            selection: $selectedImages,
-            maxSelectionCount: maxCount,
-            matching: .images
-        ) {
-            HStack {
-                Image(systemName: "photo.on.rectangle.angled")
-                    .font(.headline)
-                Text("posts.select_images".localized)
-                    .font(.headline)
+        return HStack(spacing: 12) {
+            // Photo library picker with explicit button style
+            PhotosPicker(
+                selection: $selectedImages,
+                maxSelectionCount: maxCount,
+                matching: .images
+            ) {
+                HStack {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.headline)
+                    Text("posts.select_images".localized)
+                        .font(.headline)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(isDisabled ? Color.gray.opacity(0.1) : Color.blue.opacity(0.1))
+                .foregroundColor(isDisabled ? Color.gray : Color.blue)
+                .cornerRadius(8)
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(Color.blue.opacity(0.1))
-            .foregroundColor(.blue)
-            .cornerRadius(8)
+            .disabled(isDisabled)
+            .buttonStyle(BorderlessButtonStyle()) // Ensure tap area is limited to button
+            
+            // Camera button with explicit tap area
+            Button {
+                showCamera = true
+            } label: {
+                HStack {
+                    Image(systemName: "camera.fill")
+                        .font(.headline)
+                }
+                .frame(width: 50)
+                .padding(.vertical, 12)
+                .background(isDisabled ? Color.gray.opacity(0.1) : Color.green.opacity(0.1))
+                .foregroundColor(isDisabled ? Color.gray : Color.green)
+                .cornerRadius(8)
+            }
+            .disabled(isDisabled)
+            .buttonStyle(BorderlessButtonStyle()) // Ensure tap area is limited to button
         }
-        .disabled(maxCount <= 0)
+        .sheet(isPresented: $showCamera) {
+            CameraView(image: $cameraImage, isShown: $showCamera)
+                .ignoresSafeArea()
+                .onDisappear {
+                    if let image = cameraImage, let imageData = image.jpegData(compressionQuality: 0.8) {
+                        imagePreviews.append(imageData)
+                        cameraImage = nil
+                    }
+                }
+        }
     }
 
     private var noImagesView: some View {
@@ -842,4 +876,6 @@ struct EditPostFormHeaderView: View {
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
     }
-} 
+}
+
+// The CameraView has been moved to a shared component file 

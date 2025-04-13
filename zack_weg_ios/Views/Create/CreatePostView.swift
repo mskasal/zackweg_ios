@@ -420,24 +420,18 @@ struct PostDetailsSection: View {
 struct ImagesSection: View {
     @Binding var selectedImages: [PhotosPickerItem]
     @Binding var imagePreviews: [Data]
+    @State private var showCamera = false
+    @State private var cameraImage: UIImage?
     
     var body: some View {
         Section {
             VStack(alignment: .leading, spacing: 16) {
-                PhotosPicker(
-                    selection: $selectedImages, maxSelectionCount: 5, matching: .images
-                ) {
-                    HStack {
-                        Image(systemName: "photo.on.rectangle.angled")
-                            .font(.headline)
-                        Text("posts.select_images".localized)
-                            .font(.headline)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundColor(.blue)
-                    .cornerRadius(10)
+                HStack(spacing: 12) {
+                    // Photo library picker - wrap in explicit Button for clearer tap target
+                    PhotoPickerButton(selectedImages: $selectedImages)
+                    
+                    // Camera button - explicit button with clear tap area
+                    CameraButton(showCamera: $showCamera)
                 }
                 
                 if imagePreviews.isEmpty {
@@ -470,6 +464,16 @@ struct ImagesSection: View {
                 }
             }
             .padding(.vertical, 10)
+            .sheet(isPresented: $showCamera) {
+                CameraView(image: $cameraImage, isShown: $showCamera)
+                    .ignoresSafeArea()
+                    .onDisappear {
+                        if let image = cameraImage, let imageData = image.jpegData(compressionQuality: 0.8) {
+                            imagePreviews.append(imageData)
+                            cameraImage = nil
+                        }
+                    }
+            }
         } header: {
             Text("posts.photos".localized)
                 .font(.footnote)
@@ -487,6 +491,54 @@ struct ImagesSection: View {
             }
         }
         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+    }
+}
+
+// Extract photo picker button to a separate view
+struct PhotoPickerButton: View {
+    @Binding var selectedImages: [PhotosPickerItem]
+    
+    var body: some View {
+        PhotosPicker(
+            selection: $selectedImages, 
+            maxSelectionCount: 5, 
+            matching: .images
+        ) {
+            HStack {
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.headline)
+                Text("posts.select_images".localized)
+                    .font(.headline)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.blue.opacity(0.1))
+            .foregroundColor(.blue)
+            .cornerRadius(10)
+        }
+        .buttonStyle(BorderlessButtonStyle()) // Ensure tap area is limited to button
+    }
+}
+
+// Extract camera button to a separate view
+struct CameraButton: View {
+    @Binding var showCamera: Bool
+    
+    var body: some View {
+        Button {
+            showCamera = true
+        } label: {
+            HStack {
+                Image(systemName: "camera.fill")
+                    .font(.headline)
+            }
+            .frame(width: 50)
+            .padding(.vertical, 14)
+            .background(Color.green.opacity(0.1))
+            .foregroundColor(.green)
+            .cornerRadius(10)
+        }
+        .buttonStyle(BorderlessButtonStyle()) // Ensure tap area is limited to button
     }
 }
 
