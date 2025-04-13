@@ -7,6 +7,136 @@ enum FormField {
     case title, description, price
 }
 
+// Image upload state for tracking individual uploads
+enum ImageUploadState {
+    case notUploaded
+    case uploading(progress: Double)
+    case uploaded(url: String)
+    case failed(error: String)
+}
+
+// Component to display and manage a single image upload
+struct UploadableImageView: View {
+    let imageData: Data
+    let index: Int
+    let onDelete: (Int) -> Void
+    @Binding var uploadState: ImageUploadState
+    var onRetry: (() -> Void)?
+    
+    var body: some View {
+        // Extract the UIImage conversion to reduce expression complexity
+        let uiImage: UIImage? = UIImage(data: imageData)
+        
+        if let uiImage = uiImage {
+            ZStack(alignment: .topTrailing) {
+                // Base image
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 100, height: 100)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                // Overlay based on upload state
+                switch uploadState {
+                case .notUploaded:
+                    Color.black.opacity(0.3)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            ProgressView()
+                                .tint(.white)
+                        )
+                    
+                case .uploading(let progress):
+                    Color.black.opacity(0.3)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            ZStack {
+                                CircularProgressView(progress: progress)
+                                    .frame(width: 30, height: 30)
+                                Text("\(Int(progress * 100))%")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.white)
+                            }
+                        )
+                    
+                case .uploaded:
+                    Color.clear
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                                .background(Color.white.opacity(0.7))
+                                .clipShape(Circle())
+                                .padding(4),
+                            alignment: .bottomTrailing
+                        )
+                    
+                case .failed(let errorMessage):
+                    Color.black.opacity(0.3)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            VStack {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(.red)
+                                    .font(.system(size: 24))
+                                
+                                Text("Retry")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(Color.red)
+                                    .cornerRadius(4)
+                            }
+                        )
+                        .onTapGesture {
+                            if let retry = onRetry {
+                                retry()
+                            }
+                        }
+                }
+                
+                // Delete button always visible at top-right
+                Button(action: { onDelete(index) }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.white)
+                        .background(Color.black.opacity(0.5))
+                        .clipShape(Circle())
+                        .font(.system(size: 18))
+                }
+                .padding(4)
+            }
+            .frame(width: 100, height: 100) // Fixed frame to prevent stretching
+        }
+    }
+}
+
+// Simple circular progress view
+struct CircularProgressView: View {
+    var progress: Double
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(
+                    Color.gray.opacity(0.5),
+                    lineWidth: 4
+                )
+            Circle()
+                .trim(from: 0, to: CGFloat(min(progress, 1.0)))
+                .stroke(
+                    Color.white,
+                    style: StrokeStyle(
+                        lineWidth: 4,
+                        lineCap: .round
+                    )
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.linear, value: progress)
+        }
+    }
+}
+
 struct ImagePreviewView: View {
     let imageData: Data
     let index: Int
@@ -51,6 +181,10 @@ struct CategoryPill: View {
                 .background(isSelected ? Color.blue : Color(.systemGray6))
                 .foregroundColor(isSelected ? .white : .primary)
                 .clipShape(Capsule())
+                .overlay(
+                    Capsule()
+                        .stroke(isSelected ? Color.blue : Color.gray.opacity(0.2), lineWidth: 1)
+                )
         }
     }
 }
@@ -186,10 +320,14 @@ struct CategorySelectionView: View {
                                         .background(
                                             selectedCategory == parentCategory.id ? 
                                                 Color.blue : 
-                                                Color(UIColor.secondarySystemBackground)
+                                                Color(.systemGray6)
                                         )
                                         .foregroundColor(selectedCategory == parentCategory.id ? .white : .primary)
                                         .cornerRadius(20)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(selectedCategory == parentCategory.id ? Color.blue : Color.gray.opacity(0.2), lineWidth: 1)
+                                        )
                                 }
                             }
                             
@@ -224,6 +362,10 @@ struct TitleInputView: View {
             .padding(.horizontal, 12)
             .background(Color(.systemGray6).opacity(0.5))
             .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
             .padding(.vertical, 6)
             .submitLabel(.next)
             .onSubmit {
@@ -319,6 +461,10 @@ struct PostDetailsSection: View {
                     .padding(.horizontal, 12)
                     .background(Color(.systemGray6).opacity(0.5))
                     .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                     .padding(.vertical, 6)
                     .submitLabel(.next)
                     .onSubmit {
@@ -418,8 +564,9 @@ struct PostDetailsSection: View {
 }
 
 struct ImagesSection: View {
+    @EnvironmentObject private var viewModel: CreatePostViewModel
     @Binding var selectedImages: [PhotosPickerItem]
-    @Binding var imagePreviews: [Data]
+    @Binding var imagePreviews: [(id: String, data: Data)]
     @State private var showCamera = false
     @State private var cameraImage: UIImage?
     
@@ -444,17 +591,36 @@ struct ImagesSection: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
-                        
+                    
+                    // Display images with upload status
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 14) {
-                            ForEach(0..<imagePreviews.count, id: \.self) { index in
-                                let imageData = imagePreviews[index]
-                                ImagePreviewView(
-                                    imageData: imageData,
+                            ForEach(imagePreviews, id: \.id) { item in
+                                let index = imagePreviews.firstIndex(where: { $0.id == item.id }) ?? 0
+                                let uploadState = viewModel.imageUploadStates[item.id] ?? .notUploaded
+                                
+                                UploadableImageView(
+                                    imageData: item.data,
                                     index: index,
-                                    onDelete: { index in
-                                        selectedImages.remove(at: index)
-                                        imagePreviews.remove(at: index)
+                                    onDelete: { _ in
+                                        if let idx = imagePreviews.firstIndex(where: { $0.id == item.id }) {
+                                            imagePreviews.remove(at: idx)
+                                            viewModel.imageUploadStates.removeValue(forKey: item.id)
+                                            
+                                            // Also remove from uploadedImageUrls if it was uploaded
+                                            if case .uploaded(let url) = uploadState {
+                                                if let urlIndex = viewModel.uploadedImageUrls.firstIndex(of: url) {
+                                                    viewModel.uploadedImageUrls.remove(at: urlIndex)
+                                                }
+                                            }
+                                        }
+                                    },
+                                    uploadState: Binding(
+                                        get: { uploadState },
+                                        set: { viewModel.imageUploadStates[item.id] = $0 }
+                                    ),
+                                    onRetry: {
+                                        viewModel.retryImageUpload(id: item.id, imageData: item.data)
                                     }
                                 )
                             }
@@ -469,7 +635,9 @@ struct ImagesSection: View {
                     .ignoresSafeArea()
                     .onDisappear {
                         if let image = cameraImage, let imageData = image.jpegData(compressionQuality: 0.8) {
-                            imagePreviews.append(imageData)
+                            let id = UUID().uuidString
+                            imagePreviews.append((id: id, data: imageData))
+                            viewModel.uploadImage(id: id, imageData: imageData)
                             cameraImage = nil
                         }
                     }
@@ -625,40 +793,37 @@ struct LocationSection: View {
 }
 
 struct CreatePostButtonSection: View {
-    let isFormValid: Bool
-    let isLoading: Bool
-    let onCreatePost: () -> Void
+    var isFormValid: Bool
+    var isLoading: Bool
+    var allImagesUploaded: Bool
+    var onCreatePost: () -> Void
     
     var body: some View {
-        VStack(spacing: 16) {
-            Button(action: onCreatePost) {
-                HStack {
-                    Spacer()
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    } else {
-                        Text("posts.create".localized)
-                            .fontWeight(.semibold)
-                    }
-                    Spacer()
+        Button(action: onCreatePost) {
+            if isLoading {
+                HStack(spacing: 8) {
+                    ProgressView()
+                        .tint(.white)
+                    Text("common.creating".localized)
+                        .fontWeight(.semibold)
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(isFormValid ? Color.blue : Color.gray.opacity(0.5))
+                .background(Color.blue.opacity(0.5))
                 .foregroundColor(.white)
                 .cornerRadius(12)
-            }
-            .disabled(isLoading || !isFormValid)
-            
-            if !isFormValid {
-                Text("posts.fill_required".localized)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.top, 4)
+            } else {
+                Text("posts.create".localized)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(isFormValid && allImagesUploaded ? Color.blue : Color.gray.opacity(0.3))
+                    .foregroundColor(isFormValid && allImagesUploaded ? .white : .gray)
+                    .cornerRadius(12)
             }
         }
-        .padding(.vertical, 10)
+        .disabled(isLoading || !isFormValid || !allImagesUploaded)
+        .padding(.vertical, 16)
     }
 }
 
@@ -697,7 +862,7 @@ struct CreatePostView: View {
     @State private var offering = PostOffering.givingAway
     @State private var price = ""
     @State private var selectedImages: [PhotosPickerItem] = []
-    @State private var imagePreviews: [Data] = []
+    @State private var imagePreviews: [(id: String, data: Data)] = []
     @State private var error: String?
     @State private var showSuccess = false
     @State private var isFormValid = false
@@ -739,13 +904,53 @@ struct CreatePostView: View {
                 selectedImages: $selectedImages,
                 imagePreviews: $imagePreviews
             )
+            .environmentObject(viewModel)
             
             LocationSection()
             
             Section {
+                // Upload status summary
+                if !imagePreviews.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        let uploadedCount = viewModel.uploadedImageUrls.count
+                        let totalCount = imagePreviews.count
+                        let failedCount = viewModel.hasFailedUploads ? imagePreviews.count - uploadedCount : 0
+                        
+                        HStack {
+                            Text("Image Upload Status:")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            
+                            Spacer()
+                            
+                            if viewModel.allImagesUploaded {
+                                Text("All images uploaded")
+                                    .font(.caption)
+                                    .foregroundColor(.green)
+                            } else if failedCount > 0 {
+                                Text("\(failedCount) failed - tap to retry")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
+                            } else {
+                                Text("\(uploadedCount)/\(totalCount) uploaded")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        
+                        if !viewModel.allImagesUploaded && !viewModel.hasFailedUploads {
+                            Text("Please wait for all images to upload")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding(.bottom, 8)
+                }
+                
                 CreatePostButtonSection(
                     isFormValid: isFormValid,
                     isLoading: viewModel.isLoading,
+                    allImagesUploaded: viewModel.allImagesUploaded,
                     onCreatePost: {
                         Task {
                             do {
@@ -754,7 +959,6 @@ struct CreatePostView: View {
                                     description: description,
                                     category: selectedCategory,
                                     offering: offering.rawValue,
-                                    images: imagePreviews,
                                     price: offering == .soldAtPrice ? price : nil
                                 )
                                 
@@ -805,12 +1009,14 @@ struct CreatePostView: View {
         }
         .onChange(of: selectedImages) { items in
             Task {
-                imagePreviews = []
                 for item in items {
                     if let data = try? await item.loadTransferable(type: Data.self) {
-                        imagePreviews.append(data)
+                        let id = UUID().uuidString
+                        imagePreviews.append((id: id, data: data))
+                        viewModel.uploadImage(id: id, imageData: data)
                     }
                 }
+                selectedImages = []
             }
         }
         .onChange(of: title) { _ in validateForm() }
@@ -857,7 +1063,6 @@ struct CreatePostView: View {
             }
         )
         .id(languageManager.currentLanguage.rawValue)
-        .onChange(of: title) { _ in validateForm() }
     }
     
     private func validateForm() {
@@ -873,6 +1078,7 @@ struct CreatePostView: View {
         price = ""
         selectedImages = []
         imagePreviews = []
+        viewModel.resetImageUploads()
     }
 }
 
