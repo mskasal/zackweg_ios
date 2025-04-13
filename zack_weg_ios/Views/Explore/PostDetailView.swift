@@ -226,13 +226,13 @@ struct PostDetailView: View {
                                     .font(.caption)
                                     .foregroundColor(.blue.opacity(0.8))
                                 Text(category.title)
-                                    .font(.subheadline)
+                                    .font(.caption)
                                     .foregroundColor(.blue)
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
                             .background(Color.blue.opacity(0.1))
-                            .cornerRadius(16)
+                            .cornerRadius(12)
                         }
                     }
                     
@@ -244,22 +244,22 @@ struct PostDetailView: View {
                             ZStack {
                                 Circle()
                                     .fill(Color.green.opacity(0.1))
-                                    .frame(width: 36, height: 36)
+                                    .frame(width: 30, height: 30)
                                 
                                 Image(systemName: "person.fill.checkmark")
-                                    .font(.title3)
+                                    .font(.footnote)
                                     .foregroundColor(.green)
                             }
                             
                             // Your Post text
                             Text("post_detail.your_post".localized)
-                                .font(.callout)
+                                .font(.footnote)
                                 .fontWeight(.medium)
                                 .foregroundColor(.green)
                                 
                             Spacer()
                         }
-                        .padding(.vertical, 8)
+                        .padding(.vertical, 6)
                     } else if post.user.id != "" {
                         if fromUserPostsView {
                             // Just show seller info without navigation when coming from UserPostsView
@@ -268,22 +268,22 @@ struct PostDetailView: View {
                                 ZStack {
                                     Circle()
                                         .fill(Color.blue.opacity(0.1))
-                                        .frame(width: 36, height: 36)
+                                        .frame(width: 30, height: 30)
                                     
                                     Image(systemName: "person.circle.fill")
-                                        .font(.title3)
+                                        .font(.footnote)
                                         .foregroundColor(.blue)
                                 }
                                 
                                 // Nickname
                                 Text(post.user.nickName)
-                                    .font(.callout)
+                                    .font(.footnote)
                                     .fontWeight(.medium)
                                     .foregroundColor(.primary)
                                     
                                 Spacer()
                             }
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 6)
                         } else {
                             // Include navigation to UserPostsView when not coming from UserPostsView
                             NavigationLink(destination: UserPostsView(userId: post.user.id, userName: post.user.nickName, disablePostNavigation: true)) {
@@ -292,16 +292,16 @@ struct PostDetailView: View {
                                     ZStack {
                                         Circle()
                                             .fill(Color.blue.opacity(0.1))
-                                            .frame(width: 36, height: 36)
+                                            .frame(width: 30, height: 30)
                                         
                                         Image(systemName: "person.circle.fill")
-                                            .font(.title3)
+                                            .font(.footnote)
                                             .foregroundColor(.blue)
                                     }
                                     
                                     // Nickname
                                     Text(post.user.nickName)
-                                        .font(.callout)
+                                        .font(.footnote)
                                         .fontWeight(.medium)
                                         .foregroundColor(.primary)
                                         
@@ -309,21 +309,16 @@ struct PostDetailView: View {
                                     
                                     // Forward chevron
                                     Image(systemName: "chevron.right")
-                                        .font(.caption)
+                                        .font(.caption2)
                                         .foregroundColor(.secondary)
                                 }
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 6)
                             }
                         }
                     }
                     
                     // Location and Date section
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("post_detail.details".localized)
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.secondary)
-                        
                         HStack(spacing: 8) {
                             // Location with map pin
                             HStack(spacing: 6) {
@@ -365,6 +360,9 @@ struct PostDetailView: View {
                     // Action Buttons
                     if viewModel.isOwner {
                         VStack(spacing: 16) {
+                            Spacer()
+                                .frame(height: 16)
+                                
                             // Add edit button
                             NavigationLink(
                                 destination: EditPostView(
@@ -384,10 +382,11 @@ struct PostDetailView: View {
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                                .padding(.vertical, 14)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
+                                .font(.subheadline)
                             }
                             
                             Button(action: {
@@ -399,14 +398,18 @@ struct PostDetailView: View {
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                                .padding(.vertical, 14)
                                 .background(Color.red)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
+                                .font(.subheadline)
                             }
                         }
                     } else {
                         VStack(spacing: 16) {
+                            Spacer()
+                                .frame(height: 16)
+                                
                             Button(action: {
                                 showingMessageSheet = true
                             }) {
@@ -416,10 +419,11 @@ struct PostDetailView: View {
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                                .padding(.vertical, 14)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
+                                .font(.subheadline)
                             }
                             
                             Button(action: {
@@ -431,10 +435,11 @@ struct PostDetailView: View {
                                         .fontWeight(.medium)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 16)
+                                .padding(.vertical, 14)
                                 .background(Color.gray.opacity(0.1))
                                 .foregroundColor(.primary)
                                 .cornerRadius(12)
+                                .font(.subheadline)
                             }
                         }
                     }

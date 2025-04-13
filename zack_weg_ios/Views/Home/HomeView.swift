@@ -156,34 +156,35 @@ struct PostCardCompact: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Image
-            if !post.imageUrls.isEmpty {
-                AsyncImage(url: URL(string: post.imageUrls[0])) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 120)
-                        .clipped()
-                        .cornerRadius(8)
-                } placeholder: {
+            // Image with fixed dimensions
+            ZStack {
+                if !post.imageUrls.isEmpty {
+                    AsyncImage(url: URL(string: post.imageUrls[0])) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 160, height: 120)
+                            .clipped()
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 160, height: 120)
+                            .overlay {
+                                ProgressView()
+                            }
+                    }
+                } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.2))
-                        .frame(height: 120)
-                        .cornerRadius(8)
+                        .frame(width: 160, height: 120)
                         .overlay {
-                            ProgressView()
+                            Image(systemName: "photo")
+                                .foregroundColor(.gray)
                         }
                 }
-            } else {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: 120)
-                    .cornerRadius(8)
-                    .overlay {
-                        Image(systemName: "photo")
-                            .foregroundColor(.gray)
-                    }
             }
+            .frame(width: 160, height: 120)
+            .cornerRadius(8)
             
             // Title
             Text(post.title)
