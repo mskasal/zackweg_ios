@@ -8,6 +8,7 @@
 "common.error" = "Hata";
 "common.success" = "Başarılı";
 "common.loading" = "Yükleniyor...";
+"common.saving" = "Kaydediliyor...";
 "common.free" = "ÜCRETSİZ";
 "common.all" = "Tümü";
 "common.clear" = "Temizle";

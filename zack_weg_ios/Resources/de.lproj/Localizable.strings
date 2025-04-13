@@ -8,6 +8,7 @@
 "common.error" = "Fehler";
 "common.success" = "Erfolg";
 "common.loading" = "Wird geladen...";
+"common.saving" = "Wird gespeichert...";
 "common.free" = "KOSTENLOS";
 "common.all" = "Alle";
 "common.clear" = "Löschen";

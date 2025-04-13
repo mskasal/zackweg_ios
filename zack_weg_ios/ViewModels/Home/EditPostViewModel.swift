@@ -8,17 +8,26 @@ class EditPostViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isSaving = false
     @Published var error: String?
-    @Published var imagePreviews: [Data] = []
+    
+    // Keep existing image URLs
     @Published var imageUrls: [String] = []
     @Published var removedImageUrls: [String] = []
-    @Published var newImages: [Data] = []
+    
+    // Status properties
     @Published var status: String = "ACTIVE" // Current status
     @Published var originalStatus: String = "ACTIVE" // Original post status
-    @Published var uploadProgress: Double = 0
-    @Published var currentUploadIndex: Int = 0
-    @Published var totalUploads: Int = 0
-    @Published var isUploading = false
-    @Published var failedUploads: [(index: Int, data: Data)] = []  // Track failed uploads for retry
+    
+    // Add new properties for immediate image upload approach
+    @Published var imageUploadStates: [String: ImageUploadState] = [:] {
+        didSet {
+            updateCachedStatuses()
+        }
+    }
+    @Published var uploadedImageUrls: [String] = []
+    
+    // Cached status values
+    @Published private(set) var allImagesUploaded: Bool = false
+    @Published private(set) var hasFailedUploads: Bool = false
     
     // Constants for image handling
     private let maxImageSize: Int = 5 * 1024 * 1024 // 5MB
@@ -29,6 +38,34 @@ class EditPostViewModel: ObservableObject {
     
     init(apiService: APIService = APIService.shared) {
         self.apiService = apiService
+    }
+    
+    // Update cached status properties to avoid excessive recalculations
+    private func updateCachedStatuses() {
+        // Only calculate if we have image states
+        if imageUploadStates.isEmpty {
+            allImagesUploaded = true // Default to true when no new uploads
+            hasFailedUploads = false
+            return
+        }
+        
+        var allUploaded = true
+        var hasFailed = false
+        
+        for state in imageUploadStates.values {
+            if case .uploaded = state {
+                continue
+            } else {
+                allUploaded = false
+            }
+            
+            if case .failed = state {
+                hasFailed = true
+            }
+        }
+        
+        allImagesUploaded = allUploaded
+        hasFailedUploads = hasFailed
     }
     
     // Load post data for editing
@@ -57,22 +94,86 @@ class EditPostViewModel: ObservableObject {
         }
     }
     
-    // Add a new image to be uploaded with validation
-    func addImage(_ data: Data) -> Bool {
+    // Upload a single image immediately
+    func uploadImage(id: String, imageData: Data) {
         // Validate image size
-        guard data.count <= maxImageSize else {
-            error = "Image is too large. Maximum size is 5MB."
-            return false
+        guard imageData.count <= maxImageSize else {
+            imageUploadStates[id] = .failed(error: "Image is too large. Maximum size is 5MB.")
+            return
         }
         
-        // Validate image type
-        if let uiImage = UIImage(data: data), let resizedImageData = resizeImage(uiImage) {
-            newImages.append(resizedImageData)
-            return true
-        } else {
-            error = "Invalid image format. Please use JPEG or PNG images."
-            return false
+        // Validate and resize image
+        guard let uiImage = UIImage(data: imageData), 
+              let resizedImageData = resizeImage(uiImage) else {
+            imageUploadStates[id] = .failed(error: "Invalid image format")
+            return
         }
+        
+        // Set initial state to "uploading" with 0 progress
+        imageUploadStates[id] = .uploading(progress: 0.0)
+        
+        // Create a true background task 
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Simulate progress updates on background thread
+            var progress = 0.0
+            let simulateProgress = {
+                // Update UI on main thread for each progress step
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    progress += 0.1
+                    self.imageUploadStates[id] = .uploading(progress: min(0.9, progress))
+                }
+            }
+            
+            // Set up timer for progress simulation (completely non-blocking)
+            let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+                simulateProgress()
+            }
+            
+            // Start upload process
+            Task {
+                do {
+                    // Actual upload - this is async and shouldn't block
+                    let url = try await self.apiService.uploadImage(resizedImageData)
+                    
+                    // Stop the progress timer
+                    timer.invalidate()
+                    
+                    // Update UI on main thread
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        
+                        // Update the state to uploaded with URL
+                        self.imageUploadStates[id] = .uploaded(url: url)
+                        
+                        // Add to our list of uploaded URLs
+                        if !self.uploadedImageUrls.contains(url) {
+                            self.uploadedImageUrls.append(url)
+                        }
+                        
+                        print("✅ Image uploaded successfully: \(url)")
+                    }
+                } catch {
+                    // Stop the progress timer
+                    timer.invalidate()
+                    
+                    // Handle errors on main thread
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        self.imageUploadStates[id] = .failed(error: error.localizedDescription)
+                        print("❌ Failed to upload image: \(error.localizedDescription)")
+                    }
+                }
+            }
+            
+            // Start the timer on this runloop
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+        }
+    }
+    
+    // Retry a failed upload
+    func retryImageUpload(id: String, imageData: Data) {
+        uploadImage(id: id, imageData: imageData)
     }
     
     // Resize image to reduce memory usage and upload size
@@ -113,53 +214,6 @@ class EditPostViewModel: ObservableObject {
         }
     }
     
-    // Remove a new image that hasn't been uploaded yet
-    func removeNewImage(at index: Int) {
-        if index < newImages.count {
-            newImages.remove(at: index)
-        }
-    }
-    
-    // Reset all error and progress states
-    func resetState() {
-        error = nil
-        uploadProgress = 0
-        currentUploadIndex = 0
-        totalUploads = 0
-        isUploading = false
-        failedUploads = []
-    }
-    
-    // Retry failed uploads
-    func retryFailedUploads() async -> [String] {
-        guard !failedUploads.isEmpty else { return [] }
-        
-        isUploading = true
-        var successfulUrls: [String] = []
-        
-        totalUploads = failedUploads.count
-        let failedCopy = failedUploads // Copy to avoid mutation during enumeration
-        failedUploads = [] // Clear the failed uploads list
-        
-        for (index, failedUpload) in failedCopy.enumerated() {
-            currentUploadIndex = index + 1
-            uploadProgress = Double(index) / Double(failedCopy.count)
-            
-            do {
-                let url = try await apiService.uploadImage(failedUpload.data)
-                successfulUrls.append(url)
-            } catch {
-                // If it fails again, add it back to the failed uploads
-                failedUploads.append(failedUpload)
-                self.error = "Failed to upload image \(index + 1) on retry: \(error.localizedDescription)"
-            }
-        }
-        
-        uploadProgress = 1.0
-        isUploading = false
-        return successfulUrls
-    }
-    
     // Update the post with edited data
     func updatePost(
         title: String,
@@ -173,50 +227,12 @@ class EditPostViewModel: ObservableObject {
             throw NSError(domain: "EditPostViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "No post loaded for editing"])
         }
         
-        resetState()
         isSaving = true
         
         do {
-            // First upload any new images
-            var updatedImageUrls = imageUrls
-            totalUploads = newImages.count
-            
-            if !newImages.isEmpty {
-                isUploading = true
-                
-                for (index, imageData) in newImages.enumerated() {
-                    currentUploadIndex = index + 1
-                    uploadProgress = Double(index) / Double(newImages.count)
-                    
-                    do {
-                        let url = try await apiService.uploadImage(imageData)
-                        updatedImageUrls.append(url)
-                    } catch {
-                        // Track failed uploads for potential retry
-                        failedUploads.append((index: index, data: imageData))
-                        
-                        // Continue with other uploads instead of failing completely
-                        print("⚠️ Failed to upload image \(index + 1): \(error.localizedDescription)")
-                    }
-                }
-                
-                // If there are any failed uploads, offer a chance to retry
-                if !failedUploads.isEmpty {
-                    self.error = "Failed to upload \(failedUploads.count) images. You can tap 'Retry Failed Uploads' to try again."
-                    
-                    // We'll continue with successful uploads
-                    print("⚠️ Some uploads failed. Continuing with successful uploads.")
-                }
-                
-                uploadProgress = 1.0
-                isUploading = false
-            }
-            
-            // Retry any previously failed uploads from the past
-            if !failedUploads.isEmpty {
-                let retryUrls = await retryFailedUploads()
-                updatedImageUrls.append(contentsOf: retryUrls)
-            }
+            // Combine existing image URLs and newly uploaded URLs
+            var finalImageUrls = imageUrls
+            finalImageUrls.append(contentsOf: uploadedImageUrls)
             
             // Convert price string to Double if needed
             let priceDouble: Double? = price.flatMap { priceString in
@@ -230,7 +246,7 @@ class EditPostViewModel: ObservableObject {
                 description: description,
                 categoryId: categoryId,
                 offering: offering,
-                imageUrls: updatedImageUrls,
+                imageUrls: finalImageUrls,
                 price: priceDouble ?? 0, // Always pass price, default to 0 if nil
                 status: status
             )
@@ -243,34 +259,24 @@ class EditPostViewModel: ObservableObject {
             self.status = updatedPost.status
             isSaving = false
             
-            // Clean up temporary data
-            newImages = []
+            // Reset upload states
+            resetImageUploads()
             
             return updatedPost
-            
         } catch {
+            isSaving = false
             self.error = error.localizedDescription
             print("❌ Failed to update post: \(error.localizedDescription)")
-            isSaving = false
             throw error
         }
     }
     
-    // Synchronize image arrays to ensure consistency
-    func synchronizeImageArrays() {
-        // Make sure no duplicates exist between new images and image URLs
-        if !newImages.isEmpty && !imageUrls.isEmpty {
-            // Logic to compare and deduplicate would go here
-            // For simple synchronization, we just ensure the arrays are in good state
-            print("📊 Synchronizing image arrays: \(imageUrls.count) existing URLs, \(newImages.count) new images")
-        }
-    }
-    
-    // Cleanup resources when view disappears
-    func cleanup() {
-        // Clear temporary image data to free up memory
-        newImages = []
-        imagePreviews = []
-        resetState()
+    // Reset all image upload states
+    func resetImageUploads() {
+        imageUploadStates.removeAll()
+        uploadedImageUrls.removeAll()
+        // Reset cached values
+        allImagesUploaded = true // Default to true for edit view
+        hasFailedUploads = false
     }
 } 
