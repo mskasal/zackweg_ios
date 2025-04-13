@@ -39,6 +39,13 @@ struct zack_weg_iosApp: App {
             print("   - Ensure the correct scheme and configuration are selected")
         }
         
+        // Configure URLCache for better image caching
+        let memoryCapacity = 50 * 1024 * 1024 // 50 MB
+        let diskCapacity = 100 * 1024 * 1024 // 100 MB
+        let cache = URLCache(memoryCapacity: memoryCapacity, diskCapacity: diskCapacity, diskPath: "zackweg_images_cache")
+        URLCache.shared = cache
+        print("📸 Configured image cache: \(memoryCapacity/1024/1024)MB memory, \(diskCapacity/1024/1024)MB disk")
+        
         // Start network monitoring
         ErrorHandlingService.shared.startNetworkMonitoring()
         

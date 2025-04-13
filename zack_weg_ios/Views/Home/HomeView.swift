@@ -159,20 +159,11 @@ struct PostCardCompact: View {
             // Image with fixed dimensions
             ZStack {
                 if !post.imageUrls.isEmpty {
-                    AsyncImage(url: URL(string: post.imageUrls[0])) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 160, height: 120)
-                            .clipped()
-                    } placeholder: {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.2))
-                            .frame(width: 160, height: 120)
-                            .overlay {
-                                ProgressView()
-                            }
-                    }
+                    OptimizedAsyncImageView(
+                        imageUrl: post.imageUrls[0],
+                        height: 120
+                    )
+                    .frame(width: 160, height: 120)
                 } else {
                     Rectangle()
                         .fill(Color.gray.opacity(0.2))

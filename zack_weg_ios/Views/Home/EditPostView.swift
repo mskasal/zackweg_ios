@@ -604,39 +604,21 @@ struct EditPostView: View {
         let onDelete: () -> Void
         
         var body: some View {
-            AsyncImage(url: URL(string: url)) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .frame(width: 100, height: 100)
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                        .overlay(
-                            Button(action: onDelete) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.white)
-                                    .background(Color.black.opacity(0.5))
-                                    .clipShape(Circle())
-                            }
-                            .padding(4),
-                            alignment: .topTrailing
-                        )
-                case .failure:
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: 100, height: 100)
-                        .overlay(
-                            Image(systemName: "photo.fill")
-                                .foregroundColor(.gray)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                @unknown default:
-                    EmptyView()
+            ZStack(alignment: .topTrailing) {
+                OptimizedAsyncImageView(
+                    imageUrl: url,
+                    height: 100
+                )
+                .frame(width: 100, height: 100)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                Button(action: onDelete) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.white)
+                        .background(Color.black.opacity(0.5))
+                        .clipShape(Circle())
                 }
+                .padding(4)
             }
         }
     }

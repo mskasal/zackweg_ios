@@ -162,31 +162,11 @@ struct PostRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             // Image
-            if !post.imageUrls.isEmpty, let url = URL(string: post.imageUrls[0]) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        Rectangle()
-                            .foregroundColor(.gray.opacity(0.3))
-                            .overlay(
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle())
-                            )
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    case .failure:
-                        Rectangle()
-                            .foregroundColor(.gray.opacity(0.3))
-                            .overlay(
-                                Image(systemName: "photo")
-                                    .foregroundColor(.gray)
-                            )
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
+            if !post.imageUrls.isEmpty {
+                OptimizedAsyncImageView(
+                    imageUrl: post.imageUrls[0],
+                    height: 80
+                )
                 .frame(width: 80, height: 80)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {

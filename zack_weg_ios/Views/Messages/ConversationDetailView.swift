@@ -174,20 +174,17 @@ struct ConversationHeaderView: View {
                 HStack(spacing: 12) {
                     if isPostAvailable {
                         // Post image section
-                        if let post = postDetails, !post.imageUrls.isEmpty, let imageUrl = post.imageUrls.first, let url = URL(string: imageUrl) {
+                        if let post = postDetails, !post.imageUrls.isEmpty, let imageUrl = post.imageUrls.first {
                             NavigationLink(destination: PostDetailView(post: post, fromUserPostsView: false)) {
-                                AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    ProgressView()
-                                }
+                                OptimizedAsyncImageView(
+                                    imageUrl: imageUrl,
+                                    height: 50
+                                )
                                 .frame(width: 50, height: 50)
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                         } else {
-                            // Placeholder when post is not available
+                            // Placeholder when no images available
                             Rectangle()
                                 .fill(Color.gray.opacity(0.2))
                                 .frame(width: 50, height: 50)
