@@ -176,7 +176,7 @@ struct FilterView: View {
                             
                             // Show subcategories if a parent is selected
                             if let parentCategoryId = selectedParentCategoryId,
-                               let parentCategory = categoryViewModel.getCategory(byId: parentCategoryId),
+                               let _ = categoryViewModel.getCategory(byId: parentCategoryId),
                                categoryViewModel.hasChildren(for: parentCategoryId) {
                                 
                                 let subcategories = categoryViewModel.getChildCategories(for: parentCategoryId)
@@ -237,6 +237,7 @@ struct FilterView: View {
                 }
                 .padding(.vertical)
             }
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle("explore.filters".localized)
             .navigationBarTitleDisplayMode(.inline)
             .task {
@@ -267,6 +268,15 @@ struct FilterView: View {
                         dismiss()
                     }
                     .fontWeight(.bold)
+                }
+                
+                ToolbarItem(placement: .keyboard) {
+                    HStack {
+                        Spacer()
+                        Button("common.done".localized) {
+                            isSearchFocused = false
+                        }
+                    }
                 }
             }
         }
