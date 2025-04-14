@@ -10,12 +10,12 @@ enum ReportReason: String, CaseIterable {
     
     var displayName: String {
         switch self {
-        case .inappropriateContent: return "Inappropriate Content"
-        case .spam: return "Spam"
-        case .misleadingInformation: return "Misleading Information"
-        case .offensiveBehavior: return "Offensive Behavior"
-        case .prohibitedItems: return "Prohibited Items"
-        case .other: return "Other"
+        case .inappropriateContent: return "report.reason.inappropriate_content".localized
+        case .spam: return "report.reason.spam".localized
+        case .misleadingInformation: return "report.reason.misleading_information".localized
+        case .offensiveBehavior: return "report.reason.offensive_behavior".localized
+        case .prohibitedItems: return "report.reason.prohibited_items".localized
+        case .other: return "report.reason.other".localized
         }
     }
 }

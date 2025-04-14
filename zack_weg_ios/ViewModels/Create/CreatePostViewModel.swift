@@ -131,10 +131,7 @@ class CreatePostViewModel: ObservableObject {
         offering: String,
         price: String?
     ) async throws {
-        guard !uploadedImageUrls.isEmpty else {
-            throw NSError(domain: "CreatePostViewModel", code: 0, userInfo: [NSLocalizedDescriptionKey: "No images have been uploaded."])
-        }
-        
+        // Remove requirement for uploaded images
         isLoading = true
         defer { isLoading = false }
         

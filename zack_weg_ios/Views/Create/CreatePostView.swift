@@ -287,6 +287,16 @@ struct DescriptionInputView: View {
             }
         }
         .padding(.vertical, 6)
+        
+        // Character count indicator
+        HStack {
+            Text("\(description.count)/10 " + "posts.min_chars".localized)
+                .font(.caption)
+                .foregroundColor(description.count >= 10 ? .green : .secondary)
+            
+            Spacer()
+        }
+        .padding(.bottom, 10)
     }
 }
 
@@ -379,6 +389,16 @@ struct PostDetailsSection: View {
                     }
                 }
                 .padding(.vertical, 6)
+                
+                // Character count indicator
+                HStack {
+                    Text("\(description.count)/10 " + "posts.min_chars".localized)
+                        .font(.caption)
+                        .foregroundColor(description.count >= 10 ? .green : .secondary)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 10)
                 
                 Divider()
                     .padding(.vertical, 4)
@@ -715,12 +735,12 @@ struct CreatePostButtonSection: View {
                     .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(isFormValid && allImagesUploaded ? Color.blue : Color.gray.opacity(0.3))
-                    .foregroundColor(isFormValid && allImagesUploaded ? .white : .gray)
+                    .background(isFormValid ? Color.blue : Color.gray.opacity(0.3))
+                    .foregroundColor(isFormValid ? .white : .gray)
                     .cornerRadius(12)
             }
         }
-        .disabled(isLoading || !isFormValid || !allImagesUploaded)
+        .disabled(isLoading || !isFormValid)
         .padding(.vertical, 16)
     }
 }
@@ -770,7 +790,7 @@ struct CreatePostView: View {
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
-        return !title.isEmpty && !description.isEmpty
+        return !title.isEmpty && description.count >= 10
     }
     
     private var hasCategorySelected: Bool {
@@ -815,29 +835,29 @@ struct CreatePostView: View {
                         let failedCount = viewModel.hasFailedUploads ? imagePreviews.count - uploadedCount : 0
                         
                         HStack {
-                            Text("Image Upload Status:")
+                            Text("posts.image_upload_status".localized)
                                 .font(.caption)
                                 .fontWeight(.medium)
                             
                             Spacer()
                             
                             if viewModel.allImagesUploaded {
-                                Text("All images uploaded")
+                                Text("posts.all_images_uploaded".localized)
                                     .font(.caption)
                                     .foregroundColor(.green)
                             } else if failedCount > 0 {
-                                Text("\(failedCount) failed - tap to retry")
+                                Text(String(format: "posts.upload_failed_count".localized, failedCount))
                                     .font(.caption)
                                     .foregroundColor(.red)
                             } else {
-                                Text("\(uploadedCount)/\(totalCount) uploaded")
+                                Text(String(format: "posts.upload_progress".localized, uploadedCount, totalCount))
                                     .font(.caption)
                                     .foregroundColor(.blue)
                             }
                         }
                         
                         if !viewModel.allImagesUploaded && !viewModel.hasFailedUploads {
-                            Text("Please wait for all images to upload")
+                            Text("posts.wait_for_upload".localized)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }

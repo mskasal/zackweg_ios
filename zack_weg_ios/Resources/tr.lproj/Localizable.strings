@@ -9,6 +9,8 @@
 "common.success" = "Başarılı";
 "common.loading" = "Yükleniyor...";
 "common.saving" = "Kaydediliyor...";
+"common.creating" = "Oluşturuluyor...";
+"common.updating" = "Güncelleniyor...";
 "common.free" = "ÜCRETSİZ";
 "common.all" = "Tümü";
 "common.clear" = "Temizle";
@@ -138,6 +140,13 @@
 "posts.post_status" = "Gönderi Durumu";
 "posts.existing_images" = "Mevcut Görseller";
 "posts.new_images" = "Yeni Görseller";
+"posts.min_chars" = "minimum karakter";
+"posts.description_too_short" = "Açıklama en az 10 karakter olmalıdır";
+"posts.image_upload_status" = "Görsel Yükleme Durumu:";
+"posts.all_images_uploaded" = "Tüm görseller yüklendi";
+"posts.upload_failed_count" = "%d başarısız - tekrar denemek için dokunun";
+"posts.upload_progress" = "%d/%d yüklendi";
+"posts.wait_for_upload" = "Lütfen tüm görsellerin yüklenmesini bekleyin";
 
 // MARK: - Categories
 "categories.title" = "Kategoriler";
@@ -298,6 +307,12 @@
 "report.additional_details" = "EK DETAYLAR";
 "report.more_info_placeholder" = "Daha fazla bilgi ver (isteğe bağlı)";
 "report.submit" = "Bildirimi Gönder";
+"report.reason.inappropriate_content" = "Uygunsuz İçerik";
+"report.reason.spam" = "Spam";
+"report.reason.misleading_information" = "Yanıltıcı Bilgi";
+"report.reason.offensive_behavior" = "Rahatsız Edici Davranış";
+"report.reason.prohibited_items" = "Yasaklı Ürünler";
+"report.reason.other" = "Diğer";
 
 // Add Home section with Turkish translations
 // MARK: - Home

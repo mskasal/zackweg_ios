@@ -83,7 +83,7 @@ struct EditPostView: View {
     
     // Computed properties to break down complex expressions
     private var hasTitleAndDescription: Bool {
-        return !title.isEmpty && !description.isEmpty
+        return !title.isEmpty && description.count >= 10
     }
     
     private var hasCategorySelected: Bool {
@@ -238,10 +238,30 @@ struct EditPostView: View {
 
     private var updateButtonSection: some View {
         Section {
-            Button(action: saveChanges) {
-                updateButtonContent
+            VStack(spacing: 16) {
+                // Description length warning if needed
+                if !description.isEmpty && description.count < 10 {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.orange)
+                        Text("posts.description_too_short".localized)
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                        Spacer()
+                        Text("\(description.count)/10")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+                    .padding(10)
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(8)
+                }
+                
+                Button(action: saveChanges) {
+                    updateButtonContent
+                }
+                .disabled(viewModel.isSaving || !isFormValid)
             }
-            .disabled(viewModel.isSaving || !isFormValid || !viewModel.allImagesUploaded)
         }
     }
 
@@ -260,7 +280,7 @@ struct EditPostView: View {
             Spacer()
             ProgressView()
                 .tint(.white)
-            Text("common.saving".localized)
+            Text("common.updating".localized)
                 .fontWeight(.semibold)
                 .padding(.leading, 8)
             Spacer()
@@ -280,8 +300,8 @@ struct EditPostView: View {
             Spacer()
         }
         .padding(.vertical, 14)
-        .background(isFormValid && viewModel.allImagesUploaded ? Color.blue : Color.gray.opacity(0.3))
-        .foregroundColor(isFormValid && viewModel.allImagesUploaded ? .white : .gray)
+        .background(isFormValid ? Color.blue : Color.gray.opacity(0.3))
+        .foregroundColor(isFormValid ? .white : .gray)
         .cornerRadius(10)
     }
 
@@ -683,8 +703,7 @@ struct EditPostView: View {
     private func validateForm() {
         isFormValid = hasTitleAndDescription && 
                      hasCategorySelected && 
-                     hasPriceIfNeeded && 
-                     hasImages
+                     hasPriceIfNeeded
     }
 
     private func moveToNextField() {

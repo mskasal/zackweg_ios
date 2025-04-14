@@ -9,6 +9,8 @@
 "common.success" = "Erfolg";
 "common.loading" = "Wird geladen...";
 "common.saving" = "Wird gespeichert...";
+"common.creating" = "Wird erstellt...";
+"common.updating" = "Wird aktualisiert...";
 "common.free" = "KOSTENLOS";
 "common.all" = "Alle";
 "common.clear" = "Löschen";
@@ -138,6 +140,13 @@
 "posts.post_status" = "Beitragsstatus";
 "posts.existing_images" = "Vorhandene Bilder";
 "posts.new_images" = "Neue Bilder";
+"posts.min_chars" = "Mindestzeichen";
+"posts.description_too_short" = "Beschreibung muss mindestens 10 Zeichen lang sein";
+"posts.image_upload_status" = "Bild-Upload-Status:";
+"posts.all_images_uploaded" = "Alle Bilder hochgeladen";
+"posts.upload_failed_count" = "%d fehlgeschlagen - zum Wiederholen tippen";
+"posts.upload_progress" = "%d/%d hochgeladen";
+"posts.wait_for_upload" = "Bitte warten Sie bis alle Bilder hochgeladen sind";
 
 // MARK: - Categories
 "categories.title" = "Kategorien";
@@ -298,6 +307,12 @@
 "report.additional_details" = "ZUSÄTZLICHE DETAILS";
 "report.more_info_placeholder" = "Weitere Informationen angeben (optional)";
 "report.submit" = "Meldung senden";
+"report.reason.inappropriate_content" = "Unangemessener Inhalt";
+"report.reason.spam" = "Spam";
+"report.reason.misleading_information" = "Irreführende Informationen";
+"report.reason.offensive_behavior" = "Anstößiges Verhalten";
+"report.reason.prohibited_items" = "Verbotene Artikel";
+"report.reason.other" = "Sonstiges";
 
 // Add Home section with German translations
 // MARK: - Home

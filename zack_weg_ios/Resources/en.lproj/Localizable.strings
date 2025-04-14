@@ -9,6 +9,8 @@
 "common.success" = "Success";
 "common.loading" = "Loading...";
 "common.saving" = "Saving...";
+"common.creating" = "Creating...";
+"common.updating" = "Updating...";
 "common.free" = "FREE";
 "common.all" = "All";
 "common.clear" = "Clear";
@@ -150,6 +152,13 @@
 "posts.post_status" = "Post Status";
 "posts.existing_images" = "Existing Images";
 "posts.new_images" = "New Images";
+"posts.min_chars" = "minimum characters";
+"posts.description_too_short" = "Description must be at least 10 characters";
+"posts.image_upload_status" = "Image Upload Status:";
+"posts.all_images_uploaded" = "All images uploaded";
+"posts.upload_failed_count" = "%d failed - tap to retry";
+"posts.upload_progress" = "%d/%d uploaded";
+"posts.wait_for_upload" = "Please wait for all images to upload";
 
 // MARK: - Categories
 "categories.title" = "Categories";
@@ -309,4 +318,10 @@
 "report.reason" = "REASON";
 "report.additional_details" = "ADDITIONAL DETAILS";
 "report.more_info_placeholder" = "Provide more information (optional)";
-"report.submit" = "Submit Report"; 
+"report.submit" = "Submit Report";
+"report.reason.inappropriate_content" = "Inappropriate Content";
+"report.reason.spam" = "Spam";
+"report.reason.misleading_information" = "Misleading Information";
+"report.reason.offensive_behavior" = "Offensive Behavior";
+"report.reason.prohibited_items" = "Prohibited Items";
+"report.reason.other" = "Other"; 
