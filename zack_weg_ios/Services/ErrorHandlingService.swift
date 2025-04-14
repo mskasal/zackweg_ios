@@ -168,6 +168,66 @@ extension AppError: LocalizedError {
             return nil
         }
     }
+    
+    // Extracts detailed information from the error if it's in JSON format
+    var detailedErrorInfo: String? {
+        switch self {
+        case .serverError(_, let message):
+            guard let message = message, !message.isEmpty else { return nil }
+            return parseJsonErrorDetails(message)
+        case .custom(let message):
+            return parseJsonErrorDetails(message)
+        default:
+            return nil
+        }
+    }
+    
+    // Try to parse JSON from error message for additional details
+    private func parseJsonErrorDetails(_ message: String) -> String? {
+        // Check if the message looks like JSON
+        guard message.contains("{") && message.contains("}") else { return nil }
+        
+        // First try to extract JSON part if it's embedded in a string
+        var jsonString = message
+        if let startIndex = message.firstIndex(of: "{"), 
+           let endIndex = message.lastIndex(of: "}") {
+            jsonString = String(message[startIndex...endIndex])
+        }
+        
+        do {
+            guard let data = jsonString.data(using: .utf8),
+                  let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                return nil
+            }
+            
+            // Format based on the structure of the JSON
+            var details: [String] = []
+            
+            // Check for common fields
+            if let field = json["field"] as? String {
+                details.append("Field: \(field)")
+            }
+            
+            if let errorDetail = json["error"] as? String {
+                details.append("Detail: \(errorDetail)")
+            }
+            
+            if let code = json["code"] as? String {
+                details.append("Code: \(code)")
+            }
+            
+            // If we found structured data, return it formatted
+            if !details.isEmpty {
+                return details.joined(separator: "\n")
+            }
+            
+            // Fallback: return pretty-printed JSON
+            return json.map { "\($0.key): \($0.value)" }.joined(separator: "\n")
+        } catch {
+            print("Error parsing error message JSON: \(error)")
+            return nil
+        }
+    }
 }
 
 /// ErrorHandlingService provides methods to handle errors consistently across the app

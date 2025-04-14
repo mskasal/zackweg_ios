@@ -292,7 +292,7 @@ struct DescriptionInputView: View {
         HStack {
             Text("\(description.count)/10 " + "posts.min_chars".localized)
                 .font(.caption)
-                .foregroundColor(description.count >= 10 ? .green : .secondary)
+                .foregroundColor(description.count >= 10 ? .green : .orange)
             
             Spacer()
         }
@@ -394,7 +394,7 @@ struct PostDetailsSection: View {
                 HStack {
                     Text("\(description.count)/10 " + "posts.min_chars".localized)
                         .font(.caption)
-                        .foregroundColor(description.count >= 10 ? .green : .secondary)
+                        .foregroundColor(description.count >= 10 ? .green : .orange)
                     
                     Spacer()
                 }

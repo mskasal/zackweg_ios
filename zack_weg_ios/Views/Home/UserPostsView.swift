@@ -3,6 +3,12 @@ import SwiftUI
 struct ErrorMessage: Identifiable {
     let id = UUID()
     let message: String
+    let detail: String?
+    
+    init(message: String, detail: String? = nil) {
+        self.message = message
+        self.detail = detail
+    }
 }
 
 struct UserPostsView: View {
@@ -46,13 +52,13 @@ struct UserPostsView: View {
         }
         .onChange(of: viewModel.error) { error in
             if let errorStr = error {
-                errorMessage = ErrorMessage(message: errorStr)
+                errorMessage = ErrorMessage(message: errorStr, detail: viewModel.errorDetail)
             }
         }
         .alert(item: $errorMessage) { error in
             Alert(
                 title: Text("common.error".localized),
-                message: Text(error.message),
+                message: Text(error.detail != nil ? "\(error.message)\n\n\(error.detail!)" : error.message),
                 dismissButton: .default(Text("common.ok".localized))
             )
         }

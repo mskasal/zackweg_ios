@@ -6,6 +6,7 @@ import SwiftUI
 class UserPostsViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var error: String?
+    @Published var errorDetail: String?
     @Published var isLoading = false
     @Published var isRefreshing = false
     @Published var selectedTab: PostStatus = .active
@@ -85,6 +86,14 @@ class UserPostsViewModel: ObservableObject {
             filterPosts()
         } catch {
             self.error = error.localizedDescription
+            // Extract detailed error info if available
+            if let appError = error as? AppError {
+                self.errorDetail = appError.detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
+                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else {
+                self.errorDetail = nil
+            }
         }
     }
     
@@ -103,6 +112,14 @@ class UserPostsViewModel: ObservableObject {
             }
         } catch {
             self.error = error.localizedDescription
+            // Extract detailed error info if available
+            if let appError = error as? AppError {
+                self.errorDetail = appError.detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
+                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else {
+                self.errorDetail = nil
+            }
         }
     }
     
@@ -134,6 +151,14 @@ class UserPostsViewModel: ObservableObject {
             filterPosts()
         } catch {
             self.error = error.localizedDescription
+            // Extract detailed error info if available
+            if let appError = error as? AppError {
+                self.errorDetail = appError.detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
+                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else {
+                self.errorDetail = nil
+            }
         }
     }
     
