@@ -119,10 +119,24 @@ struct PriceInputView: View {
                     .foregroundColor(.secondary)
                     .font(.headline)
                 
-                TextField("0.00", text: $price)
+                TextField("0,00", text: $price)
                     .focused($focusState)
                     .keyboardType(.decimalPad)
                     .submitLabel(.done)
+                    .onChange(of: price) { newValue in
+                        // Replace dots with commas for German number format
+                        if newValue.contains(".") {
+                            price = newValue.replacingOccurrences(of: ".", with: ",")
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                focusState = false
+                            }
+                        }
+                    }
             }
             .padding()
             .background(Color(.systemGray6).opacity(0.5))
@@ -405,11 +419,25 @@ struct PostDetailsSection: View {
                                 .foregroundColor(.secondary)
                                 .font(.headline)
                             
-                            TextField("0.00", text: $price)
+                            TextField("0,00", text: $price)
                                 .focused($priceFocus)
                                 .focused($focusedField, equals: .price)
                                 .keyboardType(.decimalPad)
                                 .submitLabel(.done)
+                                .onChange(of: price) { newValue in
+                                    // Replace dots with commas for German number format
+                                    if newValue.contains(".") {
+                                        price = newValue.replacingOccurrences(of: ".", with: ",")
+                                    }
+                                }
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Spacer()
+                                        Button("Done") {
+                                            focusedField = nil
+                                        }
+                                    }
+                                }
                         }
                         .padding()
                         .background(Color(.systemGray6).opacity(0.5))

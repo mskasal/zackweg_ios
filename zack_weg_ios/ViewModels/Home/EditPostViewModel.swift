@@ -236,7 +236,9 @@ class EditPostViewModel: ObservableObject {
             
             // Convert price string to Double if needed
             let priceDouble: Double? = price.flatMap { priceString in
-                return Double(priceString)
+                // Handle German number format (comma as decimal separator)
+                let normalizedPrice = priceString.replacingOccurrences(of: ",", with: ".")
+                return Double(normalizedPrice)
             }
             
             // Update the post with all data

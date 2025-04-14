@@ -189,7 +189,7 @@ struct PostRowView: View {
                 
                 HStack(spacing: 8) {
                     if post.offering == "SOLD_AT_PRICE" && post.price != nil {
-                        Text("€\(String(format: "%.2f", post.price!))")
+                        Text(String(post.price!).asPriceText())
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.blue)

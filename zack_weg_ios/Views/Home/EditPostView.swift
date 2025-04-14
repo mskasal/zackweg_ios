@@ -505,7 +505,8 @@ struct EditPostView: View {
         
         // Set price if available
         if let postPrice = post.price {
-            price = String(format: "%.2f", postPrice)
+            // Convert to German format with comma as decimal separator
+            price = String(format: "%.2f", postPrice).replacingOccurrences(of: ".", with: ",")
         }
         
         // Validate the form with the loaded data
@@ -522,7 +523,7 @@ struct EditPostView: View {
                 description: description,
                 categoryId: selectedCategory,
                 offering: offering.rawValue,
-                price: offering == .soldAtPrice ? price : "0",
+                price: offering == .soldAtPrice ? price.replacingOccurrences(of: ",", with: ".") : "0",
                 status: viewModel.status
             )
             

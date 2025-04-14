@@ -229,7 +229,7 @@ struct PostDetailView: View {
                             Spacer()
                             
                             if post.offering == "SOLD_AT_PRICE" {
-                                Text("€\(String(format: "%.2f", post.price!))")
+                                Text(String(post.price!).asPriceText())
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .foregroundColor(.blue)

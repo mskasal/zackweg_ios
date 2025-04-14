@@ -186,7 +186,7 @@ struct PostCardCompact: View {
                         .foregroundColor(.green)
                         .font(.subheadline)
                 } else if let price = post.price {
-                    Text("€\(String(format: "%.2f", price))")
+                    Text(String(price).asPriceText())
                         .foregroundColor(.blue)
                         .font(.subheadline)
                 }

@@ -64,7 +64,7 @@ struct PostCard: View {
                     Spacer()
                     
                     if post.offering == "SOLD_AT_PRICE" {
-                        Text("€\(String(format: "%.2f", post.price!))")
+                        Text(String(post.price!).asPriceText())
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
