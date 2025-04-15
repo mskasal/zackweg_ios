@@ -46,6 +46,20 @@ struct ProfileView: View {
                 .accessibilityIdentifier("userProfileHeader")
             }
             
+            // My Posts section
+            Section {
+                NavigationLink(destination: UserPostsView(userId: UserDefaults.standard.string(forKey: "userId") ?? "")) {
+                    HStack {
+                        Label("posts.my_posts".localized, systemImage: "square.grid.2x2")
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
+                }
+                .accessibilityIdentifier("myPostsButton")
+            } header: {
+                Text("posts.title".localized)
+            }
+            
             // Blocked Users section
             Section {
                 Button(action: {
