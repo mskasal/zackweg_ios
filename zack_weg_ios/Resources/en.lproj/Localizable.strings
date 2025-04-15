@@ -90,6 +90,31 @@
 "profile.location" = "Location";
 "profile.postal_code" = "Postal Code";
 "profile.country" = "Country";
+"profile.privacy" = "Privacy";
+"profile.blocked_users" = "Blocked Users";
+"profile.no_blocked_users" = "No Blocked Users";
+"profile.no_blocked_users_description" = "You haven't blocked any users yet. Blocked users cannot contact you or see your posts.";
+"profile.unblock" = "Unblock";
+"profile.block_reason" = "Reason: %@";
+"profile.blocked_on" = "Blocked on: %@";
+"profile.block_user_title" = "Block User";
+"profile.block_user_instructions" = "Block %@ from contacting you or seeing your content. Blocked users won't be notified that you've blocked them.";
+"profile.block_reason_label" = "WHY ARE YOU BLOCKING THIS USER?";
+"profile.additional_details" = "ADDITIONAL DETAILS";
+"profile.more_info_placeholder" = "Provide more information (optional)";
+"profile.block_submit" = "Block User";
+"profile.block_new_user" = "Block New User";
+"profile.block_user" = "Block User";
+
+// Block confirmation dialog
+"profile.confirm_block_title" = "Confirm Block";
+"profile.confirm_block_message" = "Are you sure you want to block %@? They will not be able to contact you or see your content.";
+"profile.confirm_block_generic" = "Are you sure you want to block this user? They will not be able to contact you or see your content.";
+
+// Unblock confirmation dialog
+"profile.confirm_unblock_title" = "Confirm Unblock";
+"profile.confirm_unblock_message" = "Are you sure you want to unblock %@? They will be able to contact you and see your content.";
+"profile.confirm_unblock_generic" = "Are you sure you want to unblock this user? They will be able to contact you and see your content.";
 
 // MARK: - Posts
 "posts.title" = "Posts";

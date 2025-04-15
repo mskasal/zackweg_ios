@@ -319,8 +319,8 @@ struct PostDetailView: View {
                             }
                             .padding(.vertical, 6)
                         } else {
-                            // Include navigation to UserPostsView when not coming from UserPostsView
-                            NavigationLink(destination: UserPostsView(userId: post.user.id, userName: post.user.nickName, disablePostNavigation: true)) {
+                            // Include navigation to PublicUserView instead of UserPostsView
+                            NavigationLink(destination: PublicUserView(userId: post.user.id, nickName: post.user.nickName)) {
                                 HStack(spacing: 8) {
                                     // Avatar icon
                                     ZStack {

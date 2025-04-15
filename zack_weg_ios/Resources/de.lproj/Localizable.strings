@@ -78,6 +78,31 @@
 "profile.location" = "Standort";
 "profile.postal_code" = "Postleitzahl";
 "profile.country" = "Land";
+"profile.privacy" = "Datenschutz";
+"profile.blocked_users" = "Blockierte Benutzer";
+"profile.no_blocked_users" = "Keine blockierten Benutzer";
+"profile.no_blocked_users_description" = "Du hast noch keine Benutzer blockiert. Blockierte Benutzer können dich nicht kontaktieren oder deine Beiträge sehen.";
+"profile.unblock" = "Entsperren";
+"profile.block_reason" = "Grund: %@";
+"profile.blocked_on" = "Blockiert am: %@";
+"profile.block_user_title" = "Benutzer blockieren";
+"profile.block_user_instructions" = "Blockiere %@ damit er dich nicht kontaktieren oder deine Inhalte sehen kann. Blockierte Benutzer werden nicht darüber informiert, dass du sie blockiert hast.";
+"profile.block_reason_label" = "WARUM BLOCKIERST DU DIESEN BENUTZER?";
+"profile.additional_details" = "ZUSÄTZLICHE DETAILS";
+"profile.more_info_placeholder" = "Weitere Informationen angeben (optional)";
+"profile.block_submit" = "Benutzer blockieren";
+"profile.block_new_user" = "Neuen Benutzer blockieren";
+"profile.block_user" = "Blockieren";
+
+// Block confirmation dialog
+"profile.confirm_block_title" = "Blockieren bestätigen";
+"profile.confirm_block_message" = "Bist du sicher, dass du %@ blockieren möchtest? Die Person wird dich nicht mehr kontaktieren oder deine Inhalte sehen können.";
+"profile.confirm_block_generic" = "Bist du sicher, dass du diesen Benutzer blockieren möchtest? Die Person wird dich nicht mehr kontaktieren oder deine Inhalte sehen können.";
+
+// Unblock confirmation dialog
+"profile.confirm_unblock_title" = "Entsperren bestätigen";
+"profile.confirm_unblock_message" = "Bist du sicher, dass du %@ entsperren möchtest? Die Person wird dich wieder kontaktieren und deine Inhalte sehen können.";
+"profile.confirm_unblock_generic" = "Bist du sicher, dass du diesen Benutzer entsperren möchtest? Die Person wird dich wieder kontaktieren und deine Inhalte sehen können.";
 
 // MARK: - Posts
 "posts.title" = "Beiträge";

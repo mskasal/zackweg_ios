@@ -55,10 +55,10 @@ struct ContentView: View {
                             .tag(3)
                             
                             NavigationStack {
-                                SettingsView()
+                                ProfileView()
                             }
                             .tabItem {
-                                Label("settings.title".localized, systemImage: "person.fill")
+                                Label("profile.title".localized, systemImage: "person.fill")
                             }
                             .tag(4)
                             .environmentObject(authViewModel)

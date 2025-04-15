@@ -224,7 +224,7 @@ struct ConversationHeaderView: View {
                         
                         // User info
                         if let user = otherUser {
-                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
+                            NavigationLink(destination: PublicUserView(userId: user.id, nickName: user.nickName)) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "person.circle.fill")
                                         .foregroundColor(.secondary)
@@ -237,7 +237,7 @@ struct ConversationHeaderView: View {
                     } else {
                         // When post is not available, show only user info on the left
                         if let user = otherUser {
-                            NavigationLink(destination: UserPostsView(userId: user.id, userName: user.nickName, disablePostNavigation: true)) {
+                            NavigationLink(destination: PublicUserView(userId: user.id, nickName: user.nickName)) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "person.circle.fill")
                                         .foregroundColor(.secondary)

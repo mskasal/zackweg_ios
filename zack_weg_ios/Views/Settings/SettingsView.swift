@@ -1,3 +1,8 @@
+//
+//  SettingsView.swift
+//  zack_weg_ios
+//
+
 import SwiftUI
 
 struct SettingsView: View {
@@ -11,38 +16,6 @@ struct SettingsView: View {
     
     var body: some View {
         List {
-            // Header section with user info
-            Section {
-                HStack(spacing: 16) {
-                    // Avatar placeholder
-                    ZStack {
-                        Circle()
-                            .fill(Color.blue.opacity(0.1))
-                            .frame(width: 60, height: 60)
-                        
-                        Text(getInitials())
-                            .font(.system(size: 22, weight: .medium))
-                            .foregroundColor(.blue)
-                    }
-                    .accessibilityIdentifier("userAvatarView")
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(UserDefaults.standard.string(forKey: "userNickName") ?? "User")
-                            .font(.headline)
-                            .accessibilityIdentifier("userNicknameText")
-                        
-                        Text(UserDefaults.standard.string(forKey: "userEmail") ?? "")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .accessibilityIdentifier("userEmailText")
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.vertical, 8)
-                .accessibilityIdentifier("userProfileHeader")
-            }
-            
             // Account settings
             Section(header: Text("settings.account".localized)) {
                 Button(action: { showingUpdateProfile = true }) {
@@ -218,34 +191,28 @@ struct SettingsView: View {
         .navigationTitle("settings.title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingUpdateProfile) {
-            UpdateProfileView()
+            NavigationView {
+                UpdateProfileView()
+            }
         }
         .sheet(isPresented: $showingUpdatePassword) {
-            UpdatePasswordView()
-        }
-        .alert("auth.sign_out".localized, isPresented: $showingSignOutConfirmation) {
-            Button("common.cancel".localized, role: .cancel) { }
-            Button("auth.sign_out".localized, role: .destructive) {
-                authViewModel.signOut()
+            NavigationView {
+                UpdatePasswordView()
             }
-        } message: {
-            Text("settings.sign_out_confirmation".localized)
+        }
+        .alert(isPresented: $showingSignOutConfirmation) {
+            signOutAlert()
         }
     }
     
-    private func getInitials() -> String {
-        let nickname = UserDefaults.standard.string(forKey: "userNickName") ?? "U"
-        let components = nickname.components(separatedBy: " ")
-        
-        if components.count > 1, 
-           let firstInitial = components[0].first,
-           let lastInitial = components[1].first {
-            return "\(firstInitial)\(lastInitial)"
-        } else if let firstInitial = nickname.first {
-            return String(firstInitial)
-        }
-        
-        return "U"
+    private func signOutAlert() -> Alert {
+        Alert(
+            title: Text("auth.sign_out".localized),
+            primaryButton: .destructive(Text("auth.sign_out".localized)) {
+                authViewModel.signOut()
+            },
+            secondaryButton: .cancel(Text("common.cancel".localized))
+        )
     }
     
     // Open Help & Support in browser

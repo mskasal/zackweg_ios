@@ -1122,13 +1122,20 @@ class APIService {
     
     // MARK: - User Blocking
     
-    func blockUser(userId: String) async throws {
-        let url = URL(string: "\(baseURL)/users/block/\(userId)")!
+    func blockUser(userId: String, reason: String) async throws {
+        let url = URL(string: "\(baseURL)/blocked-users")!
         print("🚫 Block User Request URL: \(url.absoluteString)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Create JSON body with blocked user ID and reason
+        let bodyData = try JSONEncoder().encode([
+            "blocked_user_id": userId,
+            "reason": reason
+        ])
+        request.httpBody = bodyData
         
         let (data, response) = try await session.data(for: request)
         
@@ -1150,7 +1157,7 @@ class APIService {
     }
     
     func unblockUser(userId: String) async throws {
-        let url = URL(string: "\(baseURL)/users/block/\(userId)")!
+        let url = URL(string: "\(baseURL)/blocked-users/\(userId)")!
         print("🔓 Unblock User Request URL: \(url.absoluteString)")
         
         var request = URLRequest(url: url)
@@ -1177,7 +1184,7 @@ class APIService {
     }
     
     func getBlockedUsers() async throws -> [PublicUser] {
-        let url = URL(string: "\(baseURL)/users/blocked")!
+        let url = URL(string: "\(baseURL)/blocked-users")!
         print("📋 Get Blocked Users Request URL: \(url.absoluteString)")
         
         var request = URLRequest(url: url)
@@ -1204,7 +1211,23 @@ class APIService {
         decoder.dateDecodingStrategy = .iso8601
         
         print("✅ Successfully retrieved blocked users list")
-        return try decoder.decode([PublicUser].self, from: data)
+        
+        // First decode as BlockedUser objects
+        let blockedUsers = try decoder.decode([BlockedUser].self, from: data)
+        
+        // Create array of PublicUser objects
+        var publicUsers: [PublicUser] = []
+        
+        // For each blocked user, we could fetch their detailed information
+        // This is a simplified approach - ideally we'd make additional API calls
+        // to fetch user details for each blocked user ID if needed
+        for blockedUser in blockedUsers {
+            // For now, create a minimal PublicUser with the ID
+            // In a real implementation, you might want to fetch more details
+            publicUsers.append(PublicUser(id: blockedUser.blockedUserId, nickName: "User \(blockedUser.blockedUserId.prefix(8))"))
+        }
+        
+        return publicUsers
     }
 }
 

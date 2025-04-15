@@ -72,12 +72,37 @@
 
 // MARK: - Profile
 "profile.title" = "Profil";
-"profile.edit" = "Profili Düzenle";
+"profile.edit" = "Profil Düzenle";
 "profile.nickname" = "Kullanıcı Adı";
 "profile.email" = "E-posta";
 "profile.location" = "Konum";
 "profile.postal_code" = "Posta Kodu";
 "profile.country" = "Ülke";
+"profile.privacy" = "Gizlilik";
+"profile.blocked_users" = "Engellenen Kullanıcılar";
+"profile.no_blocked_users" = "Engellenen Kullanıcı Yok";
+"profile.no_blocked_users_description" = "Henüz hiçbir kullanıcıyı engellemediiniz. Engellenen kullanıcılar sizinle iletişim kuramaz veya gönderilerinizi göremez.";
+"profile.unblock" = "Engeli Kaldır";
+"profile.block_reason" = "Sebep: %@";
+"profile.blocked_on" = "Engellenme tarihi: %@";
+"profile.block_user_title" = "Kullanıcıyı Engelle";
+"profile.block_user_instructions" = "%@ kullanıcısını engelle, böylece seninle iletişim kuramaz veya içeriklerini göremez. Engellenen kullanıcılara engellendikleri bildirilmez.";
+"profile.block_reason_label" = "BU KULLANICIYI NEDEN ENGELLİYORSUNUZ?";
+"profile.additional_details" = "EK DETAYLAR";
+"profile.more_info_placeholder" = "Daha fazla bilgi sağla (isteğe bağlı)";
+"profile.block_submit" = "Kullanıcıyı Engelle";
+"profile.block_new_user" = "Yeni Kullanıcı Engelle";
+"profile.block_user" = "Engelle";
+
+// Block confirmation dialog
+"profile.confirm_block_title" = "Engellemeyi Onayla";
+"profile.confirm_block_message" = "%@ kullanıcısını engellemek istediğinize emin misiniz? Sizinle iletişim kuramayacak ve içeriğinizi göremeyecek.";
+"profile.confirm_block_generic" = "Bu kullanıcıyı engellemek istediğinize emin misiniz? Sizinle iletişim kuramayacak ve içeriğinizi göremeyecek.";
+
+// Unblock confirmation dialog
+"profile.confirm_unblock_title" = "Engeli Kaldırmayı Onayla";
+"profile.confirm_unblock_message" = "%@ kullanıcısının engelini kaldırmak istediğinize emin misiniz? Sizinle iletişim kurabilecek ve içeriğinizi görebilecek.";
+"profile.confirm_unblock_generic" = "Bu kullanıcının engelini kaldırmak istediğinize emin misiniz? Sizinle iletişim kurabilecek ve içeriğinizi görebilecek.";
 
 // MARK: - Posts
 "posts.title" = "İlanlar";
