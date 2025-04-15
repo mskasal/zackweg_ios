@@ -23,13 +23,13 @@ class SettingsViewModel: ObservableObject {
         var errorDescription: String? {
             switch self {
             case .networkError:
-                return "Network connection error. Please check your internet connection."
+                return "error.network.connection".localized
             case .authenticationError:
-                return "Authentication error. Please sign in again."
+                return "error.auth.unauthorized".localized
             case .serverError(let message):
-                return "Server error: \(message)"
+                return String(format: "error.server.with_message".localized, message)
             case .unknownError:
-                return "An unexpected error occurred. Please try again later."
+                return "error.unknown".localized
             }
         }
     }
@@ -64,10 +64,20 @@ class SettingsViewModel: ObservableObject {
             updateSuccess = true
             isLoading = false
             return user
-        } catch let error as NSError {
+        } catch let error as APIError {
             isLoading = false
-            handleError(error)
-            throw mapError(error)
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            print("❌ Profile update failed: \(error.localizedDescription)")
+            throw error
         } catch {
             isLoading = false
             self.error = error.localizedDescription
@@ -91,10 +101,20 @@ class SettingsViewModel: ObservableObject {
             print("✓ Password updated successfully")
             updateSuccess = true
             isLoading = false
-        } catch let error as NSError {
+        } catch let error as APIError {
             isLoading = false
-            handleError(error)
-            throw mapError(error)
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            print("❌ Password update failed: \(error.localizedDescription)")
+            throw error
         } catch {
             isLoading = false
             self.error = error.localizedDescription
@@ -142,10 +162,18 @@ class SettingsViewModel: ObservableObject {
             print("✓ Profile fetched successfully")
             isLoading = false
             return user
-        } catch let error as NSError {
+        } catch let error as APIError {
             isLoading = false
-            handleError(error)
-            throw mapError(error)
+            switch error {
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            print("❌ Profile fetch failed: \(error.localizedDescription)")
+            throw error
         } catch {
             isLoading = false
             self.error = error.localizedDescription

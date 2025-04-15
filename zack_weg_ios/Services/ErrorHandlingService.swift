@@ -9,9 +9,12 @@ enum APIError: Error {
     case networkError(Error)
     case invalidResponse
     case decodingError(Error)
-    case serverError(String)
+    case badRequest(String?)      // 400 errors - include message from backend
+    case unauthorized             // 401 errors 
+    case notFound(String?)        // 404 errors
+    case conflict(String?)        // 409 errors - typically for resource conflicts
+    case serverError(Int, String?) // 500 and other server errors - include status code and optional message
     case unexpectedError
-    case unauthorized
 }
 
 /// AppError defines all possible error types in the application
@@ -27,6 +30,7 @@ enum AppError: Error {
     case unauthorized
     case sessionExpired
     case invalidCredentials
+    case userAlreadyExists
     
     // Data errors
     case invalidData
@@ -75,12 +79,21 @@ enum AppError: Error {
             return .invalidResponse
         case .decodingError:
             return .parsingError
-        case .serverError(let message):
-            return .serverError(500, message)
-        case .unexpectedError:
-            return .internalError
+        case .badRequest(let message):
+            return .invalidInput(message ?? "Invalid request")
         case .unauthorized:
             return .unauthorized
+        case .notFound(let message):
+            return message != nil ? .custom(message!) : .dataNotFound
+        case .conflict(let message):
+            if message?.contains("email") ?? false || message?.contains("user") ?? false {
+                return .userAlreadyExists
+            }
+            return .custom(message ?? "Resource conflict")
+        case .serverError(let code, let message):
+            return .serverError(code, message)
+        case .unexpectedError:
+            return .internalError
         }
     }
 }
@@ -111,6 +124,8 @@ extension AppError: LocalizedError {
             return "error.auth.session_expired".localized
         case .invalidCredentials:
             return "error.auth.invalid_credentials".localized
+        case .userAlreadyExists:
+            return "error.auth.user_already_exists".localized
             
         // Data errors
         case .invalidData:

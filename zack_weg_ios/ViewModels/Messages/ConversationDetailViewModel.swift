@@ -32,7 +32,10 @@ class ConversationDetailViewModel: ObservableObject {
                 _ = try await apiService.getPostById(conversation.postId)
                 isPostAvailable = true
             } catch let error as APIError {
-                if case .serverError(let message) = error, message.contains("404") {
+                if case .notFound = error {
+                    print("❌ Post is no longer available (404)")
+                    isPostAvailable = false
+                } else if case .serverError(let code, _) = error, code == 404 {
                     print("❌ Post is no longer available (404)")
                     isPostAvailable = false
                 } else {

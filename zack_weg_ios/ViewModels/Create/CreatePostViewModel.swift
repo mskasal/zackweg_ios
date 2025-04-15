@@ -158,6 +158,19 @@ class CreatePostViewModel: ObservableObject {
             self.createdPostId = post.id
             
             print("✅ Post created successfully: ID \(post.id)")
+        } catch let error as APIError {
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            print("❌ Failed to create post: \(error.localizedDescription)")
+            throw error
         } catch {
             self.error = error.localizedDescription
             print("❌ Failed to create post: \(error.localizedDescription)")

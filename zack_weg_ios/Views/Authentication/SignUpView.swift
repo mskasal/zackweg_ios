@@ -458,7 +458,7 @@ struct SignUpView: View {
                 )
                 dismiss()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = authViewModel.error ?? error.localizedDescription
                 showError = true
             }
         }

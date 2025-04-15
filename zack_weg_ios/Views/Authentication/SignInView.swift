@@ -277,7 +277,7 @@ struct SignInView: View {
         .alert(isPresented: $showError) {
             Alert(
                 title: Text("common.error".localized),
-                message: Text(errorMessage),
+                message: Text(authViewModel.error ?? errorMessage),
                 dismissButton: .default(Text("common.ok".localized))
             )
         }

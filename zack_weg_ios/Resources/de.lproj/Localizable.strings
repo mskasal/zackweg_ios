@@ -54,6 +54,7 @@
 "auth.check_email" = "Bitte überprüfe deine E-Mails für Anweisungen zum Zurücksetzen des Passworts";
 "auth.postal_code_required" = "Postleitzahl ist erforderlich";
 "auth.nickname_required" = "Spitzname ist erforderlich";
+"auth.sign_in_to_view" = "Bitte melden Sie sich an, um diesen Inhalt anzuzeigen";
 
 // Field placeholders
 "auth.signup.email.placeholder" = "E-Mail-Adresse eingeben";
@@ -147,6 +148,7 @@
 "posts.upload_failed_count" = "%d fehlgeschlagen - zum Wiederholen tippen";
 "posts.upload_progress" = "%d/%d hochgeladen";
 "posts.wait_for_upload" = "Bitte warten Sie bis alle Bilder hochgeladen sind";
+"post_detail.deleting" = "Wird gelöscht...";
 
 // MARK: - Categories
 "categories.title" = "Kategorien";
@@ -225,6 +227,7 @@
 "error.auth.unauthorized" = "Sie sind nicht berechtigt, diese Aktion auszuführen. Bitte melden Sie sich erneut an.";
 "error.auth.session_expired" = "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.";
 "error.auth.invalid_credentials" = "Ungültige E-Mail oder Passwort. Bitte versuchen Sie es erneut.";
+"error.auth.user_already_exists" = "Ein Benutzer mit dieser E-Mail oder diesem Benutzernamen existiert bereits. Bitte verwenden Sie andere Anmeldedaten.";
 
 // Data errors
 "error.data.invalid" = "Die Daten sind ungültig oder beschädigt.";

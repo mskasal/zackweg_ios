@@ -66,6 +66,7 @@
 "auth.check_email" = "Please check your email for password reset instructions";
 "auth.postal_code_required" = "Postal code is required";
 "auth.nickname_required" = "Nickname is required";
+"auth.sign_in_to_view" = "Please sign in to view this content";
 
 // Field placeholders
 "auth.signup.email.placeholder" = "Enter your email";
@@ -159,6 +160,7 @@
 "posts.upload_failed_count" = "%d failed - tap to retry";
 "posts.upload_progress" = "%d/%d uploaded";
 "posts.wait_for_upload" = "Please wait for all images to upload";
+"post_detail.deleting" = "Deleting...";
 
 // MARK: - Categories
 "categories.title" = "Categories";
@@ -237,6 +239,7 @@
 "error.auth.unauthorized" = "You are not authorized to perform this action. Please sign in again.";
 "error.auth.session_expired" = "Your session has expired. Please sign in again.";
 "error.auth.invalid_credentials" = "Invalid email or password. Please try again.";
+"error.auth.user_already_exists" = "A user with this email or username already exists. Please use different credentials.";
 
 // Data errors
 "error.data.invalid" = "The data is invalid or corrupted.";

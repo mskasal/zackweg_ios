@@ -54,9 +54,23 @@ class PostDetailViewModel: ObservableObject {
                 self.loadedPost = fetchedPost
                 print("Successfully loaded post details for ID: \(postId)")
             }
+        } catch let apiError as APIError {
+            await MainActor.run {
+                switch apiError {
+                case .notFound:
+                    self.error = "messages.post_not_available".localized
+                case .serverError(let code, let message):
+                    self.error = message ?? String(format: "error.server.with_code".localized, code)
+                case .unauthorized:
+                    self.error = "auth.sign_in_to_view".localized
+                default:
+                    self.error = apiError.localizedDescription
+                }
+                print("Error loading post: \(apiError.localizedDescription)")
+            }
         } catch {
             await MainActor.run {
-                self.error = "Failed to load post: \(error.localizedDescription)"
+                self.error = String(format: "error.data.not_found".localized)
                 print("Error loading post: \(error.localizedDescription)")
             }
         }
@@ -85,6 +99,22 @@ class PostDetailViewModel: ObservableObject {
                 print("Successfully started conversation with ID: \(newConversation.id)")
                 messageText = "" // Clear the message text after sending
             }
+        } catch let apiError as APIError {
+            await MainActor.run {
+                switch apiError {
+                case .notFound:
+                    self.error = "messages.post_not_available".localized
+                case .unauthorized:
+                    self.error = "error.auth.unauthorized".localized
+                case .badRequest(let message):
+                    self.error = message ?? "error.input.invalid".localized
+                case .serverError(let code, let message):
+                    self.error = message ?? String(format: "error.server.with_code".localized, code)
+                default:
+                    self.error = apiError.localizedDescription
+                }
+                print("Error sending message: \(apiError.localizedDescription)")
+            }
         } catch {
             await MainActor.run {
                 self.error = error.localizedDescription
@@ -111,9 +141,25 @@ class PostDetailViewModel: ObservableObject {
                 postDeleted = true
                 print("Successfully deleted post with ID: \(postId)")
             }
+        } catch let apiError as APIError {
+            await MainActor.run {
+                switch apiError {
+                case .notFound:
+                    // The post is already gone, so mark as deleted
+                    self.postDeleted = true
+                    print("Post already deleted: \(postId)")
+                case .unauthorized:
+                    self.error = "error.permission.denied".localized
+                case .serverError(let code, let message):
+                    self.error = message ?? String(format: "error.server.with_code".localized, code)
+                default:
+                    self.error = String(format: "error.operation.failed".localized, apiError.localizedDescription)
+                }
+                print("Error deleting post: \(apiError.localizedDescription)")
+            }
         } catch {
             await MainActor.run {
-                self.error = "Failed to delete post: \(error.localizedDescription)"
+                self.error = String(format: "error.operation.failed".localized, error.localizedDescription)
                 print("Error deleting post: \(error.localizedDescription)")
             }
         }

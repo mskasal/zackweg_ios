@@ -1,5 +1,8 @@
 import Foundation
 
+// Import the error types from ErrorHandlingService
+import SwiftUI // This should import the ErrorHandlingService via SwiftUI imports
+
 class AuthenticatedURLSession {
     static let shared = AuthenticatedURLSession()
     private let session: URLSession
@@ -38,6 +41,32 @@ class APIService {
     init(baseURL: String, session: AuthenticatedURLSession = .shared) {
         self.baseURL = baseURL
         self.session = session
+    }
+    
+    // MARK: - Error Handling
+    
+    private func handleAPIError(statusCode: Int, data: Data) throws {
+        var errorMessage: String? = nil
+        
+        // Try to decode the error message from response
+        if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+            errorMessage = errorResponse.message
+        }
+        
+        switch statusCode {
+        case 400:
+            throw APIError.badRequest(errorMessage)
+        case 401:
+            throw APIError.unauthorized
+        case 404:
+            throw APIError.notFound(errorMessage)
+        case 409:
+            throw APIError.conflict(errorMessage)
+        case 500...599:
+            throw APIError.serverError(statusCode, errorMessage)
+        default:
+            throw APIError.serverError(statusCode, errorMessage ?? "Unknown error")
+        }
     }
     
     struct SignUpRequest: Codable {
@@ -95,12 +124,12 @@ class APIService {
             print("📦 Sign In Response Body: \(responseString)")
         }
         
-        if httpResponse.statusCode == 200 {
+        if (200...299).contains(httpResponse.statusCode) {
             let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
             return tokenResponse.token
         } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
     }
     
@@ -133,12 +162,12 @@ class APIService {
             print("📦 Sign Up Response Body: \(responseString)")
         }
         
-        if httpResponse.statusCode == 200 {
+        if (200...299).contains(httpResponse.statusCode) {
             let tokenResponse = try JSONDecoder().decode(TokenResponse.self, from: data)
             return tokenResponse.token
         } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
     }
     
@@ -165,9 +194,9 @@ class APIService {
             print("📦 Reset Password Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 else {
-            let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse?.message ?? "Unknown error")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
     }
     
@@ -190,11 +219,11 @@ class APIService {
             print("📦 Get Posts Response Body: \(responseString)")
         }
         
-        if httpResponse.statusCode == 200 {
+        if (200...299).contains(httpResponse.statusCode) {
             return try JSONDecoder().decode([Post].self, from: data)
         } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
     }
     
@@ -229,9 +258,9 @@ class APIService {
             print("📦 Create Post Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 201 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return try await getPostById("") // This line shouldn't be reached
         }
         
         // Decode the created post from the response
@@ -275,12 +304,12 @@ class APIService {
             print("📦 Upload Image Response Body: \(responseString)")
         }
         
-        if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
+        if (200...299).contains(httpResponse.statusCode) {
             let response = try JSONDecoder().decode(ImageUploadResponse.self, from: data)
             return response.url
         } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
     }
     
@@ -311,11 +340,9 @@ class APIService {
             print("📦 Report Post Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
-            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
-            }
-            throw APIError.serverError("Failed to submit report with status: \(httpResponse.statusCode)")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
     }
     
@@ -338,11 +365,11 @@ class APIService {
             print("📦 Get Categories Response Body: \(responseString)")
         }
         
-        if httpResponse.statusCode == 200 {
+        if (200...299).contains(httpResponse.statusCode) {
             return try JSONDecoder().decode([Category].self, from: data)
         } else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
     }
     
@@ -361,11 +388,9 @@ class APIService {
             throw APIError.unauthorized
         }
         
-        guard httpResponse.statusCode == 200 else {
-            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
-            }
-            throw APIError.serverError("Failed to get profile")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let user = try JSONDecoder().decode(User.self, from: data)
@@ -477,7 +502,7 @@ class APIService {
                 print("📦 Search Posts Response (truncated): \(truncatedResponse)\(responseString.count > maxLength ? "..." : "")")
             }
             
-            if httpResponse.statusCode == 200 {
+            if (200...299).contains(httpResponse.statusCode) {
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
                 
@@ -485,9 +510,8 @@ class APIService {
                 print("✅ Search Posts Success: Found \(posts.count) posts")
                 return posts
             } else {
-                let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-                print("❌ Search Posts Error: \(errorResponse.message)")
-                throw APIError.serverError(errorResponse.message)
+                try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+                throw APIError.unexpectedError // This line shouldn't be reached
             }
         } catch let error as APIError {
             print("❌ Search Posts API Error: \(error.localizedDescription)")
@@ -515,8 +539,9 @@ class APIService {
             print("📦 Get Post Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 else {
-            throw APIError.serverError("Server returned status code \(httpResponse.statusCode)")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
@@ -560,13 +585,9 @@ class APIService {
                 throw APIError.unauthorized
             }
             
-            guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
-                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                    print("❌ startConversation Error: \(errorResponse.message)")
-                    throw APIError.serverError(errorResponse.message)
-                }
-                print("❌ startConversation Error: Failed to start conversation, status code: \(httpResponse.statusCode)")
-                throw APIError.serverError("Failed to start conversation")
+            guard (200...299).contains(httpResponse.statusCode) else {
+                try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+                throw APIError.unexpectedError // This line shouldn't be reached
             }
             
             let decoder = JSONDecoder()
@@ -609,9 +630,9 @@ class APIService {
             print("📦 Send Message Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 201 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
@@ -638,9 +659,9 @@ class APIService {
             print("📦 Get Conversations Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
@@ -667,9 +688,9 @@ class APIService {
             print("📦 Get Messages Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
@@ -698,9 +719,9 @@ class APIService {
             print("📦 Get Conversation With Messages Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
@@ -716,7 +737,7 @@ class APIService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        let (_, response) = try await session.data(for: request)
+        let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -724,8 +745,9 @@ class APIService {
         
         print("📥 Mark Conversation as Read Response Status: \(httpResponse.statusCode)")
         
-        guard httpResponse.statusCode == 200 else {
-            throw APIError.serverError("Failed to mark conversation as read: \(httpResponse.statusCode)")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
         
         print("✅ Successfully marked conversation as read")
@@ -747,15 +769,15 @@ class APIService {
         
         print("📥 Get Unread Count Response Status: \(httpResponse.statusCode)")
         
-        guard httpResponse.statusCode == 200 else {
-            throw APIError.serverError("Failed to get unread count: \(httpResponse.statusCode)")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let decoder = JSONDecoder()
-        let countResponse = try decoder.decode(UnreadCountResponse.self, from: data)
+        let unreadResponse = try decoder.decode(UnreadCountResponse.self, from: data)
         
-        print("✅ Successfully got unread count: \(countResponse.count)")
-        return countResponse.count
+        return unreadResponse.count
     }
     
     // MARK: - Settings
@@ -768,16 +790,16 @@ class APIService {
         
         // Ensure we have email
         guard let email = email, !email.isEmpty else {
-            throw APIError.serverError("Email is required")
+            throw APIError.badRequest("Email is required")
         }
         
         // Ensure we have postalCode and countryCode
         guard let postalCode = postalCode, !postalCode.isEmpty else {
-            throw APIError.serverError("Postal code is required")
+            throw APIError.badRequest("Postal code is required")
         }
         
         guard let countryCode = countryCode, !countryCode.isEmpty else {
-            throw APIError.serverError("Country code is required")
+            throw APIError.badRequest("Country code is required")
         }
         
         let bodyDict: [String: Any] = [
@@ -789,7 +811,6 @@ class APIService {
         ]
         
         request.httpBody = try JSONSerialization.data(withJSONObject: bodyDict)
-        print("📦 Update Profile Request Body: \(bodyDict)")
         
         let (data, response) = try await session.data(for: request)
         
@@ -806,11 +827,9 @@ class APIService {
             throw APIError.unauthorized
         }
         
-        guard httpResponse.statusCode == 200 else {
-            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
-            }
-            throw APIError.serverError("Failed to update profile")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         // Decode the updated user data
@@ -825,15 +844,16 @@ class APIService {
     }
     
     func updatePassword(currentPassword: String, newPassword: String) async throws {
-        let url = URL(string: "\(baseURL)/users/password")!
+        let url = URL(string: "\(baseURL)/users/me/password")!
         var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body = [
             "current_password": currentPassword,
             "new_password": newPassword
         ]
+        
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (data, response) = try await session.data(for: request)
@@ -846,11 +866,9 @@ class APIService {
             throw APIError.unauthorized
         }
         
-        guard httpResponse.statusCode == 200 else {
-            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
-            }
-            throw APIError.serverError("Failed to update password")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
     }
     
@@ -868,6 +886,7 @@ class APIService {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let (data, response) = try await session.data(for: request)
         
@@ -886,13 +905,9 @@ class APIService {
             throw APIError.unauthorized
         }
         
-        guard httpResponse.statusCode == 200 else {
-            if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                print("❌ getUserById Error: \(errorResponse.message)")
-                throw APIError.serverError(errorResponse.message)
-            }
-            print("❌ getUserById Error: Failed to get user information, status code: \(httpResponse.statusCode)")
-            throw APIError.serverError("Failed to get user information")
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
         }
         
         let user = try JSONDecoder().decode(PublicUser.self, from: data)
@@ -924,7 +939,7 @@ class APIService {
         }
         
         if !(200...299).contains(httpResponse.statusCode) {
-            throw APIError.serverError("Invalid status code: \(httpResponse.statusCode)")
+            throw APIError.serverError(httpResponse.statusCode, "Invalid status code: \(httpResponse.statusCode)")
         }
         
         do {
@@ -961,7 +976,7 @@ class APIService {
         
         guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
             let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse?.message ?? "Failed to delete post: \(httpResponse.statusCode)")
+            throw APIError.serverError(httpResponse.statusCode, errorResponse?.message ?? "Failed to delete post: \(httpResponse.statusCode)")
         }
         
         print("✅ Successfully deleted post with ID: \(postId)")
@@ -987,9 +1002,9 @@ class APIService {
         
         guard httpResponse.statusCode == 200 else {
             if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
+                throw APIError.serverError(httpResponse.statusCode, errorResponse.message)
             }
-            throw APIError.serverError("Failed to fetch posts for user \(userId)")
+            throw APIError.serverError(httpResponse.statusCode, "Failed to fetch posts for user \(userId)")
         }
         
         let decoder = JSONDecoder()
@@ -1018,9 +1033,9 @@ class APIService {
         
         guard httpResponse.statusCode == 200 else {
             if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                throw APIError.serverError(errorResponse.message)
+                throw APIError.serverError(httpResponse.statusCode, errorResponse.message)
             }
-            throw APIError.serverError("Failed to fetch user profile for \(userId)")
+            throw APIError.serverError(httpResponse.statusCode, "Failed to fetch user profile for \(userId)")
         }
         
         let decoder = JSONDecoder()
@@ -1072,7 +1087,7 @@ class APIService {
         
         guard httpResponse.statusCode == 200 else {
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            throw APIError.serverError(httpResponse.statusCode, errorResponse.message)
         }
         
         print("✅ Successfully updated post with ID: \(postId)")
@@ -1101,7 +1116,7 @@ class APIService {
             return try JSONDecoder().decode([Post].self, from: data)
         } else {
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            throw APIError.serverError(httpResponse.statusCode, errorResponse.message)
         }
     }
     
@@ -1126,9 +1141,9 @@ class APIService {
             print("📦 Block User Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
         
         print("✅ Successfully blocked user with ID: \(userId)")
@@ -1153,9 +1168,9 @@ class APIService {
             print("📦 Unblock User Response Body: \(responseString)")
         }
         
-        guard httpResponse.statusCode == 200 || httpResponse.statusCode == 204 else {
-            let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            return
         }
         
         print("✅ Successfully unblocked user with ID: \(userId)")
@@ -1182,7 +1197,7 @@ class APIService {
         
         guard httpResponse.statusCode == 200 else {
             let errorResponse = try JSONDecoder().decode(ErrorResponse.self, from: data)
-            throw APIError.serverError(errorResponse.message)
+            throw APIError.serverError(httpResponse.statusCode, errorResponse.message)
         }
         
         let decoder = JSONDecoder()

@@ -281,7 +281,12 @@ struct ConversationHeaderView: View {
                         self.isPostAvailable = true
                     }
                 } catch let error as APIError {
-                    if case .serverError(let message) = error, message.contains("404") {
+                    if case .notFound = error {
+                        print("❌ Post is no longer available (404)")
+                        await MainActor.run {
+                            self.isPostAvailable = false
+                        }
+                    } else if case .serverError(let code, _) = error, code == 404 {
                         print("❌ Post is no longer available (404)")
                         await MainActor.run {
                             self.isPostAvailable = false

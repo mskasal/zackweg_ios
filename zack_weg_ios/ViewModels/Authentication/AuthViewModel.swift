@@ -39,6 +39,18 @@ class AuthViewModel: ObservableObject {
             
             self.authToken = token
             isAuthenticated = true
+        } catch let error as APIError {
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "error.auth.invalid_credentials".localized
+            case .unauthorized:
+                self.error = "error.auth.invalid_credentials".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            throw error
         } catch {
             self.error = error.localizedDescription
             throw error
@@ -64,11 +76,28 @@ class AuthViewModel: ObservableObject {
             
             self.authToken = token
             self.isAuthenticated = true
+        } catch let error as APIError {
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .conflict:
+                self.error = "error.auth.user_already_exists".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            self.isAuthenticated = false
+            self.authToken = nil
+            self.currentUser = nil
+            try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
+            throw error
         } catch {
             self.isAuthenticated = false
             self.authToken = nil
             self.currentUser = nil
             try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
+            self.error = error.localizedDescription
             throw error
         }
     }
@@ -77,7 +106,24 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
         
-        try await apiService.resetPassword(email: email)
+        do {
+            try await apiService.resetPassword(email: email)
+        } catch let error as APIError {
+            switch error {
+            case .badRequest(let message):
+                self.error = message ?? "auth.invalid_email".localized
+            case .notFound:
+                self.error = "error.data.not_found".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            throw error
+        } catch {
+            self.error = error.localizedDescription
+            throw error
+        }
     }
     
     func signOut() {
@@ -91,6 +137,17 @@ class AuthViewModel: ObservableObject {
     private func fetchUserProfile() async {
         do {
             currentUser = try await apiService.getMyProfile()
+        } catch let error as APIError {
+            switch error {
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            default:
+                self.error = error.localizedDescription
+            }
+            self.isAuthenticated = false
+            self.authToken = nil
+            self.currentUser = nil
+            try? KeychainManager.shared.delete(key: KeychainManager.Keys.authToken)
         } catch {
             self.error = error.localizedDescription
             self.isAuthenticated = false

@@ -54,6 +54,7 @@
 "auth.check_email" = "Şifre sıfırlama talimatları için lütfen e-postanızı kontrol edin";
 "auth.postal_code_required" = "Posta kodu gereklidir";
 "auth.nickname_required" = "Kullanıcı adı gereklidir";
+"auth.sign_in_to_view" = "Bu içeriği görüntülemek için lütfen giriş yapın";
 
 // Field placeholders
 "auth.signup.email.placeholder" = "E-posta adresini gir";
@@ -147,6 +148,7 @@
 "posts.upload_failed_count" = "%d başarısız - tekrar denemek için dokunun";
 "posts.upload_progress" = "%d/%d yüklendi";
 "posts.wait_for_upload" = "Lütfen tüm görsellerin yüklenmesini bekleyin";
+"post_detail.deleting" = "Siliniyor...";
 
 // MARK: - Categories
 "categories.title" = "Kategoriler";
@@ -225,6 +227,7 @@
 "error.auth.unauthorized" = "Bu işlemi gerçekleştirmek için yetkiniz yok. Lütfen tekrar giriş yapın.";
 "error.auth.session_expired" = "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.";
 "error.auth.invalid_credentials" = "Geçersiz e-posta veya şifre. Lütfen tekrar deneyin.";
+"error.auth.user_already_exists" = "Bu e-posta veya kullanıcı adı ile bir kullanıcı zaten mevcut. Lütfen farklı bilgiler kullanın.";
 
 // Data errors
 "error.data.invalid" = "Veriler geçersiz veya bozuk.";

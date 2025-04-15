@@ -30,6 +30,16 @@ class ExploreViewModel: ObservableObject {
             let user = try await apiService.getMyProfile()
             // Update search filters with user's postal code
             searchFilters.postalCode = user.location.postalCode
+        } catch let apiError as APIError {
+            switch apiError {
+            case .unauthorized:
+                // User not logged in, just continue without setting postal code
+                print("User not authenticated. Using default location.")
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = apiError.localizedDescription
+            }
         } catch {
             self.error = error.localizedDescription
         }
@@ -55,7 +65,22 @@ class ExploreViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
         
-        try await apiService.reportPost(postId: postId, reason: reason)
+        do {
+            try await apiService.reportPost(postId: postId, reason: reason)
+        } catch let apiError as APIError {
+            switch apiError {
+            case .notFound:
+                throw NSError(domain: "AppError", code: 404, userInfo: [NSLocalizedDescriptionKey: "messages.post_not_available".localized])
+            case .unauthorized:
+                throw NSError(domain: "AppError", code: 401, userInfo: [NSLocalizedDescriptionKey: "error.auth.unauthorized".localized])
+            case .badRequest(let message):
+                throw NSError(domain: "AppError", code: 400, userInfo: [NSLocalizedDescriptionKey: message ?? "error.input.invalid".localized])
+            case .serverError(let code, let message):
+                throw NSError(domain: "AppError", code: code, userInfo: [NSLocalizedDescriptionKey: message ?? String(format: "error.server.with_code".localized, code)])
+            default:
+                throw apiError
+            }
+        }
     }
     
     // Modified to support pagination
@@ -135,6 +160,15 @@ class ExploreViewModel: ObservableObject {
             
             // Update the offset for the next page
             currentOffset += newResults.count
+        } catch let apiError as APIError {
+            switch apiError {
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = apiError.localizedDescription
+            }
         } catch {
             self.error = error.localizedDescription
         }

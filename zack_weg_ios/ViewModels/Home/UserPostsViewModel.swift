@@ -89,8 +89,14 @@ class UserPostsViewModel: ObservableObject {
             // Extract detailed error info if available
             if let appError = error as? AppError {
                 self.errorDetail = appError.detailedErrorInfo
-            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
-                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let code, let message) = apiError {
+                print("❌ Server error \(code): \(message ?? "Unknown error")")
+                self.error = message ?? "error.server".localized
+                
+                // Create a custom AppError to get the detailed error info
+                if let message = message {
+                    self.errorDetail = AppError.custom(message).detailedErrorInfo
+                }
             } else {
                 self.errorDetail = nil
             }
@@ -115,8 +121,14 @@ class UserPostsViewModel: ObservableObject {
             // Extract detailed error info if available
             if let appError = error as? AppError {
                 self.errorDetail = appError.detailedErrorInfo
-            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
-                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let code, let message) = apiError {
+                print("❌ Server error \(code): \(message ?? "Unknown error")")
+                self.error = message ?? "error.server".localized
+                
+                // Create a custom AppError to get the detailed error info
+                if let message = message {
+                    self.errorDetail = AppError.custom(message).detailedErrorInfo
+                }
             } else {
                 self.errorDetail = nil
             }
@@ -154,8 +166,14 @@ class UserPostsViewModel: ObservableObject {
             // Extract detailed error info if available
             if let appError = error as? AppError {
                 self.errorDetail = appError.detailedErrorInfo
-            } else if let apiError = error as? APIError, case .serverError(let message) = apiError {
-                self.errorDetail = AppError.custom(message).detailedErrorInfo
+            } else if let apiError = error as? APIError, case .serverError(let code, let message) = apiError {
+                print("❌ Server error \(code): \(message ?? "Unknown error")")
+                self.error = message ?? "error.server".localized
+                
+                // Create a custom AppError to get the detailed error info
+                if let message = message {
+                    self.errorDetail = AppError.custom(message).detailedErrorInfo
+                }
             } else {
                 self.errorDetail = nil
             }
