@@ -269,6 +269,7 @@
 "error.operation.failed" = "Operation fehlgeschlagen: %@";
 "error.resource.unavailable" = "Diese Ressource ist derzeit nicht verfügbar.";
 "error.permission.denied" = "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen.";
+"error.user.blocked" = "Nachricht kann nicht gesendet werden aufgrund einer Blockierung zwischen Benutzern.";
 
 // System errors
 "error.system.internal" = "Ein interner Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";

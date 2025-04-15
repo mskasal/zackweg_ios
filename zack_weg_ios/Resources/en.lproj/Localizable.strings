@@ -281,6 +281,7 @@
 "error.operation.failed" = "Operation failed: %@";
 "error.resource.unavailable" = "This resource is currently unavailable.";
 "error.permission.denied" = "You don't have permission to access this resource.";
+"error.user.blocked" = "Unable to send a message due to blocking between users.";
 
 // System errors
 "error.system.internal" = "An internal error occurred. Please try again later.";

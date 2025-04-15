@@ -75,6 +75,8 @@ class ConversationDetailViewModel: ObservableObject {
             return
         }
         
+        // Clear any previous error
+        error = nil
         isTyping = true
         
         do {
@@ -82,6 +84,23 @@ class ConversationDetailViewModel: ObservableObject {
             // Add the message to our local array
             messages.append(message)
             
+            isTyping = false
+        } catch let apiError as APIError {
+            switch apiError {
+            case .notFound:
+                self.error = "messages.post_not_available".localized
+            case .unauthorized:
+                self.error = "error.auth.unauthorized".localized
+            case .permissionDenied:
+                self.error = "error.user.blocked".localized
+            case .badRequest(let message):
+                self.error = message ?? "error.input.invalid".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = apiError.localizedDescription
+            }
+            print("❌ Error sending message: \(apiError.localizedDescription)")
             isTyping = false
         } catch {
             self.error = error.localizedDescription

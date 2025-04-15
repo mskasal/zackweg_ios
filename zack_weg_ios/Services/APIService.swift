@@ -58,6 +58,8 @@ class APIService {
             throw APIError.badRequest(errorMessage)
         case 401:
             throw APIError.unauthorized
+        case 403:
+            throw APIError.permissionDenied(errorMessage)
         case 404:
             throw APIError.notFound(errorMessage)
         case 409:

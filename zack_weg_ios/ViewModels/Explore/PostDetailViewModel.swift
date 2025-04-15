@@ -106,6 +106,8 @@ class PostDetailViewModel: ObservableObject {
                     self.error = "messages.post_not_available".localized
                 case .unauthorized:
                     self.error = "error.auth.unauthorized".localized
+                case .permissionDenied:
+                    self.error = "error.user.blocked".localized
                 case .badRequest(let message):
                     self.error = message ?? "error.input.invalid".localized
                 case .serverError(let code, let message):

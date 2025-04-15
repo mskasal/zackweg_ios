@@ -11,6 +11,7 @@ enum APIError: Error {
     case decodingError(Error)
     case badRequest(String?)      // 400 errors - include message from backend
     case unauthorized             // 401 errors 
+    case permissionDenied(String?) // 403 errors - for forbidden access
     case notFound(String?)        // 404 errors
     case conflict(String?)        // 409 errors - typically for resource conflicts
     case serverError(Int, String?) // 500 and other server errors - include status code and optional message
@@ -83,6 +84,8 @@ enum AppError: Error {
             return .invalidInput(message ?? "Invalid request")
         case .unauthorized:
             return .unauthorized
+        case .permissionDenied(let message):
+            return .permissionDenied
         case .notFound(let message):
             return message != nil ? .custom(message!) : .dataNotFound
         case .conflict(let message):

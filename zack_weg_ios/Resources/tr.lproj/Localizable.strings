@@ -269,6 +269,7 @@
 "error.operation.failed" = "İşlem başarısız: %@";
 "error.resource.unavailable" = "Bu kaynak şu anda kullanılamıyor.";
 "error.permission.denied" = "Bu kaynağa erişim izniniz yok.";
+"error.user.blocked" = "Kullanıcılar arasındaki engelleme nedeniyle mesaj gönderilemiyor.";
 
 // System errors
 "error.system.internal" = "Dahili bir hata oluştu. Lütfen daha sonra tekrar deneyin.";

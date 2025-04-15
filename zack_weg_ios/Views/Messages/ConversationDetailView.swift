@@ -9,6 +9,7 @@ struct ConversationDetailView: View {
     @EnvironmentObject private var unreadMessagesViewModel: UnreadMessagesViewModel
     @State private var messageText = ""
     @FocusState private var isFocused: Bool
+    @State private var showingAlert = false
     
     init(conversation: Conversation, post: Post? = nil) {
         self.initialConversation = conversation
@@ -78,6 +79,13 @@ struct ConversationDetailView: View {
             })
             .disabled(!viewModel.isPostAvailable)
         }
+        .alert(isPresented: $showingAlert) {
+            Alert(
+                title: Text("common.error".localized),
+                message: Text(viewModel.error ?? "error.unknown".localized),
+                dismissButton: .default(Text("common.ok".localized))
+            )
+        }
         .task {
             // Mark conversation as read when opening the view
             do {
@@ -95,7 +103,13 @@ struct ConversationDetailView: View {
     private func sendMessage() async {
         guard !messageText.isEmpty else { return }
         await viewModel.sendMessage(messageText)
-        messageText = ""
+        
+        // Check if there was an error sending the message
+        if viewModel.error != nil {
+            showingAlert = true
+        } else {
+            messageText = ""
+        }
     }
     
     // Helper function to get initials from name

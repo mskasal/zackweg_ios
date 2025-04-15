@@ -113,7 +113,20 @@ struct PostDetailView: View {
                         Button("common.send".localized) {
                             Task {
                                 await viewModel.sendMessage()
-                                showingMessageSheet = false
+                                
+                                // Check for errors after sending
+                                if let errorMessage = viewModel.error {
+                                    alert = Alert(
+                                        title: Text("common.error".localized),
+                                        message: Text(errorMessage),
+                                        dismissButton: .default(Text("common.ok".localized))
+                                    )
+                                    showingAlert = true
+                                    // Don't dismiss the sheet if there's an error
+                                } else {
+                                    // Only dismiss if successful (no error)
+                                    showingMessageSheet = false
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -446,6 +459,7 @@ struct PostDetailView: View {
                                 
                             Button(action: {
                                 showingMessageSheet = true
+                                viewModel.error = nil // Clear any previous error
                             }) {
                                 HStack {
                                     Image(systemName: "message.fill")
