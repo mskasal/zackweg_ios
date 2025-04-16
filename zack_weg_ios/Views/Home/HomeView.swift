@@ -25,17 +25,6 @@ struct HomeView: View {
         .task {
             await viewModel.refreshAll()
         }
-        .overlay {
-            if viewModel.errorMessage != nil {
-                Text(viewModel.errorMessage!)
-                    .foregroundColor(.red)
-                    .padding()
-                    .background(Color.white.opacity(0.9))
-                    .cornerRadius(8)
-                    .shadow(radius: 2)
-                    .padding()
-            }
-        }
     }
     
     // Explore/Discovery section at the top
