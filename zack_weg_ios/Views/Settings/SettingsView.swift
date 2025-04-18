@@ -221,28 +221,36 @@ struct SettingsView: View {
     
     // Open Help & Support in browser
     private func openHelpSupportURL() {
-        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/contact") {
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/contact") {
             UIApplication.shared.open(url)
         }
     }
     
     // Open Terms of Service in browser
     private func openTermsURL() {
-        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/terms") {
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/terms") {
             UIApplication.shared.open(url)
         }
     }
     
     // Open Privacy Policy in browser
     private func openPrivacyURL() {
-        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/privacy") {
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/privacy") {
             UIApplication.shared.open(url)
         }
     }
     
     // Open About page in browser
     private func openAboutURL() {
-        if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/about") {
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/about") {
             UIApplication.shared.open(url)
         }
     }
