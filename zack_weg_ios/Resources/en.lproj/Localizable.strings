@@ -362,4 +362,9 @@
 "report.reason.misleading_information" = "Misleading Information";
 "report.reason.offensive_behavior" = "Offensive Behavior";
 "report.reason.prohibited_items" = "Prohibited Items";
-"report.reason.other" = "Other"; 
+"report.reason.other" = "Other";
+
+// Profile Sharing
+"profile.share" = "Share Profile";
+"profile.share.subject" = "Check out my profile on ZackWeg";
+"profile.share.message" = "View my profile and find items I'm sharing on ZackWeg!"; 

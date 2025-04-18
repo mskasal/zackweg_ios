@@ -364,4 +364,9 @@
 "tab.home" = "Startseite";
 "common.refresh" = "Aktualisieren";
 
-"auth.toggle_password_visibility" = "Passwort-Sichtbarkeit umschalten"; 
+"auth.toggle_password_visibility" = "Passwort-Sichtbarkeit umschalten";
+
+// Profile Sharing
+"profile.share" = "Profil teilen";
+"profile.share.subject" = "Schau dir mein Profil auf ZackWeg an";
+"profile.share.message" = "Sieh dir mein Profil an und entdecke Artikel, die ich auf ZackWeg teile!"; 

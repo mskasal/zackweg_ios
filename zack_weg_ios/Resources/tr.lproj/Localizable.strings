@@ -364,4 +364,9 @@
 "tab.home" = "Ana Sayfa";
 "common.refresh" = "Yenile";
 
-"auth.toggle_password_visibility" = "Şifre görünürlüğünü değiştir"; 
+"auth.toggle_password_visibility" = "Şifre görünürlüğünü değiştir";
+
+// Profile Sharing
+"profile.share" = "Profili Paylaş";
+"profile.share.subject" = "ZackWeg'deki profilime göz at";
+"profile.share.message" = "Profilimi görüntüle ve ZackWeg'de paylaştığım eşyaları keşfet!"; 

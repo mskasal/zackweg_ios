@@ -11,6 +11,22 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @State private var showSettings = false
     @State private var showBlockedUsers = false
+    @EnvironmentObject private var languageManager: LanguageManager
+    
+    // Compute the profile URL with the appropriate language code
+    private var profileURL: URL {
+        // Get user ID from the KeychainManager (fall back to UserDefaults if needed)
+        let userId = KeychainManager.shared.getUserId() ?? 
+                     UserDefaults.standard.string(forKey: "userId") ?? 
+                     "user"
+        
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        
+        // Create the URL string and convert to URL (fallback to a default if URL creation fails)
+        return URL(string: "https://www.zackweg.com/\(languageCode)/users/\(userId)") ?? 
+               URL(string: "https://www.zackweg.com")!
+    }
     
     var body: some View {
         List {
@@ -83,11 +99,26 @@ struct ProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    showSettings = true
-                }) {
-                    Image(systemName: "gearshape")
-                        .accessibilityLabel("settings.title".localized)
+                HStack {
+                    // Share button
+                    ShareLink(
+                        item: profileURL,
+                        subject: Text("profile.share.subject".localized),
+                        message: Text("profile.share.message".localized)
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .accessibilityLabel("profile.share".localized)
+                            .accessibilityIdentifier("shareProfileButton")
+                    }
+                    
+                    // Settings button
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        Image(systemName: "gearshape")
+                            .accessibilityLabel("settings.title".localized)
+                            .accessibilityIdentifier("settingsButton")
+                    }
                 }
             }
         }
@@ -108,5 +139,8 @@ struct ProfileView: View {
 }
 
 #Preview {
-    ProfileView()
+    NavigationView {
+        ProfileView()
+            .environmentObject(LanguageManager.shared)
+    }
 } 
