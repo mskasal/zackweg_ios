@@ -61,6 +61,16 @@ struct ConversationDetailView: View {
                         }
                     }
                 }
+                .onAppear {
+                    // Scroll to the last message when the view appears
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        if let lastMessage = viewModel.messages.last {
+                            withAnimation {
+                                proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                            }
+                        }
+                    }
+                }
             }
             
             Divider()
