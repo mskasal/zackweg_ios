@@ -160,19 +160,41 @@ struct CategorySelectionView: View {
                     .padding(.vertical, 8)
             } else {
                 // Show all categories with selected one first
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        // Use getSortedByCategoryId to put selected category first
-                        ForEach(categoryViewModel.getSortedByCategoryId(selectedCategory), id: \.id) { category in
-                            CategoryPill(
-                                category: category,
-                                isSelected: selectedCategory == category.id
-                            ) {
-                                selectedCategory = category.id
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            // Use getSortedByCategoryId to put selected category first
+                            ForEach(categoryViewModel.getSortedByCategoryId(selectedCategory), id: \.id) { category in
+                                CategoryPill(
+                                    category: category,
+                                    isSelected: selectedCategory == category.id
+                                ) {
+                                    selectedCategory = category.id
+                                    
+                                    // Scroll to the selected category
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        proxy.scrollTo(category.id, anchor: .center)
+                                    }
+                                }
+                                .id(category.id) // Assign ID for ScrollViewReader
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .onAppear {
+                        // Scroll to selected category when view appears
+                        if !selectedCategory.isEmpty {
+                            proxy.scrollTo(selectedCategory, anchor: .center)
+                        }
+                    }
+                    .onChange(of: selectedCategory) { newValue in
+                        // Scroll when selectedCategory changes from outside
+                        if !newValue.isEmpty {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                proxy.scrollTo(newValue, anchor: .center)
                             }
                         }
                     }
-                    .padding(.vertical, 8)
                 }
             }
         }
