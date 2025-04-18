@@ -159,74 +159,20 @@ struct CategorySelectionView: View {
                     .foregroundColor(.secondary)
                     .padding(.vertical, 8)
             } else {
-                // Parent Categories
+                // Show all categories with selected one first
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
-                        ForEach(categories, id: \.id) { category in
-                            let isSelected: Bool = selectedParentCategoryId == category.id
+                        // Use getSortedByCategoryId to put selected category first
+                        ForEach(categoryViewModel.getSortedByCategoryId(selectedCategory), id: \.id) { category in
                             CategoryPill(
                                 category: category,
-                                isSelected: isSelected
+                                isSelected: selectedCategory == category.id
                             ) {
-                                selectedParentCategoryId = category.id
-                                
-                                // Always set selectedCategory to parent category initially
                                 selectedCategory = category.id
                             }
                         }
                     }
                     .padding(.vertical, 8)
-                }
-                
-                // Show subcategories if a parent is selected
-                if let parentCategoryId = selectedParentCategoryId,
-                   categoryViewModel.hasChildren(for: parentCategoryId) {
-                    
-                    let subcategories = categoryViewModel.getChildCategories(for: parentCategoryId)
-                    
-                    Text("explore.filter_subcategories".localized)
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 10)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            // Add option to select the parent category itself (now redundant but kept for UX clarity)
-                            if let parentCategory = categoryViewModel.getCategory(byId: parentCategoryId) {
-                                Button(action: {
-                                    selectedCategory = parentCategory.id
-                                }) {
-                                    Text(String(format: "explore.filter_all_in".localized, parentCategory.title))
-                                        .font(.subheadline)
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(
-                                            selectedCategory == parentCategory.id ? 
-                                                Color.blue : 
-                                                Color(.systemGray6)
-                                        )
-                                        .foregroundColor(selectedCategory == parentCategory.id ? .white : .primary)
-                                        .cornerRadius(20)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(selectedCategory == parentCategory.id ? Color.blue : Color.gray.opacity(0.2), lineWidth: 1)
-                                        )
-                                }
-                            }
-                            
-                            // Subcategories
-                            ForEach(subcategories) { subcategory in
-                                CategoryPill(
-                                    category: subcategory,
-                                    isSelected: selectedCategory == subcategory.id
-                                ) {
-                                    selectedCategory = subcategory.id
-                                }
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
                 }
             }
         }
@@ -745,28 +691,6 @@ struct CreatePostButtonSection: View {
     }
 }
 
-struct FormHeaderView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("posts.create_new".localized)
-                .font(.title2)
-                .fontWeight(.bold)
-                .padding(.bottom, 4)
-                .foregroundColor(.primary)
-                
-            Text("posts.share_with_community".localized)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 8)
-        .padding(.bottom, 0)
-        .listRowInsets(EdgeInsets())
-        .background(Color.clear)
-    }
-}
-
 struct CreatePostView: View {
     @StateObject private var viewModel = CreatePostViewModel()
     @EnvironmentObject private var categoryViewModel: CategoryViewModel
@@ -784,7 +708,7 @@ struct CreatePostView: View {
     @State private var error: String?
     @State private var showSuccess = false
     @State private var isFormValid = false
-    @State private var selectedParentCategoryId: String? = nil
+    @State private var selectedParentCategoryId: String? = nil // Keep but don't use functionally
     @State private var navigateToPostDetail = false
     @FocusState private var focusedField: FormField?
     
@@ -803,9 +727,6 @@ struct CreatePostView: View {
 
     var body: some View {
         Form {
-            FormHeaderView()
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 0, trailing: 16))
             
             PostDetailsSection(
                 title: $title,

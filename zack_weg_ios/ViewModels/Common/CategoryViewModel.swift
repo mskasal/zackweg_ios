@@ -74,4 +74,17 @@ class CategoryViewModel: ObservableObject {
         }
         return result
     }
+    
+    // Helper method to get categories with the selected category first
+    func getSortedByCategoryId(_ categoryId: String) -> [Category] {
+        guard !categoryId.isEmpty, let selectedCategory = getCategory(byId: categoryId) else {
+            return categories // Return original list if category not found or no selection
+        }
+        
+        // Create new array with selected category first, then all others (excluding selected)
+        var sortedCategories = [selectedCategory]
+        sortedCategories.append(contentsOf: categories.filter { $0.id != categoryId })
+        
+        return sortedCategories
+    }
 } 

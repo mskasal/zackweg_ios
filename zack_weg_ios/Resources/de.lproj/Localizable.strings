@@ -135,7 +135,7 @@
 "posts.sell_desc" = "Lege einen Preis fest und verkaufe diesen Artikel";
 "posts.price_currency" = "Preis (€)";
 "posts.select_images" = "Bilder auswählen";
-"posts.images_help" = "Füge bis zu 5 Bilder hinzu, um deinen Artikel zu zeigen";
+"posts.images_help" = "Füge bis zu 15 Bilder hinzu, um deinen Artikel zu zeigen";
 "posts.images_count" = "%d/5 Bilder ausgewählt";
 "posts.images_footer" = "Bilder helfen dabei, dass dein Artikel bemerkt wird. Das erste Bild wird dein Titelbild sein.";
 "posts.location" = "STANDORT";

@@ -148,7 +148,7 @@
 "posts.sell_desc" = "Set a price and sell this item";
 "posts.price_currency" = "Price (€)";
 "posts.select_images" = "Select Images";
-"posts.images_help" = "Add up to 5 images to show your item";
+"posts.images_help" = "Add up to 15 images to show your item";
 "posts.images_count" = "%d/5 images selected";
 "posts.images_footer" = "Images help your item get noticed. The first image will be your cover photo.";
 "posts.location" = "LOCATION";

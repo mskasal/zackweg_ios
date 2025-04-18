@@ -135,7 +135,7 @@
 "posts.sell_desc" = "Bir fiyat belirle ve bu eşyayı sat";
 "posts.price_currency" = "Fiyat (€)";
 "posts.select_images" = "Görsel Seç";
-"posts.images_help" = "Eşyanı göstermek için 5 adete kadar görsel ekle";
+"posts.images_help" = "Eşyanı göstermek için 15 adete kadar görsel ekle";
 "posts.images_count" = "%d/5 görsel seçildi";
 "posts.images_footer" = "Görseller eşyanın fark edilmesine yardımcı olur. İlk görsel kapak fotoğrafın olacak.";
 "posts.location" = "KONUM";

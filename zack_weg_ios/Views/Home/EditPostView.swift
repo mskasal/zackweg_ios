@@ -108,8 +108,7 @@ struct EditPostView: View {
             if viewModel.isLoading {
                 loadingSection
             } else if let post = viewModel.post {
-                EditPostFormHeaderView()
-                
+
                 PostDetailsSection(
                     title: $title,
                     description: $description,
@@ -117,7 +116,7 @@ struct EditPostView: View {
                     selectedParentCategoryId: $selectedParentCategoryId,
                     offering: $offering,
                     price: $price,
-                    categories: categoryViewModel.topLevelCategories,
+                    categories: categoryViewModel.categories,
                     focusedField: $focusedField
                 )
                 
@@ -505,19 +504,6 @@ struct EditPostView: View {
         description = post.description
         selectedCategory = post.categoryId
         
-        // Find the parent category
-        if let category = categoryViewModel.getCategory(byId: post.categoryId) {
-            selectedCategory = category.id
-            
-            // If this is a subcategory, find its parent
-            if let parentCategory = categoryViewModel.getParentCategory(for: category.id) {
-                selectedParentCategoryId = parentCategory.id
-            } else {
-                // This is a top-level category
-                selectedParentCategoryId = category.id
-            }
-        }
-        
         // Set offering enum from string
         if let offeringEnum = PostOffering(rawValue: post.offering) {
             offering = offeringEnum
@@ -729,24 +715,6 @@ struct EditPostView: View {
         }
     }
 }
-
-struct EditPostFormHeaderView: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("posts.update_post".localized)
-                .font(.title2)
-                .fontWeight(.bold)
-                
-            Text("posts.update_details".localized)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-        }
-        .listRowBackground(Color.clear)
-        .listRowInsets(EdgeInsets(top: 12, leading: 20, bottom: 12, trailing: 20))
-    }
-}
-
-// The CameraView has been moved to a shared component file 
 
 struct ImageDropDelegate: DropDelegate {
     @Binding var items: [(id: String, data: Data)]

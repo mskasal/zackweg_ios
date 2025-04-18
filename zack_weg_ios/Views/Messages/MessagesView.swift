@@ -87,6 +87,13 @@ struct ConversationRow: View {
     let conversation: Conversation
     @ObservedObject var viewModel: MessagesViewModel
     
+    private var otherUser: String {
+        let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
+        return conversation.user1.id == currentUserId 
+            ? conversation.user2.nickName 
+            : conversation.user1.nickName
+    }
+    
     private var hasUnreadMessages: Bool {
         guard let lastMessage = conversation.lastMessage else {
             return false
@@ -95,14 +102,6 @@ struct ConversationRow: View {
         let currentUserId = UserDefaults.standard.string(forKey: "userId") ?? ""
         // Check if the last message is unread and not from current user
         return !lastMessage.isRead && lastMessage.senderId != currentUserId
-    }
-    
-    private var unreadCount: Int {
-        return viewModel.unreadCount(for: conversation.id)
-    }
-    
-    private var isLoadingCount: Bool {
-        return viewModel.isLoadingUnreadCount(for: conversation.id)
     }
     
     var body: some View {
@@ -118,24 +117,19 @@ struct ConversationRow: View {
                             .foregroundColor(.gray)
                     )
                 
-                if unreadCount > 0 && !isLoadingCount {
+                if hasUnreadMessages {
                     Circle()
                         .fill(Color.blue)
-                        .frame(width: 16, height: 16)
-                        .overlay(
-                            Text(unreadCount > 9 ? "9+" : "\(unreadCount)")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
-                        )
+                        .frame(width: 14, height: 14)
                         .offset(x: 3, y: -3)
                 }
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(conversation.user1.nickName)
+                    Text(otherUser)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(unreadCount > 0 ? .primary : .secondary)
+                        .foregroundColor(hasUnreadMessages ? .primary : .secondary)
                     
                     Spacer()
                     
@@ -149,8 +143,8 @@ struct ConversationRow: View {
                 if let lastMessage = conversation.lastMessage {
                     Text(lastMessage.content)
                         .font(.system(size: 14))
-                        .foregroundColor(unreadCount > 0 ? .primary : .gray)
-                        .fontWeight(unreadCount > 0 ? .medium : .regular)
+                        .foregroundColor(hasUnreadMessages ? .primary : .gray)
+                        .fontWeight(hasUnreadMessages ? .medium : .regular)
                         .lineLimit(1)
                 } else {
                     Text("messages.none".localized)
@@ -161,14 +155,6 @@ struct ConversationRow: View {
             }
         }
         .padding(.vertical, 4)
-        .onAppear {
-            // Ensure the unread count is loaded when row appears
-            if !isLoadingCount && unreadCount == 0 {
-                Task {
-                    await viewModel.getUnreadCount(for: conversation.id)
-                }
-            }
-        }
     }
 }
 
