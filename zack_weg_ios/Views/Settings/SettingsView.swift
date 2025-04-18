@@ -249,7 +249,7 @@ struct SettingsView: View {
     private func openHelpSupportURL() {
         // Use German ('de') for Turkish language since Turkish pages don't exist
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
-        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/contact") {
+        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/contact") {
             UIApplication.shared.open(url)
         }
     }
@@ -258,7 +258,7 @@ struct SettingsView: View {
     private func openTermsURL() {
         // Use German ('de') for Turkish language since Turkish pages don't exist
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
-        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/terms") {
+        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/terms") {
             UIApplication.shared.open(url)
         }
     }
@@ -267,7 +267,7 @@ struct SettingsView: View {
     private func openPrivacyURL() {
         // Use German ('de') for Turkish language since Turkish pages don't exist
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
-        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/privacy") {
+        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/privacy") {
             UIApplication.shared.open(url)
         }
     }
@@ -276,7 +276,7 @@ struct SettingsView: View {
     private func openAboutURL() {
         // Use German ('de') for Turkish language since Turkish pages don't exist
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
-        if let url = URL(string: "https://www.zackweg.com/\(languageCode)/about") {
+        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/about") {
             UIApplication.shared.open(url)
         }
     }

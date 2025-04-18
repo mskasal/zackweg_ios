@@ -24,8 +24,8 @@ struct ProfileView: View {
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
         
         // Create the URL string and convert to URL (fallback to a default if URL creation fails)
-        return URL(string: "https://www.zackweg.com/\(languageCode)/users/\(userId)") ?? 
-               URL(string: "https://www.zackweg.com")!
+        return URL(string: "https://www.zackweg.de/\(languageCode)/users/\(userId)") ?? 
+               URL(string: "https://www.zackweg.de")!
     }
     
     var body: some View {

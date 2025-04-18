@@ -479,7 +479,7 @@ private struct TermsAgreementText: View {
             
             HStack(spacing: 2) {
                 Button {
-                    if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/terms") {
+                    if let url = URL(string: "https://www.zackweg.de/\(languageManager.currentLanguage.rawValue)/terms") {
                         UIApplication.shared.open(url)
                     }
                 } label: {
@@ -494,7 +494,7 @@ private struct TermsAgreementText: View {
                     .foregroundColor(.secondary)
                 
                 Button {
-                    if let url = URL(string: "https://www.zackweg.com/\(languageManager.currentLanguage.rawValue)/privacy") {
+                    if let url = URL(string: "https://www.zackweg.de/\(languageManager.currentLanguage.rawValue)/privacy") {
                         UIApplication.shared.open(url)
                     }
                 } label: {

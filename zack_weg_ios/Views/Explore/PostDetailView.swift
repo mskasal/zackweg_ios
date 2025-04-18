@@ -14,6 +14,7 @@ struct PostDetailView: View {
     @State private var alert: Alert?
     @State private var currentPost: Post?
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var languageManager: LanguageManager
     
     init(post: Post, fromUserPostsView: Bool = false) {
         self.initialPost = post
@@ -24,6 +25,19 @@ struct PostDetailView: View {
     
     private var category: Category? {
         return categoryViewModel.getCategory(byId: currentPost?.categoryId ?? "")
+    }
+    
+    // Compute the post URL with the appropriate language code
+    private var postURL: URL {
+        // Get post ID
+        let postId = currentPost?.id ?? initialPost.id
+        
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        
+        // Create the URL string and convert to URL (fallback to a default if URL creation fails)
+        return URL(string: "https://www.zackweg.de/\(languageCode)/posts/\(postId)") ?? 
+               URL(string: "https://www.zackweg.de")!
     }
     
     var body: some View {
@@ -192,6 +206,29 @@ struct PostDetailView: View {
                 }
                 .ignoresSafeArea()
             }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ShareLink(
+                    item: postURL,
+                    subject: Text("post_detail.share.subject".localized),
+                    message: Text(String(format: "post_detail.share.message".localized, initialPost.title))
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                        .accessibilityLabel("post_detail.share".localized)
+                }
+            }
+        }
+        .alert("posts.delete".localized, isPresented: $showingDeleteConfirmation) {
+            Button("common.cancel".localized, role: .cancel) { }
+            Button("common.delete".localized, role: .destructive) {
+                Task {
+                    await viewModel.deletePost()
+                }
+            }
+        } message: {
+            Text("posts.delete_confirmation".localized)
         }
     }
     

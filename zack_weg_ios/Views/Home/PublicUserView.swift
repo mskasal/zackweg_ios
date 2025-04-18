@@ -11,6 +11,17 @@ struct PublicUserView: View {
     let userId: String
     let nickName: String
     @State private var showBlockUserView = false
+    @EnvironmentObject private var languageManager: LanguageManager
+    
+    // Compute the user profile URL with the appropriate language code
+    private var userURL: URL {
+        // Use German ('de') for Turkish language since Turkish pages don't exist
+        let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+        
+        // Create the URL string and convert to URL (fallback to a default if URL creation fails)
+        return URL(string: "https://www.zackweg.de/\(languageCode)/users/\(userId)") ?? 
+               URL(string: "https://www.zackweg.de")!
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -64,6 +75,18 @@ struct PublicUserView: View {
         }
         .navigationTitle(nickName)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                ShareLink(
+                    item: userURL,
+                    subject: Text("profile.share.subject".localized),
+                    message: Text(String(format: "profile.share.message".localized, nickName))
+                ) {
+                    Image(systemName: "square.and.arrow.up")
+                        .accessibilityLabel("profile.share".localized)
+                }
+            }
+        }
         .sheet(isPresented: $showBlockUserView) {
             NavigationView {
                 BlockUserView(userId: userId, userName: nickName)

@@ -367,4 +367,9 @@
 // Profile Sharing
 "profile.share" = "Share Profile";
 "profile.share.subject" = "Check out my profile on ZackWeg";
-"profile.share.message" = "View my profile and find items I'm sharing on ZackWeg!"; 
+"profile.share.message" = "View my profile and find items I'm sharing on ZackWeg!";
+
+// Post Detail Sharing
+"post_detail.share" = "Share Post";
+"post_detail.share.subject" = "Check out this item on ZackWeg";
+"post_detail.share.message" = "Take a look at \"%@\" on ZackWeg!"; 

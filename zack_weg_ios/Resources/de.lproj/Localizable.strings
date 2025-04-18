@@ -370,3 +370,8 @@
 "profile.share" = "Profil teilen";
 "profile.share.subject" = "Schau dir mein Profil auf ZackWeg an";
 "profile.share.message" = "Sieh dir mein Profil an und entdecke Artikel, die ich auf ZackWeg teile!"; 
+
+// Post Detail Sharing
+"post_detail.share" = "Beitrag teilen";
+"post_detail.share.subject" = "Schau dir diesen Artikel auf ZackWeg an";
+"post_detail.share.message" = "Wirf einen Blick auf \"%@\" auf ZackWeg!"; 

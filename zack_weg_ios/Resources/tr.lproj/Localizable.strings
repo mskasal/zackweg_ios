@@ -370,3 +370,8 @@
 "profile.share" = "Profili Paylaş";
 "profile.share.subject" = "ZackWeg'deki profilime göz at";
 "profile.share.message" = "Profilimi görüntüle ve ZackWeg'de paylaştığım eşyaları keşfet!"; 
+
+// Post Detail Sharing
+"post_detail.share" = "İlanı Paylaş";
+"post_detail.share.subject" = "ZackWeg'deki bu ürüne göz at";
+"post_detail.share.message" = "ZackWeg'de \"%@\" ürününe bir bak!"; 
