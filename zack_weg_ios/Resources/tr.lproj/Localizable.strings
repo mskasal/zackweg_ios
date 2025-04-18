@@ -200,6 +200,13 @@
 "settings.theme.dark" = "Koyu";
 "settings.theme.system" = "Sistem";
 "settings.notifications" = "Bildirimler";
+"settings.notifications.help_text" = "ZackWeg'den bildirimleri nasıl alacağınızı kontrol edin.";
+"settings.notifications.messages" = "Mesajlar";
+"settings.notifications.marketing" = "Pazarlama ve Teklifler";
+"settings.notifications.email" = "E-posta";
+"settings.notifications.push" = "Anlık Bildirimler";
+"settings.notifications.unavailable" = "Bildirim tercihleri kullanılamıyor";
+"settings.notifications.try_again" = "Lütfen daha sonra tekrar deneyin veya internet bağlantınızı kontrol edin";
 "settings.privacy" = "Gizlilik Politikası";
 "settings.terms" = "Kullanım Koşulları";
 "settings.about" = "Hakkında";
@@ -354,4 +361,5 @@
 "home.no_posts" = "Henüz ilan oluşturmadınız";
 "home.no_nearby" = "Yakında ürün bulunamadı";
 "posts.free" = "Ücretsiz";
-"tab.home" = "Ana Sayfa"; 
+"tab.home" = "Ana Sayfa";
+"common.refresh" = "Yenile"; 

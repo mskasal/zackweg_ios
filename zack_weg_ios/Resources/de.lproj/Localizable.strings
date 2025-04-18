@@ -200,6 +200,13 @@
 "settings.theme.dark" = "Dunkel";
 "settings.theme.system" = "System";
 "settings.notifications" = "Benachrichtigungen";
+"settings.notifications.help_text" = "Steuern Sie, wie Sie Benachrichtigungen von ZackWeg erhalten.";
+"settings.notifications.messages" = "Nachrichten";
+"settings.notifications.marketing" = "Marketing & Angebote";
+"settings.notifications.email" = "E-Mail";
+"settings.notifications.push" = "Push-Benachrichtigungen";
+"settings.notifications.unavailable" = "Benachrichtigungseinstellungen nicht verfügbar";
+"settings.notifications.try_again" = "Bitte versuchen Sie es später erneut oder überprüfen Sie Ihre Internetverbindung";
 "settings.privacy" = "Datenschutzrichtlinie";
 "settings.terms" = "Nutzungsbedingungen";
 "settings.about" = "Über";
@@ -354,4 +361,5 @@
 "home.no_posts" = "Du hast noch keine Anzeigen erstellt";
 "home.no_nearby" = "Keine Artikel in der Nähe gefunden";
 "posts.free" = "Kostenlos";
-"tab.home" = "Startseite"; 
+"tab.home" = "Startseite";
+"common.refresh" = "Aktualisieren"; 

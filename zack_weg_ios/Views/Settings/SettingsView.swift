@@ -43,12 +43,15 @@ struct SettingsView: View {
                 .accessibilityIdentifier("updatePasswordButton")
             }
             
-            // App settings (placeholder for future expansion)
+            // App settings section
             Section(header: Text("settings.app".localized)) {
-                // Toggle(isOn: .constant(true)) {
-                //     Label("settings.notifications".localized, systemImage: "bell")
-                // }
+                // Notification preferences link
+                NavigationLink(destination: NotificationPreferencesView()) {
+                    Label("settings.notifications".localized, systemImage: "bell")
+                }
+                .accessibilityIdentifier("notificationsButton")
                 
+                // Theme selector
                 Menu {
                     ForEach(ThemeManager.Theme.allCases) { theme in
                         Button(action: { 
@@ -76,6 +79,7 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("themeSelector")
                 
+                // Language selector
                 Menu {
                     ForEach(LanguageManager.Language.allCases) { language in
                         Button(action: { 

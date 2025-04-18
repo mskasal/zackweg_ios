@@ -212,6 +212,13 @@
 "settings.theme.dark" = "Dark";
 "settings.theme.system" = "System";
 "settings.notifications" = "Notifications";
+"settings.notifications.help_text" = "Control how you receive notifications from ZackWeg.";
+"settings.notifications.messages" = "Messages";
+"settings.notifications.marketing" = "Marketing & Offers";
+"settings.notifications.email" = "Email";
+"settings.notifications.push" = "Push Notifications";
+"settings.notifications.unavailable" = "Notification preferences unavailable";
+"settings.notifications.try_again" = "Please try again later or check your internet connection";
 "settings.privacy" = "Privacy Policy";
 "settings.terms" = "Terms of Service";
 "settings.about" = "About";
@@ -245,6 +252,7 @@
 "settings.location" = "Location";
 "settings.postal_code_empty" = "Postal code cannot be empty";
 "settings.invalid_email" = "Please enter a valid email address";
+"common.refresh" = "Refresh";
 
 // MARK: - Errors
 "error.network" = "Network error occurred";

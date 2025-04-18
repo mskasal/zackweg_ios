@@ -1231,6 +1231,73 @@ class APIService {
         
         return publicUsers
     }
+    
+    // MARK: - Notification Preferences
+
+    /// Get notification preferences for the authenticated user
+    /// - Returns: The user's notification preferences
+    func getNotificationPreferences() async throws -> NotificationPreferences {
+        let url = URL(string: "\(baseURL)/users/me/notification-preferences")!
+        print("🔔 Get Notification Preferences Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Get Notification Preferences Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Get Notification Preferences Response Body: \(responseString)")
+        }
+        
+        if (200...299).contains(httpResponse.statusCode) {
+            let decoder = JSONDecoder()
+            return try decoder.decode(NotificationPreferences.self, from: data)
+        } else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
+        }
+    }
+    
+    /// Update notification preferences for the authenticated user
+    /// - Parameter preferences: The new notification preferences to set
+    /// - Returns: The updated notification preferences
+    func updateNotificationPreferences(_ preferences: NotificationPreferences) async throws -> NotificationPreferences {
+        let url = URL(string: "\(baseURL)/users/me/notification-preferences")!
+        print("🔔 Update Notification Preferences Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let encoder = JSONEncoder()
+        request.httpBody = try encoder.encode(preferences)
+        print("📦 Update Notification Preferences Request Body: \(preferences)")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Update Notification Preferences Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("📦 Update Notification Preferences Response Body: \(responseString)")
+        }
+        
+        if (200...299).contains(httpResponse.statusCode) {
+            let decoder = JSONDecoder()
+            return try decoder.decode(NotificationPreferences.self, from: data)
+        } else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError // This line shouldn't be reached
+        }
+    }
 }
 
 // Response Models
