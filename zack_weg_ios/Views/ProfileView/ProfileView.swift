@@ -127,11 +127,13 @@ struct ProfileView: View {
                 SettingsView()
             }
         }
+        .presentationDragIndicator(.visible)
         .sheet(isPresented: $showBlockedUsers) {
             NavigationView {
                 BlockedUsersView(viewModel: viewModel)
             }
         }
+        .presentationDragIndicator(.visible)
         .onAppear {
             viewModel.loadProfileData()
         }

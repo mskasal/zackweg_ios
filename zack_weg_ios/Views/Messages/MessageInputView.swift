@@ -7,7 +7,22 @@ struct MessageInputView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            TextField("messages.type".localized, text: $messageText)
+            ZStack(alignment: .leading) {
+                  if messageText.isEmpty {
+                      Text("messages.type".localized)
+                          .foregroundColor(Color.gray.opacity(0.7))
+                          .padding(.horizontal, 12)
+                          .padding(.vertical, 8)
+                  }
+                  
+                  TextEditor(text: $messageText)
+                      .padding(.horizontal, 8)
+                      .padding(.vertical, 2)
+                      .frame(minHeight: 35, maxHeight: 35)
+                      .scrollContentBackground(.hidden)
+                      .background(Color.clear)
+                      .submitLabel(.return)
+              }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(
@@ -15,7 +30,7 @@ struct MessageInputView: View {
                         .fill(Color.gray.opacity(0.1))
                 )
                 .focused($isFocused)
-                .submitLabel(.send)
+                .submitLabel(.return)
                 .onSubmit {
                     if !messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         onSend()

@@ -13,6 +13,8 @@ struct SettingsView: View {
     @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var themeManager: ThemeManager
+    @Environment(\.dismiss) private var dismiss
+    @State private var currentTheme: ThemeManager.Theme = .system
     
     var body: some View {
         List {
@@ -55,7 +57,10 @@ struct SettingsView: View {
                 Menu {
                     ForEach(ThemeManager.Theme.allCases) { theme in
                         Button(action: { 
-                            themeManager.currentTheme = theme
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                themeManager.currentTheme = theme
+                                currentTheme = theme
+                            }
                         }) {
                             HStack {
                                 Text(theme.displayName)
@@ -194,6 +199,16 @@ struct SettingsView: View {
         .accessibilityIdentifier("settingsScreenList")
         .navigationTitle("settings.title".localized)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.primary)
+                }
+            }
+        }
         .sheet(isPresented: $showingUpdateProfile) {
             NavigationView {
                 UpdateProfileView()
@@ -206,6 +221,17 @@ struct SettingsView: View {
         }
         .alert(isPresented: $showingSignOutConfirmation) {
             signOutAlert()
+        }
+        .onAppear {
+            // Initialize current theme state from ThemeManager
+            self.currentTheme = themeManager.currentTheme
+        }
+        // Only apply preferredColorScheme when not using system theme
+        .modifier(ThemeModifier(theme: currentTheme))
+        .onChange(of: themeManager.currentTheme) { newTheme in
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.currentTheme = newTheme
+            }
         }
     }
     
@@ -252,6 +278,21 @@ struct SettingsView: View {
         let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
         if let url = URL(string: "https://www.zackweg.com/\(languageCode)/about") {
             UIApplication.shared.open(url)
+        }
+    }
+    
+    // Theme modifier to conditionally apply color scheme
+    private struct ThemeModifier: ViewModifier {
+        let theme: ThemeManager.Theme
+        
+        func body(content: Content) -> some View {
+            if theme == .system {
+                // Don't apply any specific color scheme, let system decide
+                content
+            } else {
+                // Apply specific color scheme for light/dark modes
+                content.preferredColorScheme(theme.colorScheme)
+            }
         }
     }
 }
