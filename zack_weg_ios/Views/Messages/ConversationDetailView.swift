@@ -38,14 +38,10 @@ struct ConversationDetailView: View {
                         } else {
                             ForEach(Array(zip(viewModel.messages.indices, viewModel.messages)), id: \.0) { index, message in
                                 let isFromCurrentUser = message.senderId == viewModel.currentUserId
-                                let isLastInGroup = isLastMessageInGroup(at: index)
-                                let showTimestamp = shouldShowTimestamp(at: index)
                                 
                                 MessageBubbleView(
                                     message: message,
-                                    isFromCurrentUser: isFromCurrentUser,
-                                    isLastInGroup: isLastInGroup,
-                                    showTimestamp: showTimestamp
+                                    isFromCurrentUser: isFromCurrentUser
                                 )
                                 .id(message.id)
                                 .padding(.horizontal, 4)
@@ -133,36 +129,6 @@ struct ConversationDetailView: View {
             return String(firstInitial)
         }
         return "?"
-    }
-    
-    // Helper function to determine if a message is the last in a group from the same sender
-    private func isLastMessageInGroup(at index: Int) -> Bool {
-        guard index < viewModel.messages.count - 1 else { return true }
-        
-        let currentMessage = viewModel.messages[index]
-        let nextMessage = viewModel.messages[index + 1]
-        
-        return currentMessage.senderId != nextMessage.senderId
-    }
-    
-    // Helper function to determine if a timestamp should be shown for this message
-    private func shouldShowTimestamp(at index: Int) -> Bool {
-        // Show timestamp on the last message in a group or if it's been more than 10 minutes
-        if isLastMessageInGroup(at: index) {
-            return true
-        }
-        
-        // Compare timestamps with next message, show timestamp if more than 10 minutes apart
-        guard index < viewModel.messages.count - 1 else { return true }
-        
-        let currentMessage = viewModel.messages[index]
-        let nextMessage = viewModel.messages[index + 1]
-        
-        // Calculate time difference in minutes
-        let timeInterval = nextMessage.createdAt.timeIntervalSince(currentMessage.createdAt)
-        let minutesDifference = abs(timeInterval) / 60
-        
-        return minutesDifference >= 10
     }
 }
 

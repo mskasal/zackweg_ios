@@ -4,23 +4,10 @@ import Foundation
 struct MessageBubbleView: View {
     let message: Message
     let isFromCurrentUser: Bool
-    let isLastInGroup: Bool
-    let showTimestamp: Bool
-    
-    init(
-        message: Message,
-        isFromCurrentUser: Bool,
-        isLastInGroup: Bool = true,
-        showTimestamp: Bool = true
-    ) {
-        self.message = message
-        self.isFromCurrentUser = isFromCurrentUser
-        self.isLastInGroup = isLastInGroup
-        self.showTimestamp = showTimestamp
-    }
     
     var body: some View {
         VStack(alignment: isFromCurrentUser ? .trailing : .leading, spacing: 2) {
+            // Message content
             HStack {
                 if isFromCurrentUser {
                     Spacer()
@@ -40,34 +27,30 @@ struct MessageBubbleView: View {
                 }
             }
             
-            if showTimestamp || isLastInGroup {
-                HStack {
-                    if isFromCurrentUser {
-                        Spacer()
-                        
-                        if message.isRead {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.system(size: 10))
-                                .foregroundColor(.blue)
-                        } else {
-                            Image(systemName: "checkmark.circle")
-                                .font(.system(size: 10))
-                                .foregroundColor(.gray)
-                        }
-                    }
+            // Timestamp and read indicator
+            HStack(spacing: 4) {
+                if isFromCurrentUser {
+                    Spacer()
                     
-                    Text(formatTime(message.createdAt))
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                    
-                    if !isFromCurrentUser {
-                        Spacer()
-                    }
+                    // Read status indicator
+                    Image(systemName: message.isRead ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.system(size: 10))
+                        .foregroundColor(message.isRead ? .blue : .gray)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 2)
+                
+                // Timestamp always shown
+                Text(formatTime(message.createdAt))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                
+                if !isFromCurrentUser {
+                    Spacer()
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 2)
         }
+        .padding(.vertical, 4) // Consistent padding for all messages
     }
     
     private func formatTime(_ date: Date) -> String {

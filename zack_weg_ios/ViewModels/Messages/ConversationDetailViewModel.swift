@@ -6,7 +6,6 @@ class ConversationDetailViewModel: ObservableObject {
     @Published var messages: [Message] = []
     @Published var isLoading = false
     @Published var error: String?
-    @Published var isTyping = false
     @Published var isPostAvailable = true
     
     private let apiService: APIService
@@ -77,14 +76,11 @@ class ConversationDetailViewModel: ObservableObject {
         
         // Clear any previous error
         error = nil
-        isTyping = true
         
         do {
             let message = try await apiService.sendMessage(conversationId: conversation.id, content: content)
             // Add the message to our local array
             messages.append(message)
-            
-            isTyping = false
         } catch let apiError as APIError {
             switch apiError {
             case .notFound:
@@ -101,26 +97,9 @@ class ConversationDetailViewModel: ObservableObject {
                 self.error = apiError.localizedDescription
             }
             print("❌ Error sending message: \(apiError.localizedDescription)")
-            isTyping = false
         } catch {
             self.error = error.localizedDescription
             print("❌ Error sending message: \(error.localizedDescription)")
-            isTyping = false
-        }
-    }
-    
-    func simulateTyping() {
-        guard !isTyping else { return }
-        
-        isTyping = true
-        print("📱 User is typing...")
-        
-        // In a real app, you would send typing indicator to server
-        // Automatically end typing status after 5 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
-            guard let self = self else { return }
-            self.isTyping = false
-            print("📱 User stopped typing")
         }
     }
 } 
