@@ -362,4 +362,6 @@
 "home.no_nearby" = "Yakında ürün bulunamadı";
 "posts.free" = "Ücretsiz";
 "tab.home" = "Ana Sayfa";
-"common.refresh" = "Yenile"; 
+"common.refresh" = "Yenile";
+
+"auth.toggle_password_visibility" = "Şifre görünürlüğünü değiştir"; 

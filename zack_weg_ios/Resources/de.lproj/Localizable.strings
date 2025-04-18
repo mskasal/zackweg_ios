@@ -362,4 +362,6 @@
 "home.no_nearby" = "Keine Artikel in der Nähe gefunden";
 "posts.free" = "Kostenlos";
 "tab.home" = "Startseite";
-"common.refresh" = "Aktualisieren"; 
+"common.refresh" = "Aktualisieren";
+
+"auth.toggle_password_visibility" = "Passwort-Sichtbarkeit umschalten"; 

@@ -6,6 +6,9 @@ struct UpdatePasswordView: View {
     @State private var currentPassword = ""
     @State private var newPassword = ""
     @State private var confirmPassword = ""
+    @State private var showCurrentPassword = false
+    @State private var showNewPassword = false
+    @State private var showConfirmPassword = false
     @State private var isLoading = false
     @State private var showSuccess = false
     @State private var error: String?
@@ -60,15 +63,57 @@ struct UpdatePasswordView: View {
             ZStack {
                 Form {
                     Section(header: Text("settings.change_password".localized)) {
-                        SecureField("auth.current_password".localized, text: $currentPassword)
-                            .textContentType(.password)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("currentPasswordField")
+                        // Current password field with reveal button
+                        ZStack(alignment: .trailing) {
+                            if showCurrentPassword {
+                                TextField("auth.current_password".localized, text: $currentPassword)
+                                    .textContentType(.password)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("currentPasswordField")
+                            } else {
+                                SecureField("auth.current_password".localized, text: $currentPassword)
+                                    .textContentType(.password)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("currentPasswordField")
+                            }
+                            
+                            Button(action: {
+                                showCurrentPassword.toggle()
+                            }) {
+                                Image(systemName: showCurrentPassword ? "eye.fill" : "eye.slash.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("auth.toggle_password_visibility".localized)
+                            .accessibilityIdentifier("toggleCurrentPasswordButton")
+                            .padding(.trailing, 8)
+                        }
                         
-                        SecureField("auth.new_password".localized, text: $newPassword)
-                            .textContentType(.newPassword)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("newPasswordField")
+                        // New password field with reveal button
+                        ZStack(alignment: .trailing) {
+                            if showNewPassword {
+                                TextField("auth.new_password".localized, text: $newPassword)
+                                    .textContentType(.newPassword)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("newPasswordField")
+                            } else {
+                                SecureField("auth.new_password".localized, text: $newPassword)
+                                    .textContentType(.newPassword)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("newPasswordField")
+                            }
+                            
+                            Button(action: {
+                                showNewPassword.toggle()
+                            }) {
+                                Image(systemName: showNewPassword ? "eye.fill" : "eye.slash.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("auth.toggle_password_visibility".localized)
+                            .accessibilityIdentifier("toggleNewPasswordButton")
+                            .padding(.trailing, 8)
+                        }
                         
                         // Password strength indicator
                         HStack {
@@ -92,10 +137,31 @@ struct UpdatePasswordView: View {
                         .padding(.top, 4)
                         .accessibilityIdentifier("passwordStrengthIndicator")
                         
-                        SecureField("auth.confirm_password".localized, text: $confirmPassword)
-                            .textContentType(.newPassword)
-                            .autocorrectionDisabled()
-                            .accessibilityIdentifier("confirmPasswordField")
+                        // Confirm password field with reveal button
+                        ZStack(alignment: .trailing) {
+                            if showConfirmPassword {
+                                TextField("auth.confirm_password".localized, text: $confirmPassword)
+                                    .textContentType(.newPassword)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("confirmPasswordField")
+                            } else {
+                                SecureField("auth.confirm_password".localized, text: $confirmPassword)
+                                    .textContentType(.newPassword)
+                                    .autocorrectionDisabled()
+                                    .accessibilityIdentifier("confirmPasswordField")
+                            }
+                            
+                            Button(action: {
+                                showConfirmPassword.toggle()
+                            }) {
+                                Image(systemName: showConfirmPassword ? "eye.fill" : "eye.slash.fill")
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("auth.toggle_password_visibility".localized)
+                            .accessibilityIdentifier("toggleConfirmPasswordButton")
+                            .padding(.trailing, 8)
+                        }
                         
                         if !confirmPassword.isEmpty && confirmPassword != newPassword {
                             Text("auth.password_mismatch".localized)

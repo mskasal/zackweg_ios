@@ -67,6 +67,7 @@
 "auth.postal_code_required" = "Postal code is required";
 "auth.nickname_required" = "Nickname is required";
 "auth.sign_in_to_view" = "Please sign in to view this content";
+"auth.toggle_password_visibility" = "Toggle password visibility";
 
 // Field placeholders
 "auth.signup.email.placeholder" = "Enter your email";
