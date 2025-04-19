@@ -76,9 +76,9 @@
 "auth.signup.postal_code.placeholder" = "e.g., 10115";
 
 // Terms
-"auth.signup.agreement" = "By pressing Next, you agree to our Terms of Service and Privacy Policy";
+"auth.signup.agreement" = "By Signing Up, you agree to our Terms of Service and Privacy Policy";
 "auth.signup.password.toggle" = "Toggle password visibility";
-"auth.signup.agree_prefix" = "By pressing Next, you agree to our";
+"auth.signup.agree_prefix" = "By Signing up, you agree to our";
 "auth.signup.terms" = "Terms of Service";
 "auth.signup.and" = "and";
 "auth.signup.privacy" = "Privacy Policy";

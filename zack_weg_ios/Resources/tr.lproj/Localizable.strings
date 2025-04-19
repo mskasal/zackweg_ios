@@ -63,9 +63,9 @@
 "auth.signup.postal_code.placeholder" = "örn. 10115";
 
 // Terms
-"auth.signup.agreement" = "Kayıt ol butonuna basarak Kullanım Koşullarını ve Gizlilik Politikasını kabul etmiş olursun";
+"auth.signup.agreement" = "Kaydolarak Kullanım Koşullarını ve Gizlilik Politikasını kabul etmiş olursun";
 "auth.signup.password.toggle" = "Şifre görünürlüğünü değiştir";
-"auth.signup.agree_prefix" = "İleri'ye basarak şunları kabul etmiş olursun:";
+"auth.signup.agree_prefix" = "Kaydolarak şunları kabul etmiş olursun:";
 "auth.signup.terms" = "Kullanım Koşullarını";
 "auth.signup.and" = "ve";
 "auth.signup.privacy" = "Gizlilik Politikasını";

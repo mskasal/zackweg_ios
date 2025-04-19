@@ -65,7 +65,7 @@
 // Terms
 "auth.signup.agreement" = "Durch Drücken von Registrieren stimmst du unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu";
 "auth.signup.password.toggle" = "Passwort-Sichtbarkeit umschalten";
-"auth.signup.agree_prefix" = "Durch Drücken von Weiter stimmst du unseren";
+"auth.signup.agree_prefix" = "Durch Drücken von Registrieren Weiter stimmst du unseren";
 "auth.signup.terms" = "Nutzungsbedingungen";
 "auth.signup.and" = "und";
 "auth.signup.privacy" = "Datenschutzrichtlinie";

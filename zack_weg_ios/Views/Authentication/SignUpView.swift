@@ -489,9 +489,11 @@ private struct TermsAgreementText: View {
             
             HStack(spacing: 2) {
                 Button {
-                    if let url = URL(string: "https://www.zackweg.de/\(languageManager.currentLanguage.rawValue)/terms") {
-                        UIApplication.shared.open(url)
+                    let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+                        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/terms") {
+                            UIApplication.shared.open(url)
                     }
+
                 } label: {
                     Text("\("auth.signup.terms".localized)")
                         .font(.caption)
@@ -504,9 +506,11 @@ private struct TermsAgreementText: View {
                     .foregroundColor(.secondary)
                 
                 Button {
-                    if let url = URL(string: "https://www.zackweg.de/\(languageManager.currentLanguage.rawValue)/privacy") {
-                        UIApplication.shared.open(url)
-                    }
+
+                    let languageCode = languageManager.currentLanguage == .turkish ? "de" : languageManager.currentLanguage.rawValue
+                        if let url = URL(string: "https://www.zackweg.de/\(languageCode)/privacy") {
+                            UIApplication.shared.open(url)
+                   }
                 } label: {
                     Text("\("auth.signup.privacy".localized)")
                         .font(.caption)
