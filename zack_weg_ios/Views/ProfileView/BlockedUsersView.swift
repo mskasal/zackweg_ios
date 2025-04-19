@@ -103,6 +103,7 @@ struct BlockedUsersView: View {
                         .foregroundColor(.primary)
                 }
             }
+        }
         
         .alert(isPresented: .init(
             get: { viewModel.blockedUsersError != nil },

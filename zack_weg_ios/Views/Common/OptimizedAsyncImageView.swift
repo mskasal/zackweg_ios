@@ -1,9 +1,59 @@
 import SwiftUI
+import UIKit
+
+// Image cache for better performance
+class ImageCache {
+    static let shared = ImageCache()
+    private var cache = NSCache<NSString, UIImage>()
+    
+    private init() {
+        // Configure cache limits
+        cache.countLimit = 100
+        cache.totalCostLimit = 50 * 1024 * 1024 // 50MB limit
+    }
+    
+    func set(image: UIImage, for key: String) {
+        cache.setObject(image, forKey: key as NSString)
+    }
+    
+    func get(for key: String) -> UIImage? {
+        return cache.object(forKey: key as NSString)
+    }
+    
+    func prefetchImage(_ urlString: String, completion: @escaping (Bool) -> Void = { _ in }) {
+        guard let url = URL(string: urlString) else {
+            completion(false)
+            return
+        }
+        
+        // Check if already cached
+        if let _ = get(for: urlString) {
+            completion(true)
+            return
+        }
+        
+        // Otherwise download
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let data = data, error == nil,
+                  let image = UIImage(data: data) else {
+                completion(false)
+                return
+            }
+            
+            self?.set(image: image, for: urlString)
+            completion(true)
+        }.resume()
+    }
+}
 
 struct OptimizedAsyncImageView: View {
     let imageUrl: String
     let height: CGFloat
     let onTapAction: (() -> Void)?
+    
+    @State private var loadedImage: UIImage? = nil
+    @State private var isLoading = true
+    @State private var loadingFailed = false
     
     init(imageUrl: String, height: CGFloat = 250, onTapAction: (() -> Void)? = nil) {
         self.imageUrl = imageUrl
@@ -12,10 +62,20 @@ struct OptimizedAsyncImageView: View {
     }
     
     var body: some View {
-        AsyncImage(url: URL(string: imageUrl), 
-                   transaction: Transaction(animation: .easeInOut)) { phase in
-            switch phase {
-            case .empty:
+        Group {
+            if let image = loadedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: height)
+                    .clipped()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        if let action = onTapAction {
+                            action()
+                        }
+                    }
+            } else if isLoading {
                 // Placeholder with shimmer effect
                 Rectangle()
                     .fill(Color.gray.opacity(0.2))
@@ -27,19 +87,7 @@ struct OptimizedAsyncImageView: View {
                     .frame(height: height)
                     .clipped()
                     .transition(.opacity)
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: height)
-                    .clipped()
-                    .transition(.opacity)
-                    .onTapGesture {
-                        if let action = onTapAction {
-                            action()
-                        }
-                    }
-            case .failure:
+            } else if loadingFailed {
                 // Error placeholder
                 Rectangle()
                     .fill(Color.gray.opacity(0.2))
@@ -50,13 +98,42 @@ struct OptimizedAsyncImageView: View {
                     )
                     .frame(height: height)
                     .clipped()
-            @unknown default:
-                Rectangle()
-                    .fill(Color.gray.opacity(0.2))
-                    .frame(height: height)
-                    .clipped()
             }
         }
+        .onAppear {
+            loadImage()
+        }
+    }
+    
+    private func loadImage() {
+        // Check cache first
+        if let cachedImage = ImageCache.shared.get(for: imageUrl) {
+            self.loadedImage = cachedImage
+            self.isLoading = false
+            return
+        }
+        
+        // Download if not cached
+        guard let url = URL(string: imageUrl) else {
+            self.isLoading = false
+            self.loadingFailed = true
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            DispatchQueue.main.async {
+                guard let data = data, error == nil,
+                      let downloadedImage = UIImage(data: data) else {
+                    self.isLoading = false
+                    self.loadingFailed = true
+                    return
+                }
+                
+                ImageCache.shared.set(image: downloadedImage, for: imageUrl)
+                self.loadedImage = downloadedImage
+                self.isLoading = false
+            }
+        }.resume()
     }
 }
 
@@ -88,19 +165,15 @@ struct ZoomableAsyncImageView: View {
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
+    @State private var loadedImage: UIImage? = nil
+    @State private var isLoading = true
+    @State private var loadingFailed = false
     
     var body: some View {
         GeometryReader { geometry in
-            AsyncImage(url: URL(string: imageUrl),
-                       transaction: Transaction(animation: .easeInOut)) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .scaleEffect(1.5)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                case .success(let image):
-                    image
+            Group {
+                if let image = loadedImage {
+                    Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .scaleEffect(scale)
@@ -161,17 +234,54 @@ struct ZoomableAsyncImageView: View {
                                 }
                             }
                         }
-                case .failure:
+                } else if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle())
+                        .scaleEffect(1.5)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if loadingFailed {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.largeTitle)
                         .foregroundColor(.red)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                @unknown default:
-                    EmptyView()
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .onAppear {
+                loadImage()
+            }
         }
+    }
+    
+    private func loadImage() {
+        // Check cache first
+        if let cachedImage = ImageCache.shared.get(for: imageUrl) {
+            self.loadedImage = cachedImage
+            self.isLoading = false
+            return
+        }
+        
+        // Download if not cached
+        guard let url = URL(string: imageUrl) else {
+            self.isLoading = false
+            self.loadingFailed = true
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, _, error in
+            DispatchQueue.main.async {
+                guard let data = data, error == nil,
+                      let downloadedImage = UIImage(data: data) else {
+                    self.isLoading = false
+                    self.loadingFailed = true
+                    return
+                }
+                
+                ImageCache.shared.set(image: downloadedImage, for: imageUrl)
+                self.loadedImage = downloadedImage
+                self.isLoading = false
+            }
+        }.resume()
     }
 }
 
@@ -198,6 +308,12 @@ struct PostImagePreviewView: View {
                 }
             }
             #endif
+        }
+        .onAppear {
+            // Prefetch all images when the preview opens
+            for url in imageUrls {
+                ImageCache.shared.prefetchImage(url)
+            }
         }
     }
 } 

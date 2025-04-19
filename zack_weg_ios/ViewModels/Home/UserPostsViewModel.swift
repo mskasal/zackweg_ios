@@ -19,6 +19,10 @@ class UserPostsViewModel: ObservableObject {
     // All posts fetched from API, used as source of truth
     private var allPosts: [Post] = []
     
+    // Cached filtered posts for better performance
+    private var activePosts: [Post] = []
+    private var archivedPosts: [Post] = []
+    
     enum PostStatus: String, CaseIterable, Identifiable {
         case active = "ACTIVE"
         case archived = "ARCHIVED"
@@ -83,7 +87,16 @@ class UserPostsViewModel: ObservableObject {
                     currentUser = nil
                 }
             }
+            
+            // Prefetch images for posts
+            prefetchImagesForPosts(allPosts)
+            
+            // Cache filtered posts
+            updateFilteredPostsCache()
+            
+            // Set posts based on selected tab
             filterPosts()
+            
         } catch {
             self.error = error.localizedDescription
             // Extract detailed error info if available
@@ -160,6 +173,13 @@ class UserPostsViewModel: ObservableObject {
                 }
             }
             
+            // Prefetch images for posts
+            prefetchImagesForPosts(allPosts)
+            
+            // Cache filtered posts
+            updateFilteredPostsCache()
+            
+            // Update displayed posts
             filterPosts()
         } catch {
             self.error = error.localizedDescription
@@ -206,17 +226,51 @@ class UserPostsViewModel: ObservableObject {
         filterPosts()
     }
     
+    // Prefetch post images
+    private func prefetchImagesForPosts(_ posts: [Post]) {
+        for post in posts {
+            if !post.imageUrls.isEmpty {
+                // Start loading the first image of each post
+                ImagePrefetcher.shared.prefetchImage(post.imageUrls[0])
+            }
+        }
+    }
+    
+    // Update the cached filtered posts
+    private func updateFilteredPostsCache() {
+        activePosts = allPosts.filter { $0.status == PostStatus.active.rawValue }
+        archivedPosts = allPosts.filter { $0.status == PostStatus.archived.rawValue }
+    }
+    
     private func filterPosts() {
         // If not current user, show only active posts
         if !isCurrentUser {
-            posts = allPosts.filter { $0.status == PostStatus.active.rawValue }
+            posts = activePosts
             return
         }
         
-        // For current user, filter based on selected tab
-        posts = allPosts.filter { $0.status == selectedTab.rawValue }
+        // For current user, use the cached posts based on selected tab
+        switch selectedTab {
+        case .active:
+            posts = activePosts
+        case .archived:
+            posts = archivedPosts
+        }
+    }
+}
+
+// Image prefetching helper
+class ImagePrefetcher {
+    static let shared = ImagePrefetcher()
+    
+    private init() {}
+    
+    func prefetchImage(_ urlString: String) {
+        guard let url = URL(string: urlString) else { return }
         
-        // Don't automatically switch tabs anymore - stay on the selected tab
-        // even if there are no posts to show
+        // Use URLSession to start loading the image data
+        URLSession.shared.dataTask(with: url) { _, _, _ in
+            // We don't need to do anything with the data, just loading it into the cache
+        }.resume()
     }
 } 

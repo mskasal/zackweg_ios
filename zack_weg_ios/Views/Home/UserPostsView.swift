@@ -33,19 +33,35 @@ struct UserPostsView: View {
                 statusTabSelector
             }
             
-            if viewModel.isLoading && viewModel.posts.isEmpty {
-                ProgressView()
-                    .padding()
-            } else if viewModel.isCurrentUser && viewModel.selectedTab == .archived && viewModel.posts.isEmpty {
-                // Special case for empty archived posts - show archivedEmptyStateView
-                archivedEmptyStateView
-            } else if viewModel.posts.isEmpty {
-                // Default empty state for other cases
-                emptyStateView
-            } else {
-                // Show posts when they exist
-                postsListView
+            ZStack {
+                // Loading state
+                if viewModel.isLoading && viewModel.posts.isEmpty {
+                    ProgressView()
+                        .padding()
+                        .transition(.opacity)
+                }
+                
+                // Archived empty state - only visible when archived tab is selected with no posts
+                if viewModel.isCurrentUser && viewModel.selectedTab == .archived && viewModel.posts.isEmpty && !viewModel.isLoading {
+                    archivedEmptyStateView
+                        .transition(.opacity)
+                }
+                
+                // Default empty state - for other empty cases
+                if viewModel.posts.isEmpty && viewModel.selectedTab != .archived && !viewModel.isLoading {
+                    emptyStateView
+                        .transition(.opacity)
+                }
+                
+                // Posts list - only visible when there are posts
+                if !viewModel.posts.isEmpty {
+                    postsListView
+                        .transition(.opacity)
+                }
             }
+            .animation(.easeInOut(duration: 0.2), value: viewModel.selectedTab)
+            .animation(.easeInOut(duration: 0.2), value: viewModel.posts.isEmpty)
+            .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
         }
         .navigationTitle(userName ?? "posts.user_posts".localized)
         .navigationBarTitleDisplayMode(.inline)
