@@ -1,26 +1,16 @@
 import SwiftUI
 
-struct UserPostsView: View {
+struct CurrentUserPostsView: View {
     @StateObject private var viewModel = UserPostsViewModel()
     @State private var errorMessage: ErrorMessage?
     @Environment(\.dismiss) private var dismiss
-    let userId: String
-    let userName: String?
-    var disablePostNavigation: Bool = false
     
-    init(userId: String, userName: String? = nil, disablePostNavigation: Bool = false) {
-        self.userId = userId
-        self.userName = userName
-        self.disablePostNavigation = disablePostNavigation
-        _viewModel = StateObject(wrappedValue: UserPostsViewModel())
-    }
+    var forceRefresh: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
-            // Tab selector for the current user's posts
-            if viewModel.isCurrentUser {
-                statusTabSelector
-            }
+            // Tab selector for posts
+            statusTabSelector
             
             ZStack {
                 // Loading state
@@ -31,7 +21,7 @@ struct UserPostsView: View {
                 }
                 
                 // Archived empty state - only visible when archived tab is selected with no posts
-                if viewModel.isCurrentUser && viewModel.selectedTab == .archived && viewModel.posts.isEmpty && !viewModel.isLoading {
+                if viewModel.selectedTab == .archived && viewModel.posts.isEmpty && !viewModel.isLoading {
                     archivedEmptyStateView
                         .transition(.opacity)
                 }
@@ -52,12 +42,18 @@ struct UserPostsView: View {
             .animation(.easeInOut(duration: 0.2), value: viewModel.posts.isEmpty)
             .animation(.easeInOut(duration: 0.2), value: viewModel.isLoading)
         }
-        .navigationTitle(userName ?? "posts.user_posts".localized)
+        .navigationTitle("posts.my_posts".localized)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             Task {
-                await viewModel.fetchUserProfile(userId: userId)
-                await viewModel.fetchUserPosts(userId: userId)
+                if forceRefresh {
+                    // Use refresh for force refresh case
+                    await viewModel.refresh(userId: nil)
+                } else {
+                    // Normal flow - pass nil to fetch current user
+                    await viewModel.fetchUserProfile(userId: nil)
+                    await viewModel.fetchUserPosts(userId: nil)
+                }
             }
         }
         .onChange(of: viewModel.error) { error in
@@ -122,32 +118,22 @@ struct UserPostsView: View {
                 .foregroundColor(.gray)
                 .padding()
             
-            if viewModel.isCurrentUser {
-                Text(
-                    viewModel.selectedTab == .active
-                    ? "posts.no_active_posts".localized 
-                    : "posts.no_archived_posts".localized
-                )
+            Text("posts.no_active_posts".localized)
                 .font(.headline)
                 .foregroundColor(.gray)
-                
-                Button(action: {
-                    dismiss()
-                }) {
-                    Text("posts.create_post".localized)
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(Color.blue)
-                        .cornerRadius(8)
-                }
-                .padding(.top, 16)
-            } else {
-                Text("posts.no_posts_yet".localized)
-                    .font(.headline)
-                    .foregroundColor(.gray)
+            
+            Button(action: {
+                dismiss()
+            }) {
+                Text("posts.create_post".localized)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.blue)
+                    .cornerRadius(8)
             }
+            .padding(.top, 16)
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -185,82 +171,13 @@ struct UserPostsView: View {
             .padding(.vertical, 12)
         }
         .refreshable {
-            await viewModel.refresh(userId: userId)
+            await viewModel.refresh(userId: nil)
         }
-    }
-}
-
-struct PostRowView: View {
-    let post: Post
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            // Image
-            if !post.imageUrls.isEmpty {
-                OptimizedAsyncImageView(
-                    imageUrl: post.imageUrls[0],
-                    height: 80
-                )
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                Rectangle()
-                    .foregroundColor(.gray.opacity(0.3))
-                    .frame(width: 80, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(
-                        Image(systemName: "photo")
-                            .foregroundColor(.gray)
-                    )
-            }
-            
-            // Content
-            VStack(alignment: .leading, spacing: 4) {
-                Text(post.title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                    .lineLimit(2)
-                
-                HStack(spacing: 8) {
-                    if post.offering == "SOLD_AT_PRICE" && post.price != nil {
-                        Text(String(post.price!).asPriceText())
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.blue)
-                    } else {
-                        Text("common.free".localized)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.green)
-                    }
-                    
-                    if post.status == "ARCHIVED" {
-                        Image(systemName: "archivebox.fill")
-                            .font(.caption)
-                            .foregroundColor(.orange)
-                    }
-                }
-                
-                Text(post.location.postalCode)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .padding(12)
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
     }
 }
 
 #Preview {
     NavigationView {
-        UserPostsView(userId: "test-user-id", userName: "Test User")
+        CurrentUserPostsView()
     }
 } 

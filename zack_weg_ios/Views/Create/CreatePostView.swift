@@ -908,9 +908,9 @@ struct CreatePostView: View {
         .background(
             Group {
                 if let post = viewModel.createdPost {
-                    // Navigate to UserPostsView instead of PostDetailView
+                    // Navigate to CurrentUserPostsView instead of UserPostsView
                     NavigationLink(
-                        destination: UserPostsView(userId: KeychainManager.shared.getUserId() ?? UserDefaults.standard.string(forKey: "userId") ?? ""),
+                        destination: CurrentUserPostsView(forceRefresh: true),
                         isActive: $navigateToPostDetail,
                         label: { EmptyView() }
                     )
