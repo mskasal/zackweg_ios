@@ -56,38 +56,7 @@ struct PostDetailView: View {
         .sheet(isPresented: $showingMessageSheet) {
             NavigationStack {
                 VStack(spacing: 16) {
-                    // Seller Profile Section - Simplified
-                    VStack(spacing: 12) {
-                        // Seller Avatar and Name
-                        HStack(spacing: 14) {
-                            // Profile Image
-                            ZStack {
-                                Circle()
-                                    .fill(Color.blue.opacity(0.1))
-                                    .frame(width: 60, height: 60)
-                                
-                                Text(viewModel.getInitials(for: currentPost?.user.nickName ?? ""))
-                                    .font(.system(size: 24, weight: .medium))
-                                    .foregroundColor(.blue)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 6) {
-                                Text(currentPost?.user.nickName ?? "")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(Color(.systemGray6).opacity(0.5))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 20)
-                    .padding(.top, 16)
-                    
+                    Spacer()
                     Text("post_detail.new_message".localized)
                         .font(.title3)
                         .fontWeight(.bold)
