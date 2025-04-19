@@ -297,8 +297,7 @@ struct PostImagePreviewView: View {
                     ZoomableAsyncImageView(imageUrl: imageUrl)
                 }
             }
-            #if os(iOS)
-            .tabViewStyle(PageTabViewStyle())
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -306,9 +305,9 @@ struct PostImagePreviewView: View {
                         dismiss()
                     }
                 }
-            }
-            #endif
+            }.background(Color.secondary.opacity(0.4))
         }
+        
         .onAppear {
             // Prefetch all images when the preview opens
             for url in imageUrls {
@@ -316,4 +315,4 @@ struct PostImagePreviewView: View {
             }
         }
     }
-} 
+}
