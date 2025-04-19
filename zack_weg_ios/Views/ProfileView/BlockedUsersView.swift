@@ -95,14 +95,15 @@ struct BlockedUsersView: View {
         .navigationTitle("profile.blocked_users".localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
                     dismiss()
                 }) {
-                    Text("common.done".localized)
+                    Image(systemName: "xmark")
+                        .foregroundColor(.primary)
                 }
             }
-        }
+        
         .alert(isPresented: .init(
             get: { viewModel.blockedUsersError != nil },
             set: { if !$0 { viewModel.blockedUsersError = nil } }

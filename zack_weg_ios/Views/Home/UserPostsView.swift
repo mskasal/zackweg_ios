@@ -36,9 +36,14 @@ struct UserPostsView: View {
             if viewModel.isLoading && viewModel.posts.isEmpty {
                 ProgressView()
                     .padding()
+            } else if viewModel.isCurrentUser && viewModel.selectedTab == .archived && viewModel.posts.isEmpty {
+                // Special case for empty archived posts - show archivedEmptyStateView
+                archivedEmptyStateView
             } else if viewModel.posts.isEmpty {
+                // Default empty state for other cases
                 emptyStateView
             } else {
+                // Show posts when they exist
                 postsListView
             }
         }
@@ -138,6 +143,24 @@ struct UserPostsView: View {
                     .font(.headline)
                     .foregroundColor(.gray)
             }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // Specific empty state for archived posts
+    private var archivedEmptyStateView: some View {
+        VStack {
+            Image(systemName: "archivebox")
+                .font(.system(size: 60))
+                .foregroundColor(.orange)
+                .padding()
+            
+            Text("posts.no_archived_posts".localized)
+                .font(.headline)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)

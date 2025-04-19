@@ -185,6 +185,11 @@ class UserPostsViewModel: ObservableObject {
         return UserDefaults.standard.string(forKey: "userId") == postUserId
     }
     
+    // Helper to check if there are any archived posts
+    var hasArchivedPosts: Bool {
+        return !allPosts.filter { $0.status == PostStatus.archived.rawValue }.isEmpty
+    }
+    
     // Helper to get the display name, prioritizing the most detailed user info available
     var displayName: String {
         if let name = currentUser?.nickName {
@@ -211,20 +216,7 @@ class UserPostsViewModel: ObservableObject {
         // For current user, filter based on selected tab
         posts = allPosts.filter { $0.status == selectedTab.rawValue }
         
-        // If no posts in current tab, check if we have any in other tabs
-        if posts.isEmpty {
-            let hasActivePosts = !allPosts.filter { $0.status == PostStatus.active.rawValue }.isEmpty
-            let hasArchivedPosts = !allPosts.filter { $0.status == PostStatus.archived.rawValue }.isEmpty
-            
-            // If we have posts in another tab but none in current tab, 
-            // switch to a tab that has posts (prefer active over archived)
-            if hasActivePosts && selectedTab != .active {
-                selectedTab = .active
-                posts = allPosts.filter { $0.status == PostStatus.active.rawValue }
-            } else if hasArchivedPosts && selectedTab != .archived {
-                selectedTab = .archived
-                posts = allPosts.filter { $0.status == PostStatus.archived.rawValue }
-            }
-        }
+        // Don't automatically switch tabs anymore - stay on the selected tab
+        // even if there are no posts to show
     }
 } 

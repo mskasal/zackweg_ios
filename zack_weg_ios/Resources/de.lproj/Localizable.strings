@@ -63,7 +63,7 @@
 "auth.signup.postal_code.placeholder" = "z.B. 10115";
 
 // Terms
-"auth.signup.agreement" = "Durch Drücken von Weiter stimmst du unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu";
+"auth.signup.agreement" = "Durch Drücken von Registrieren stimmst du unseren Nutzungsbedingungen und der Datenschutzrichtlinie zu";
 "auth.signup.password.toggle" = "Passwort-Sichtbarkeit umschalten";
 "auth.signup.agree_prefix" = "Durch Drücken von Weiter stimmst du unseren";
 "auth.signup.terms" = "Nutzungsbedingungen";

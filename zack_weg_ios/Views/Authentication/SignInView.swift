@@ -282,11 +282,15 @@ struct SignInView: View {
             )
         }
         .sheet(isPresented: $showSignUp) {
-            SignUpView(authViewModel: authViewModel)
+            NavigationView {
+                SignUpView(authViewModel: authViewModel)
+            }
         }
         .presentationDetents([.large])
         .sheet(isPresented: $showForgotPassword) {
-            ForgotPasswordView(authViewModel: authViewModel)
+            NavigationView {
+                ForgotPasswordView(authViewModel: authViewModel)
+            }
         }
         .presentationDetents([.large])
         .accessibilityIdentifier("signInScreenView")

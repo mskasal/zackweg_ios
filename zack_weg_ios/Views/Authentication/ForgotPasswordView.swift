@@ -142,6 +142,16 @@ struct ForgotPasswordView: View {
             .padding(.bottom, 30)
         }
         .accessibilityIdentifier("forgotPasswordScreenView")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.primary)
+                }
+            }
+        }
         .alert(isPresented: $showError) {
             Alert(
                 title: Text("common.error".localized),
