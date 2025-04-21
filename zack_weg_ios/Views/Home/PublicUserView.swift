@@ -13,6 +13,7 @@ struct PublicUserView: View {
     @State private var showBlockUserView = false
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var authViewModel: AuthViewModel
+    @State private var viewRefreshID = UUID() // Add refresh ID to force view updates
     
     // Compute the user profile URL with the appropriate language code
     private var userURL: URL {
@@ -25,74 +26,76 @@ struct PublicUserView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            // User info header
-            HStack(spacing: 16) {
-                // Avatar placeholder
-                ZStack {
-                    Circle()
-                        .fill(Color.blue.opacity(0.1))
-                        .frame(width: 50, height: 50)
+        AuthenticationAwareView(authViewModel: authViewModel) {
+            VStack(spacing: 0) {
+                // User info header
+                HStack(spacing: 16) {
+                    // Avatar placeholder
+                    ZStack {
+                        Circle()
+                            .fill(Color.blue.opacity(0.1))
+                            .frame(width: 50, height: 50)
+                        
+                        Text(getInitials())
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.blue)
+                    }
                     
-                    Text(getInitials())
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(.blue)
-                }
-                
-                // User name and ID
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(nickName)
-                        .font(.headline)
+                    // User name and ID
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(nickName)
+                            .font(.headline)
+                        
+                        Text(userId.prefix(8) + "...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     
-                    Text(userId.prefix(8) + "...")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Spacer()
+                    
+                    // Block user button - only show if user is authenticated
+                    if authViewModel.isAuthenticated {
+                        Button(action: {
+                            showBlockUserView = true
+                        }) {
+                            Text("profile.block_user".localized)
+                                .font(.subheadline)
+                                .foregroundColor(.red)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(16)
+                        }
+                    }
                 }
+                .padding()
+                .background(Color(.systemBackground))
                 
-                Spacer()
-                
-                // Block user button - only show if user is authenticated
-                if authViewModel.isAuthenticated {
-                    Button(action: {
-                        showBlockUserView = true
-                    }) {
-                        Text("profile.block_user".localized)
-                            .font(.subheadline)
-                            .foregroundColor(.red)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(16)
+                // Use the existing UserPostsView
+                UserPostsView(
+                    userId: userId,
+                    userName: nickName,
+                    disablePostNavigation: false
+                )
+            }
+            .navigationTitle(nickName)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    ShareLink(
+                        item: userURL,
+                        subject: Text("profile.share.subject".localized),
+                        message: Text(String(format: "profile.share.message".localized, nickName))
+                    ) {
+                        Image(systemName: "square.and.arrow.up")
+                            .accessibilityLabel("profile.share".localized)
                     }
                 }
             }
-            .padding()
-            .background(Color(.systemBackground))
-            
-            // Use the existing UserPostsView
-            UserPostsView(
-                userId: userId,
-                userName: nickName,
-                disablePostNavigation: false
-            )
-        }
-        .navigationTitle(nickName)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                ShareLink(
-                    item: userURL,
-                    subject: Text("profile.share.subject".localized),
-                    message: Text(String(format: "profile.share.message".localized, nickName))
-                ) {
-                    Image(systemName: "square.and.arrow.up")
-                        .accessibilityLabel("profile.share".localized)
+            .sheet(isPresented: $showBlockUserView) {
+                NavigationView {
+                    BlockUserView(userId: userId, userName: nickName)
                 }
-            }
-        }
-        .sheet(isPresented: $showBlockUserView) {
-            NavigationView {
-                BlockUserView(userId: userId, userName: nickName)
             }
         }
     }
@@ -109,6 +112,22 @@ struct PublicUserView: View {
         }
         
         return "U"
+    }
+}
+
+// Helper view that forces a refresh when auth state changes
+struct AuthenticationAwareView<Content: View>: View {
+    @ObservedObject var authViewModel: AuthViewModel
+    let content: Content
+    
+    init(authViewModel: AuthViewModel, @ViewBuilder content: () -> Content) {
+        self.authViewModel = authViewModel
+        self.content = content()
+    }
+    
+    var body: some View {
+        content
+            .id(authViewModel.isAuthenticated) // Force refresh when auth state changes
     }
 }
 

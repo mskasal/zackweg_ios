@@ -71,7 +71,11 @@ struct ContentView: View {
                     .tag(4)
                     .environmentObject(authViewModel)
                 }
-                .id(refreshID) // Force the TabView to rebuild when this changes
+                .onChange(of: authViewModel.isAuthenticated) { newValue in
+                    if newValue {
+                        unreadMessagesViewModel.refreshUnreadCount()
+                    }
+                }
                 .environmentObject(unreadMessagesViewModel)
                 
                 // Debug button - only shown in DEBUG builds
@@ -108,15 +112,6 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             if authViewModel.isAuthenticated {
-                unreadMessagesViewModel.refreshUnreadCount()
-            }
-        }
-        .onChange(of: authViewModel.isAuthenticated) { newValue in
-            // Force TabView to refresh when authentication state changes
-            refreshID = UUID()
-            
-            // Also refresh unread messages count if authenticated
-            if newValue {
                 unreadMessagesViewModel.refreshUnreadCount()
             }
         }
