@@ -243,8 +243,11 @@ struct SettingsView: View {
                 UpdatePasswordView()
             }
         }
-        .alert(isPresented: $showingSignOutConfirmation) {
-            signOutAlert()
+        .confirmationDialog("auth.sign_out".localized, isPresented: $showingSignOutConfirmation, titleVisibility: .visible) {
+            Button("auth.sign_out".localized, role: .destructive) {
+                authViewModel.signOut()
+            }
+            Button("common.cancel".localized, role: .cancel) { }
         }
         .alert("settings.delete_account".localized, isPresented: $showingDeleteAccountAlert) {
             TextField("settings.delete_confirm_placeholder".localized, text: $deleteConfirmationText)
@@ -314,16 +317,6 @@ struct SettingsView: View {
                 self.currentTheme = newTheme
             }
         }
-    }
-    
-    private func signOutAlert() -> Alert {
-        Alert(
-            title: Text("auth.sign_out".localized),
-            primaryButton: .destructive(Text("auth.sign_out".localized)) {
-                authViewModel.signOut()
-            },
-            secondaryButton: .cancel(Text("common.cancel".localized))
-        )
     }
     
     // Open Help & Support in browser
