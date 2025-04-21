@@ -256,6 +256,8 @@
 "settings.delete_account" = "Delete Account";
 "settings.delete_confirm_placeholder" = "Type 'Delete' to confirm";
 "settings.delete_confirm_message" = "This action cannot be undone. To confirm, type 'Delete'.";
+"settings.deleting_account" = "Deleting account...";
+"settings.delete_account_helper" = "All your posts and messages, your email and username will be permanently removed.";
 "common.refresh" = "Refresh";
 
 // MARK: - Errors

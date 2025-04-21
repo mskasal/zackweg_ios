@@ -243,6 +243,8 @@
 "settings.delete_account" = "Konto löschen";
 "settings.delete_confirm_placeholder" = "Tippe 'Löschen' zur Bestätigung";
 "settings.delete_confirm_message" = "Diese Aktion kann nicht rückgängig gemacht werden. Tippe 'Löschen' zur Bestätigung.";
+"settings.deleting_account" = "Konto wird gelöscht...";
+"settings.delete_account_helper" = "Alle deine Beiträge und Nachrichten, deine E-Mail und dein Benutzername werden dauerhaft entfernt.";
 
 // MARK: - Errors
 "error.network" = "Netzwerkfehler aufgetreten";

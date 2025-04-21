@@ -181,4 +181,34 @@ class SettingsViewModel: ObservableObject {
             throw error
         }
     }
+    
+    func deleteAccount() async throws {
+        isLoading = true
+        error = nil
+        
+        print("📱 Deleting user account and all associated data")
+        
+        do {
+            try await apiService.deleteAccount()
+            print("✓ Account deleted successfully")
+            isLoading = false
+        } catch let error as APIError {
+            isLoading = false
+            switch error {
+            case .unauthorized:
+                self.error = "error.auth.session_expired".localized
+            case .serverError(let code, let message):
+                self.error = message ?? String(format: "error.server.with_code".localized, code)
+            default:
+                self.error = error.localizedDescription
+            }
+            print("❌ Account deletion failed: \(error.localizedDescription)")
+            throw error
+        } catch {
+            isLoading = false
+            self.error = error.localizedDescription
+            print("❌ Account deletion failed: \(error.localizedDescription)")
+            throw error
+        }
+    }
 } 

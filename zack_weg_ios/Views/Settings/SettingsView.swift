@@ -12,6 +12,8 @@ struct SettingsView: View {
     @State private var showingSignOutConfirmation = false
     @State private var showingDeleteAccountAlert = false
     @State private var deleteConfirmationText = ""
+    @State private var isDeletingAccount = false
+    @State private var showingErrorAlert = false
     @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var themeManager: ThemeManager
@@ -186,6 +188,12 @@ struct SettingsView: View {
                 }
                 .foregroundColor(.red)
                 .accessibilityIdentifier("deleteAccountButton")
+                
+                Text("settings.delete_account_helper".localized)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 4)
+                    .accessibilityIdentifier("deleteAccountHelperText")
             }
             
             // App info section
@@ -247,12 +255,53 @@ struct SettingsView: View {
             }
             Button("common.delete".localized, role: .destructive) {
                 if deleteConfirmationText.lowercased() == "common.delete".localized.lowercased() {
-                    print("Account deleted")
-                    deleteConfirmationText = ""
+                    // Call the delete account API
+                    Task {
+                        do {
+                            isDeletingAccount = true
+                            try await viewModel.deleteAccount()
+                            isDeletingAccount = false
+                            deleteConfirmationText = ""
+                            
+                            // Sign out after successful deletion
+                            authViewModel.signOut()
+                        } catch {
+                            isDeletingAccount = false
+                            showingErrorAlert = true
+                            // Error is already handled in the viewModel
+                        }
+                    }
                 }
             }
+            .disabled(isDeletingAccount)
         } message: {
             Text("settings.delete_confirm_message".localized)
+        }
+        .alert(isPresented: $showingErrorAlert) {
+            Alert(
+                title: Text("common.error".localized),
+                message: Text(viewModel.error ?? "error.unknown".localized),
+                dismissButton: .default(Text("common.ok".localized))
+            )
+        }
+        .overlay {
+            if isDeletingAccount {
+                ZStack {
+                    Color.black.opacity(0.4)
+                    VStack {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .tint(.white)
+                        Text("settings.deleting_account".localized)
+                            .foregroundColor(.white)
+                            .padding(.top, 10)
+                    }
+                    .padding(20)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(12)
+                }
+                .ignoresSafeArea()
+            }
         }
         .onAppear {
             // Initialize current theme state from ThemeManager

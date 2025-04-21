@@ -377,6 +377,7 @@ class APIService {
     
     func getMyProfile() async throws -> User {
         let url = URL(string: "\(baseURL)/users/me")!
+        
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         
@@ -394,9 +395,7 @@ class APIService {
             try handleAPIError(statusCode: httpResponse.statusCode, data: data)
             throw APIError.unexpectedError // This line shouldn't be reached
         }
-        
         let user = try JSONDecoder().decode(User.self, from: data)
-        
         // Save user ID and nickname to UserDefaults
         UserDefaults.standard.set(user.id, forKey: "userId")
         UserDefaults.standard.set(user.nickName, forKey: "userNickName")
@@ -406,6 +405,34 @@ class APIService {
         UserDefaults.standard.set(user.location.countryCode, forKey: "countryCode")
         
         return user
+    }
+    
+    func deleteAccount() async throws {
+        let url = URL(string: "\(baseURL)/users/me/data")!
+        print("🗑️ Delete Account Request URL: \(url.absoluteString)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        
+        print("📥 Delete Account Response Status: \(httpResponse.statusCode)")
+        if let responseString = String(data: data, encoding: .utf8), !responseString.isEmpty {
+            print("📦 Delete Account Response Body: \(responseString)")
+        } else {
+            print("📦 Delete Account Response: No response body")
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            try handleAPIError(statusCode: httpResponse.statusCode, data: data)
+            throw APIError.unexpectedError
+        }
+        
+        print("✅ Account deleted successfully")
     }
     
     func searchPosts(

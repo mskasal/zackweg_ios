@@ -243,6 +243,8 @@
 "settings.delete_account" = "Hesabı Sil";
 "settings.delete_confirm_placeholder" = "Onaylamak için 'Sil' yazın";
 "settings.delete_confirm_message" = "Bu işlem geri alınamaz. Onaylamak için 'Sil' yazın.";
+"settings.deleting_account" = "Hesap siliniyor...";
+"settings.delete_account_helper" = "Tüm gönderileriniz ve mesajlarınız, e-postanız ve kullanıcı adınız kalıcı olarak kaldırılacaktır.";
 
 // MARK: - Errors
 "error.network" = "Ağ hatası oluştu";
