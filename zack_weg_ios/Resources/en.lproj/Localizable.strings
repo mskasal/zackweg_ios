@@ -253,6 +253,9 @@
 "settings.location" = "Location";
 "settings.postal_code_empty" = "Postal code cannot be empty";
 "settings.invalid_email" = "Please enter a valid email address";
+"settings.delete_account" = "Delete Account";
+"settings.delete_confirm_placeholder" = "Type 'Delete' to confirm";
+"settings.delete_confirm_message" = "This action cannot be undone. To confirm, type 'Delete'.";
 "common.refresh" = "Refresh";
 
 // MARK: - Errors

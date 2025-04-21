@@ -240,6 +240,9 @@
 "settings.location" = "Standort";
 "settings.postal_code_empty" = "Postleitzahl darf nicht leer sein";
 "settings.invalid_email" = "Bitte gib eine gültige E-Mail-Adresse ein";
+"settings.delete_account" = "Konto löschen";
+"settings.delete_confirm_placeholder" = "Tippe 'Löschen' zur Bestätigung";
+"settings.delete_confirm_message" = "Diese Aktion kann nicht rückgängig gemacht werden. Tippe 'Löschen' zur Bestätigung.";
 
 // MARK: - Errors
 "error.network" = "Netzwerkfehler aufgetreten";

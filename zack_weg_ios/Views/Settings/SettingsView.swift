@@ -10,6 +10,8 @@ struct SettingsView: View {
     @State private var showingUpdateProfile = false
     @State private var showingUpdatePassword = false
     @State private var showingSignOutConfirmation = false
+    @State private var showingDeleteAccountAlert = false
+    @State private var deleteConfirmationText = ""
     @EnvironmentObject private var authViewModel: AuthViewModel
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var themeManager: ThemeManager
@@ -172,6 +174,20 @@ struct SettingsView: View {
                 .accessibilityIdentifier("signOutButton")
             }
             
+            // Account Deletion section
+            Section {
+                Button(action: {
+                    showingDeleteAccountAlert = true
+                }) {
+                    HStack {
+                        Label("settings.delete_account".localized, systemImage: "trash")
+                        Spacer()
+                    }
+                }
+                .foregroundColor(.red)
+                .accessibilityIdentifier("deleteAccountButton")
+            }
+            
             // App info section
             Section {
                 HStack {
@@ -221,6 +237,22 @@ struct SettingsView: View {
         }
         .alert(isPresented: $showingSignOutConfirmation) {
             signOutAlert()
+        }
+        .alert("settings.delete_account".localized, isPresented: $showingDeleteAccountAlert) {
+            TextField("settings.delete_confirm_placeholder".localized, text: $deleteConfirmationText)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+            Button("common.cancel".localized, role: .cancel) {
+                deleteConfirmationText = ""
+            }
+            Button("common.delete".localized, role: .destructive) {
+                if deleteConfirmationText.lowercased() == "common.delete".localized.lowercased() {
+                    print("Account deleted")
+                    deleteConfirmationText = ""
+                }
+            }
+        } message: {
+            Text("settings.delete_confirm_message".localized)
         }
         .onAppear {
             // Initialize current theme state from ThemeManager

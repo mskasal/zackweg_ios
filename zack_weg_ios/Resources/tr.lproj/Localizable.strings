@@ -240,6 +240,9 @@
 "settings.location" = "Konum";
 "settings.postal_code_empty" = "Posta kodu boş olamaz";
 "settings.invalid_email" = "Lütfen geçerli bir e-posta adresi girin";
+"settings.delete_account" = "Hesabı Sil";
+"settings.delete_confirm_placeholder" = "Onaylamak için 'Sil' yazın";
+"settings.delete_confirm_message" = "Bu işlem geri alınamaz. Onaylamak için 'Sil' yazın.";
 
 // MARK: - Errors
 "error.network" = "Ağ hatası oluştu";
