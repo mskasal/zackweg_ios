@@ -17,6 +17,7 @@ struct zack_weg_iosApp: App {
     @StateObject private var languageManager = LanguageManager.shared
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var categoryViewModel = CategoryViewModel.shared
+    @StateObject private var authViewModel = AuthViewModel.shared
     
     init() {
         // Configure services
@@ -108,6 +109,7 @@ struct zack_weg_iosApp: App {
                 .environmentObject(languageManager)
                 .environmentObject(themeManager)
                 .environmentObject(categoryViewModel)
+                .environmentObject(authViewModel)
                 .preferredColorScheme(themeManager.currentTheme.colorScheme)
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
                     // Clean up services when app terminates

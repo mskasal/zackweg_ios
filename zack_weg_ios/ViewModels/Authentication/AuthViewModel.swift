@@ -3,6 +3,8 @@ import SwiftUI
 
 @MainActor
 class AuthViewModel: ObservableObject {
+    static let shared = AuthViewModel()
+    
     @Published var isAuthenticated = false
     @Published var error: String?
     @Published var isLoading = false

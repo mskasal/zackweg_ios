@@ -11,10 +11,12 @@ struct PostDetailView: View {
     @State private var showingReportSheet = false
     @State private var showingDeleteConfirmation = false
     @State private var showingAlert = false
+    @State private var showingSignInSheet = false
     @State private var alert: Alert?
     @State private var currentPost: Post?
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var languageManager: LanguageManager
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     init(post: Post, fromUserPostsView: Bool = false) {
         self.initialPost = post
@@ -154,6 +156,17 @@ struct PostDetailView: View {
         .fullScreenCover(isPresented: $viewModel.showingImagePreview) {
             if let post = viewModel.loadedPost {
                 PostImagePreviewView(imageUrls: post.imageUrls)
+            }
+        }
+        .sheet(isPresented: $showingSignInSheet) {
+            NavigationStack {
+                SignInView(authViewModel: authViewModel)
+            }
+        }
+        .onChange(of: authViewModel.isAuthenticated) { newValue in
+            if newValue {
+                // User has authenticated, dismiss the sign-in sheet
+                showingSignInSheet = false
             }
         }
         .disabled(viewModel.isDeleting)
@@ -464,8 +477,12 @@ struct PostDetailView: View {
                                 .frame(height: 16)
                                 
                             Button(action: {
-                                showingMessageSheet = true
-                                viewModel.error = nil // Clear any previous error
+                                if authViewModel.isAuthenticated {
+                                    showingMessageSheet = true
+                                    viewModel.error = nil // Clear any previous error
+                                } else {
+                                    showingSignInSheet = true
+                                }
                             }) {
                                 HStack {
                                     Image(systemName: "message.fill")
@@ -481,7 +498,11 @@ struct PostDetailView: View {
                             }
                             
                             Button(action: {
-                                showingReportSheet = true
+                                if authViewModel.isAuthenticated {
+                                    showingReportSheet = true
+                                } else {
+                                    showingSignInSheet = true
+                                }
                             }) {
                                 HStack {
                                     Image(systemName: "exclamationmark.triangle")
@@ -516,7 +537,8 @@ struct PostDetailView: View {
 }
 
 #Preview {
-    NavigationStack {
+    // Create a sample post
+    let samplePost: Post = {
         let jsonString = """
         {
             "id": "1",
@@ -542,8 +564,13 @@ struct PostDetailView: View {
         let jsonData = jsonString.data(using: .utf8)!
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        let post = try! decoder.decode(Post.self, from: jsonData)
-        
-        return PostDetailView(post: post)
+        return try! decoder.decode(Post.self, from: jsonData)
+    }()
+    
+    return NavigationStack {
+        PostDetailView(post: samplePost)
+            .environmentObject(CategoryViewModel.shared)
+            .environmentObject(AuthViewModel.shared)
+            .environmentObject(LanguageManager.shared)
     }
 } 

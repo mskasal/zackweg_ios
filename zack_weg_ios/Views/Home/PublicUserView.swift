@@ -12,6 +12,7 @@ struct PublicUserView: View {
     let nickName: String
     @State private var showBlockUserView = false
     @EnvironmentObject private var languageManager: LanguageManager
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     // Compute the user profile URL with the appropriate language code
     private var userURL: URL {
@@ -50,17 +51,19 @@ struct PublicUserView: View {
                 
                 Spacer()
                 
-                // Block user button
-                Button(action: {
-                    showBlockUserView = true
-                }) {
-                    Text("profile.block_user".localized)
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.red.opacity(0.1))
-                        .cornerRadius(16)
+                // Block user button - only show if user is authenticated
+                if authViewModel.isAuthenticated {
+                    Button(action: {
+                        showBlockUserView = true
+                    }) {
+                        Text("profile.block_user".localized)
+                            .font(.subheadline)
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(16)
+                    }
                 }
             }
             .padding()
@@ -114,4 +117,6 @@ struct PublicUserView: View {
         userId: "447eca21-81eb-4188-8214-8cfd546d6db1",
         nickName: "John Doe"
     )
+    .environmentObject(AuthViewModel.shared)
+    .environmentObject(LanguageManager.shared)
 } 

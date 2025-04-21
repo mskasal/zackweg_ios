@@ -9,67 +9,70 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @StateObject private var authViewModel = AuthViewModel()
+    @StateObject private var authViewModel = AuthViewModel.shared
     @StateObject private var unreadMessagesViewModel = UnreadMessagesViewModel()
     @EnvironmentObject var themeManager: ThemeManager
     @State private var showDebugMenu = false
     @State private var isShowingSplash = true
+    @State private var refreshID = UUID() // Add a refresh ID to force view updates
     
     var body: some View {
         ZStack {
             // Main app content
             ZStack(alignment: .topTrailing) {
-                Group {
-                    if authViewModel.isAuthenticated {
-                        TabView(selection: $authViewModel.selectedTab) {
-                            NavigationStack {
-                                HomeView()
-                            }
-                            .tabItem {
-                                Label("tab.home".localized, systemImage: "house.fill")
-                            }
-                            .tag(0)
-                            NavigationStack {
-                                ExploreView()
-                            }
-                            .tabItem {
-                                Label("explore.title".localized, systemImage: "magnifyingglass")
-                            }
-                            .tag(1)
-                            
-                            NavigationStack {
-                                CreatePostView()
-                            }
-                            .tabItem {
-                                Label("posts.create".localized, systemImage: "plus.circle.fill")
-                            }
-                            .tag(2)
-                            
-                            NavigationStack {
-                                MessagesView()
-                            }
-                            .tabItem {
-                                Label("messages.title".localized, systemImage: "message.fill")
-                            }
-                            .badge(unreadMessagesViewModel.unreadCount)
-                            .tag(3)
-                            
-                            NavigationStack {
-                                ProfileView()
-                            }
-                            .tabItem {
-                                Label("profile.title".localized, systemImage: "person.fill")
-                            }
-                            .tag(4)
+                TabView(selection: $authViewModel.selectedTab) {
+                    NavigationStack {
+                        HomeView()
                             .environmentObject(authViewModel)
-                        }
-                        .environmentObject(unreadMessagesViewModel)
-                    } else {
+                    }
+                    .tabItem {
+                        Label("tab.home".localized, systemImage: "house.fill")
+                    }
+                    .tag(0)
+                    
+                    NavigationStack {
+                        ExploreView()
+                    }
+                    .tabItem {
+                        Label("explore.title".localized, systemImage: "magnifyingglass")
+                    }
+                    .tag(1)
+                    
+                    if authViewModel.isAuthenticated {
                         NavigationStack {
+                            CreatePostView()
+                        }
+                        .tabItem {
+                            Label("posts.create".localized, systemImage: "plus.circle.fill")
+                        }
+                        .tag(2)
+                        
+                        NavigationStack {
+                            MessagesView()
+                        }
+                        .tabItem {
+                            Label("messages.title".localized, systemImage: "message.fill")
+                        }
+                        .badge(unreadMessagesViewModel.unreadCount)
+                        .tag(3)
+                    }
+                    
+                    NavigationStack {
+                        if authViewModel.isAuthenticated {
+                            ProfileView()
+                        } else {
                             SignInView(authViewModel: authViewModel)
                         }
                     }
+                    .tabItem {
+                        Label(authViewModel.isAuthenticated ? "profile.title".localized : "auth.sign_in".localized, 
+                              systemImage: "person.fill")
+                    }
+                    .tag(4)
+                    .environmentObject(authViewModel)
                 }
+                .id(refreshID) // Force the TabView to rebuild when this changes
+                .environmentObject(unreadMessagesViewModel)
                 
                 // Debug button - only shown in DEBUG builds
                 #if DEBUG
@@ -105,6 +108,15 @@ struct ContentView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
             if authViewModel.isAuthenticated {
+                unreadMessagesViewModel.refreshUnreadCount()
+            }
+        }
+        .onChange(of: authViewModel.isAuthenticated) { newValue in
+            // Force TabView to refresh when authentication state changes
+            refreshID = UUID()
+            
+            // Also refresh unread messages count if authenticated
+            if newValue {
                 unreadMessagesViewModel.refreshUnreadCount()
             }
         }

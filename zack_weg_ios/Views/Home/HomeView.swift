@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var authViewModel: AuthViewModel
     
     var body: some View {
         ScrollView {
@@ -10,8 +11,10 @@ struct HomeView: View {
                 // Top banner section - redirects to explore
                 exploreSection
                 
-                // My Posts section
-                myPostsSection
+                // My Posts section - only show if authenticated
+                if authViewModel.isAuthenticated {
+                    myPostsSection
+                }
                 
                 // Near You section
                 nearbyPostsSection
@@ -206,5 +209,6 @@ struct PostCardCompact: View {
 #Preview {
     NavigationStack {
         HomeView()
+            .environmentObject(AuthViewModel.shared)
     }
 }
